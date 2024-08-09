@@ -1,0 +1,13 @@
+# macOSのメタデータファイル
+.DS_Store
+
+# Xcodeのビルド出力とキャッシュ
+DerivedData/
+build/
+
+# ユーザー固有の設定
+*.xcuserstate
+xcuserdata/
+
+# SwiftPMのビルドキャッシュ
+.swiftpm/
