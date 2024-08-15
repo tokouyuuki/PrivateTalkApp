@@ -21,6 +21,7 @@ struct TabBarView: View {
             TabView(selection: $currentTab) {
                 HomeView().tag(Tab.home)
                 TalkView().tag(Tab.talk)
+                NewsView().tag(Tab.news)
                 SettingView().tag(Tab.setting)
             }
             Divider()
@@ -39,6 +40,7 @@ struct CustomTabBar: View {
             HStack(spacing: 0) {
                 ForEach(Tab.allCases, id: \.hashValue) { tab in
                     Button {
+                        // 選択されたタブをデフォルトのタブに設定する
                         currentTab = tab
                     } label: {
                         VStack(spacing: 5) {
