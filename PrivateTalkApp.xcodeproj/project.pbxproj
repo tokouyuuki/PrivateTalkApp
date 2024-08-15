@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		222BDF962C6DE92200638D4A /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222BDF952C6DE92100638D4A /* NewsView.swift */; };
 		22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */; };
 		22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE62C667A34006AD6D8 /* TabBarView.swift */; };
 		22D1BDE92C667A36006AD6D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BDE82C667A36006AD6D8 /* Assets.xcassets */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		222BDF952C6DE92100638D4A /* NewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsView.swift; sourceTree = "<group>"; };
 		22D1BDE12C667A34006AD6D8 /* PrivateTalkApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrivateTalkApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppApp.swift; sourceTree = "<group>"; };
 		22D1BDE62C667A34006AD6D8 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
@@ -42,6 +44,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		222BDF932C6DE8FC00638D4A /* News */ = {
+			isa = PBXGroup;
+			children = (
+				222BDF942C6DE90A00638D4A /* View */,
+			);
+			path = News;
+			sourceTree = "<group>";
+		};
+		222BDF942C6DE90A00638D4A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				222BDF952C6DE92100638D4A /* NewsView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		22D1BDD82C667A34006AD6D8 = {
 			isa = PBXGroup;
 			children = (
@@ -65,6 +83,7 @@
 				22D1BDF22C667B81006AD6D8 /* MainTab */,
 				22D1BDF62C667CA7006AD6D8 /* Home */,
 				22D1BDFA2C667D43006AD6D8 /* Talk */,
+				222BDF932C6DE8FC00638D4A /* News */,
 				22D1BDFE2C667D6B006AD6D8 /* Setting */,
 				22D1BE022C667D94006AD6D8 /* Resources */,
 				22D1BDEA2C667A36006AD6D8 /* Preview Content */,
@@ -228,6 +247,7 @@
 				22D1BDF52C667BA3006AD6D8 /* Tab.swift in Sources */,
 				22D1BDF92C667D08006AD6D8 /* HomeView.swift in Sources */,
 				22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */,
+				222BDF962C6DE92200638D4A /* NewsView.swift in Sources */,
 				22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */,
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,
