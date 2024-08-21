@@ -7,6 +7,17 @@
 
 import SwiftUI
 
+// MARK: - Constants
+private struct Constants {
+    static let TAB_BAR_VIEW_SPACING = 0.0
+    static let ITEM_IN_TAB_SPACING = 5.0
+    static let IMAGE_IN_TAB_WIDTH = 25.0
+    static let IMAGE_IN_TAB_HEIGHT = 25.0
+    static let TAB_HEIGHT = 30.0
+    static let TAB_VERTICAL = 10.0
+}
+
+// MARK: - TabBarView
 struct TabBarView: View {
     
     init() {
@@ -17,7 +28,7 @@ struct TabBarView: View {
     @State var currentTab: Tab = .home
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: Constants.TAB_BAR_VIEW_SPACING) {
             TabView(selection: $currentTab) {
                 HomeView().tag(Tab.home)
                 TalkView().tag(Tab.talk)
@@ -30,24 +41,24 @@ struct TabBarView: View {
     }
 }
 
-/// カスタムタブバー
+// MARK: - CustomTabBar
 struct CustomTabBar: View {
     
     @Binding var currentTab: Tab
     
     var body: some View {
         GeometryReader { geometry in
-            HStack(spacing: 0) {
+            HStack(spacing: Constants.TAB_BAR_VIEW_SPACING) {
                 ForEach(Tab.allCases, id: \.hashValue) { tab in
                     Button {
                         // 選択されたタブをデフォルトのタブに設定する
                         currentTab = tab
                     } label: {
-                        VStack(spacing: 5) {
+                        VStack(spacing: Constants.ITEM_IN_TAB_SPACING) {
                             Image(systemName: tab.imageName())
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 25, height: 25)
+                                .frame(width: Constants.IMAGE_IN_TAB_WIDTH, height: Constants.IMAGE_IN_TAB_HEIGHT)
                                 .foregroundColor(currentTab == tab ? .iconBlack : .gray)
                             Text(tab.tabText())
                                 .font(.caption)
@@ -60,8 +71,8 @@ struct CustomTabBar: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .frame(height: 30.0)
-        .padding(.vertical, 10.0)
+        .frame(height: Constants.TAB_HEIGHT)
+        .padding(.vertical, Constants.TAB_VERTICAL)
     }
 }
 
