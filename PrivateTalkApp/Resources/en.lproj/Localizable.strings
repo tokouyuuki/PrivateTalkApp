@@ -6,5 +6,31 @@
   
 */
 
-// FSCalendar
-"calendar_format" = "MMMM YYYY";
+// Date format
+"year_month_date_format" = "MMMM YYYY";
+// TabBarView
+"home_tab_text" = "Home";
+"talk_tab_text" = "Talk";
+"news_tab_text" = "News";
+"setting_tab_text" = "Setting";
+// Calendar
+"today_button_text" = "Today";
+// レスポンスエラー文言
+"url_nil_error" = "he provided URL is invalid. Please check and try again.";
+"no_response" = "Unable to connect to the server. Please check your network connection and try again.";
+"response_error_400" = "Invalid request sent. Please check your input and try again.";
+"response_error_404" = "Page not found.";
+"response_error_500" = "There was a problem with the server. Please try again later.";
+"response_error_502" = "There was a problem with the server communication. Please try again later.";
+"response_error_503" = "The service is currently unavailable. Please try again later.";
+"response_error_504" = "The request timed out. Please check your network connection and try again.";
+// ネットワーク通信エラー文言
+"no_connected_to_internet_error" = "Internet connection cannot be confirmed. Please check your network settings and try again.";
+"timeout_error" = "Response from server is delayed. Please wait a moment and try again.";
+"cannot_find_host_error" = "The server to access could not be found. Please check the URL and try again.";
+"cannot_connect_to_host_error" = "Could not connect to the specified server. Please check your network status and try again.";
+"bad_url_error" = "The URL you are trying to access is invalid. Please check the URL.";
+"unsupported_url_error" = "The URL format you tried to access is not supported. Please use the correct URL.";
+"network_connection_lost_error" = "Network connection was lost during communication. Please check your connection status and try again.";
+
+"unexpected_error" = "An unexpected error has occurred.";

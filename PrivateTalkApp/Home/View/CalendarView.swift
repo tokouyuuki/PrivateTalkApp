@@ -11,10 +11,20 @@ import FSCalendar
 // MARK: - FSCalendarView
 struct CalendarView: UIViewRepresentable {
     
+    typealias UIViewType = FSCalendar
+    
+    // カレンダーのViewModel
+    let calendarViewModel: CalendarViewModel
+    
+    // 今日ボタンの有効／無効を制御
+    @Binding var todayButtonEnable: Bool
+    
+    // 親Viewにカレンダーの現在日付を渡すためのクロージャ
+    let onCurrentDateChanged: (Date) -> Void
+    
     private struct Constants {
         static let DEFAULT_LANGUAGE = "ja-JP"
-        static let HEADER_DATE_FORMAT_KEY = "calendar_format"
-        static let HEADER_TITLE_FONT_SIZE = 20.0
+        static let HEADER_HEIGHT = 0.0
         static let PREVIOUS_AND_NEXT_MONTH_ALPHA = 0.0
         static let WEEKDAY_FONT_SIZE = 20.0
         static let TITLE_FONT_SIZE = 16.0
@@ -25,48 +35,62 @@ struct CalendarView: UIViewRepresentable {
         return FSCalendarCoordinator(parent: self)
     }
     
-    func makeUIView(context: Context) -> some UIView {
+    func makeUIView(context: Context) -> FSCalendar {
         // 設定されている優先言語を取得
         let preferredLanguage = Locale.preferredLanguages.first ?? Constants.DEFAULT_LANGUAGE
-        // 設定されている言語に合わせてフォーマットを取得
-        let format = NSLocalizedString(Constants.HEADER_DATE_FORMAT_KEY, comment: String.empty)
         // カレンダーの設定
         let fsCalendar = FSCalendar()
             .setLocale(identifier: preferredLanguage)
-            .setHeaderDateFormat(format: format)
-            .setHeaderTitleFont(size: Constants.HEADER_TITLE_FONT_SIZE)
-            .setHeaderTitleColor(color: .label)
+            .setHeaderHeight(height: Constants.HEADER_HEIGHT)
             .setHeaderMinimumDissolvedAlpha(alpha: Constants.PREVIOUS_AND_NEXT_MONTH_ALPHA)
             .setWeekdayFont(size: Constants.WEEKDAY_FONT_SIZE)
-            .setCalendarWeekdayBackgroundColor(color: .calendarPrimary)
-            .setWeekdayTextColor(color: .iconBlack)
+            .setCalendarWeekdayBackgroundColor(color: .primaryBackground)
+            .setWeekdayTextColor(color: .foreground)
             .setTitleFont(size: Constants.TITLE_FONT_SIZE, weight: .bold)
-            .setTodayColor(color: .calendarPrimary)
+            .setTodayColor(color: .primaryBackground)
             .setSelectionColor(color: .clear)
-            .setBorderSelectionColor(color: .calendarSelectedBackground)
-            .setTitleSelectionColor(color: .iconBlack)
-            .setTitleDefaultColor(color: .iconBlack)
-            .setTitleWeekendColor(color: .calendarPrimary)
+            .setBorderSelectionColor(color: .primaryBackground)
+            .setTitleSelectionColor(color: .foreground)
+            .setTitleDefaultColor(color: .foreground)
+            .setTitleWeekendColor(color: .primaryBackground)
             .setBorderRadius(radius: Constants.TODAY_AND_SELECTED_BORDER_RADIUS)
         
         fsCalendar.delegate = context.coordinator
         fsCalendar.dataSource = context.coordinator
         
+        // コールバック呼び出し現在の年月を親Viewに渡す
+        self.onCurrentDateChanged(fsCalendar.currentPage)
+        
         return fsCalendar
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
-        
+        // カレンダーで表示している月とCalendarModelの月が異なるかどうか
+        if !self.calendarViewModel.isMatchedDate(dateToCompare: uiView.currentPage) {
+            if let displayDate = self.calendarViewModel.calendarModel?.displayDate {
+                // カレンダーの表示を今日の月にする
+                uiView.setCurrentPage(displayDate, animated: true)
+                self.todayButtonEnable = true
+            }
+        }
     }
 }
 
 // MARK: - Coordinator
-class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataSource {
+final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataSource {
     
-    var parent: CalendarView
+    private var parent: CalendarView
     
     init(parent: CalendarView) {
         self.parent = parent
+    }
+    
+    /// 年月を変更した際の処理
+    /// - parameter calendar: FSCalendar
+    @MainActor func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+        // コールバック呼び出し現在の年月を親Viewに渡す
+        self.parent.onCurrentDateChanged(calendar.currentPage)
+        self.parent.todayButtonEnable = false
     }
 }
 
@@ -81,27 +105,11 @@ extension FSCalendar {
         return self
     }
     
-    /// ヘッダー表示のフォーマットをセット
-    /// - parameter format: フォーマット
+    /// ヘッダーの高さをセット
+    /// - parameter height: ヘッダーの高さ（0.0で非表示）
     @discardableResult
-    func setHeaderDateFormat(format: String) -> Self {
-        self.appearance.headerDateFormat = format
-        return self
-    }
-    
-    /// ヘッダーテキストサイズをセット
-    /// - parameter size: テキストサイズ
-    @discardableResult
-    func setHeaderTitleFont(size: CGFloat) -> Self {
-        self.appearance.headerTitleFont = UIFont.systemFont(ofSize: size)
-        return self
-    }
-    
-    /// ヘッダーテキストカラーをセット
-    /// - parameter color: テキストカラー
-    @discardableResult
-    func setHeaderTitleColor(color: UIColor) -> Self {
-        self.appearance.headerTitleColor = color
+    func setHeaderHeight(height: CGFloat) -> Self {
+        self.headerHeight = height
         return self
     }
     
@@ -203,6 +211,6 @@ extension FSCalendar {
     }
 }
 
-#Preview {
-    CalendarView()
-}
+//#Preview {
+//    CalendarView()
+//}

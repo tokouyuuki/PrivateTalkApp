@@ -18,13 +18,13 @@ enum Tab: CaseIterable {
 // MARK: - Constants
 private struct Constants {
     static let HOME_VIEW_IMAGE_NAME = "house.fill"
-    static let HOME_VIEW_TAB_BAR_TEXT = "ホーム"
+    static let HOME_VIEW_TAB_BAR_TEXT_KEY = "home_tab_text"
     static let TALK_VIEW_IMAGE_NAME = "message.badge.filled.fill.rtl"
-    static let TALK_VIEW_TAB_BAR_TEXT = "トーク"
+    static let TALK_VIEW_TAB_BAR_TEXT_KEY = "talk_tab_text"
     static let NEWS_VIEW_IMAGE_NAME = "newspaper.fill"
-    static let NEWS_VIEW_TAB_BAR_TEXT = "ニュース"
+    static let NEWS_VIEW_TAB_BAR_TEXT_KEY = "news_tab_text"
     static let SETTIMG_VIEW_IMAGE_NAME = "gearshape.fill"
-    static let sSETTIMG_VIEW_TAB_BAR_TEXT = "設定"
+    static let sSETTIMG_VIEW_TAB_BAR_TEXT_KEY = "setting_tab_text"
 }
 
 // MARK: - extension
@@ -49,13 +49,13 @@ extension Tab {
     func tabText() -> String {
         switch self {
         case .home:
-            return Constants.HOME_VIEW_TAB_BAR_TEXT
+            return Constants.HOME_VIEW_TAB_BAR_TEXT_KEY
         case .talk:
-            return Constants.TALK_VIEW_TAB_BAR_TEXT
+            return Constants.TALK_VIEW_TAB_BAR_TEXT_KEY
         case .news:
-            return Constants.NEWS_VIEW_TAB_BAR_TEXT
+            return Constants.NEWS_VIEW_TAB_BAR_TEXT_KEY
         case .setting:
-            return Constants.sSETTIMG_VIEW_TAB_BAR_TEXT
+            return Constants.sSETTIMG_VIEW_TAB_BAR_TEXT_KEY
         }
     }
 }

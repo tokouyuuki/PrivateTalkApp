@@ -42,7 +42,7 @@ struct TabBarView: View {
 }
 
 // MARK: - CustomTabBar
-struct CustomTabBar: View {
+private struct CustomTabBar: View {
     
     @Binding var currentTab: Tab
     
@@ -58,9 +58,10 @@ struct CustomTabBar: View {
                             Image(systemName: tab.imageName())
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: Constants.IMAGE_IN_TAB_WIDTH, height: Constants.IMAGE_IN_TAB_HEIGHT)
-                                .foregroundColor(currentTab == tab ? .iconBlack : .gray)
-                            Text(tab.tabText())
+                                .frame(width: Constants.IMAGE_IN_TAB_WIDTH, 
+                                       height: Constants.IMAGE_IN_TAB_HEIGHT)
+                                .foregroundColor(currentTab == tab ? .foreground : .gray)
+                            Text(LocalizedStringKey(tab.tabText()))
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
