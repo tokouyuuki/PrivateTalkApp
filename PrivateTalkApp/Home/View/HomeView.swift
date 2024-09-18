@@ -47,9 +47,8 @@ struct HomeView: View {
         HStack(spacing: Constants.ELEMENTS_IN_THE_HEADER_SPACING) {
             // 年月テキスト
             Text(calendarViewModel.calendarModel?.displayYearMonthString ?? String.empty)
-                .font(.system(size: Constants.HEADER_TITLE_FONT_SIZE))
-                .fontWeight(.bold)
-                .foregroundColor(.foreground)
+                .font(.system(size: Constants.HEADER_TITLE_FONT_SIZE, weight: .bold))
+                .foregroundStyle(Color.foreground)
                 .frame(maxWidth: .infinity, alignment: .leading)
             // 今日ボタンと予定追加ボタン
             HStack(spacing: Constants.TODAY_BUTTON_AND_ADD_SCHEDULE_BUTTON_SPACING) {
@@ -78,7 +77,7 @@ private struct TodayButton: View {
         }) {
             Text(Constants.TODAY_BUTTON_TEXT_KEY)
                 .font(.system(size: Constants.HEADER_TITLE_FONT_SIZE))
-                .foregroundColor(.foreground)
+                .foregroundStyle(Color.foreground)
         }
         .disabled(todayButtonEnable)
     }
@@ -94,7 +93,7 @@ private struct AddScheduleButton: View {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .foregroundColor(.primaryBackground)
+                .foregroundStyle(Color.foreground)
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }

@@ -76,9 +76,9 @@
 		2224E1B42C75DB580099C855 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				22EDDC822C7DD2C700750F2A /* Utilities */,
+				223EC3922C9D06470028187C /* Utilities */,
 				2224E1B52C75DB810099C855 /* Extensions */,
-				22EDDC7F2C7D876600750F2A /* Singletons */,
+				22EDDC7F2C7D876600750F2A /* Data Sources */,
 				22EDDC842C7DD39F00750F2A /* Repositorys */,
 				22EDDC8D2C7DFBD500750F2A /* Services */,
 			);
@@ -115,6 +115,14 @@
 				2239097F2C6E3BF600B4DCFE /* LICENSE.txt */,
 			);
 			path = License;
+			sourceTree = "<group>";
+		};
+		223EC3922C9D06470028187C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		22D1BDD82C667A34006AD6D8 = {
@@ -255,20 +263,12 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		22EDDC7F2C7D876600750F2A /* Singletons */ = {
+		22EDDC7F2C7D876600750F2A /* Data Sources */ = {
 			isa = PBXGroup;
 			children = (
 				22EDDC802C7D942400750F2A /* NetworkService.swift */,
 			);
-			path = Singletons;
-			sourceTree = "<group>";
-		};
-		22EDDC822C7DD2C700750F2A /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */,
-			);
-			path = Utilities;
+			path = "Data Sources";
 			sourceTree = "<group>";
 		};
 		22EDDC832C7DD37900750F2A /* Model */ = {

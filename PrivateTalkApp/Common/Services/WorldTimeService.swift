@@ -7,18 +7,22 @@
 
 import Foundation
 
-final class WorldTimeService {
+struct WorldTimeService {
+    
+    private struct Constants {
+        static let UNNECESSARY_CHARACTER: Character = "."
+        static let BEFORE_REPLACEMENT_CHARACTER: String = "T"
+        static let AFTER_REPLACEMENT_CHARACTER: String = " "
+    }
     
     private let worldTimeRepository = WorldTimeRepository()
     
-    func fetchWorldTimeApi() async throws -> WorldTimeResponse {
+    /// 世界時刻で現在の時刻を取得
+    /// - returns: 現在時刻の文字列（UTC）
+    func fetchWorldTime() async throws -> String? {
         let worldTimeResponse = try await worldTimeRepository.fetchCurrentTime()
         // レスポンスのdatetimeを正しい文字列に変換
-        let correctDateString = trimDateString(dateString: worldTimeResponse.datetime)
-        // 正しい文字列でレスポンスを再生成
-        let newWorldTimeResponse = worldTimeResponse.updatedDatetimeProperty(newDatetime: correctDateString)
-        
-        return newWorldTimeResponse
+        return trimDateString(dateString: worldTimeResponse.datetime)
     }
     
     /// 不要な文字列を削除（例: 2024-09-30 15:00:00の形式にする）
@@ -28,11 +32,13 @@ final class WorldTimeService {
         guard let dateString = dateString else {
             return nil
         }
-        // "."以降の文字列を削除
-        if let dotIndex = dateString.firstIndex(of: ".") {
+        // "."のindexを取得
+        if let dotIndex = dateString.firstIndex(of: Constants.UNNECESSARY_CHARACTER) {
             // "T"を半角スペースに置換
-            let replacedDateString = dateString.replacingOccurrences(of: "T", with: " ")
+            let replacedDateString = dateString.replacingOccurrences(of: Constants.BEFORE_REPLACEMENT_CHARACTER, 
+                                                                     with: Constants.AFTER_REPLACEMENT_CHARACTER)
             
+            // "."以降の文字列を削除
             return String(replacedDateString.prefix(upTo: dotIndex))
         }
         

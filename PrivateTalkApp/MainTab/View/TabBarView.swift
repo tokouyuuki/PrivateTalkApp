@@ -55,15 +55,15 @@ private struct CustomTabBar: View {
                         currentTab = tab
                     } label: {
                         VStack(spacing: Constants.ITEM_IN_TAB_SPACING) {
-                            Image(systemName: tab.imageName())
+                            Image(systemName: tab.imageName)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: Constants.IMAGE_IN_TAB_WIDTH, 
                                        height: Constants.IMAGE_IN_TAB_HEIGHT)
-                                .foregroundColor(currentTab == tab ? .foreground : .gray)
-                            Text(LocalizedStringKey(tab.tabText()))
+                                .foregroundStyle(currentTab == tab ? Color.foreground : .gray)
+                            Text(tab.tabText)
                                 .font(.caption)
-                                .foregroundColor(.gray)
+                                .foregroundStyle(Color.foreground)
                         }
                         .frame(maxWidth: .infinity)
                     }

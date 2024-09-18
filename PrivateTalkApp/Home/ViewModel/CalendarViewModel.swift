@@ -36,9 +36,9 @@ final class CalendarViewModel: ObservableObject {
         Task {
             do {
                 // 現在の時刻をUTC文字列で取得
-                let response = try await self.worldTimeService.fetchWorldTimeApi()
+                let datetime = try await self.worldTimeService.fetchWorldTime()
                 // UTC文字列をUTCのDateに変換
-                let currentUtcDate = DateUtilities.convertStringToUtcDate(dateString: response.datetime,
+                let currentUtcDate = Date.convertStringToUtcDate(dateString: datetime,
                                                                           format: Constants.FULL_DATE_FORMAT)
                 // UTCのDateからローカルタイムゾーンの年月文字列をセットする
                 self.setDisplayDate(date: currentUtcDate)
@@ -54,9 +54,9 @@ final class CalendarViewModel: ObservableObject {
     /// - returns: 一致すればtrue / 一致しなければfalse
     func isMatchedDate(dateToCompare: Date) -> Bool {
         // 比較したいDate
-        let timestampToCompare = DateUtilities.convertDateToTimestamp(date: dateToCompare)
+        let timestampToCompare = Date.convertDateToTimestamp(date: dateToCompare)
         // CalendarModelに保存しているDate
-        let displayDateTimestamp = DateUtilities.convertDateToTimestamp(date: self.calendarModel?.displayDate)
+        let displayDateTimestamp = Date.convertDateToTimestamp(date: self.calendarModel?.displayDate)
         
         return displayDateTimestamp == timestampToCompare
     }

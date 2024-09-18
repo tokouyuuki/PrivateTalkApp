@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - 日付のフォーマットや変換、計算、比較などを提供するクラス
-final class DateUtilities {
+struct DateUtilities {
     
     /// Dateをタイムスタンプに変換
     /// また、UTCからタイムゾーンに補正も行う

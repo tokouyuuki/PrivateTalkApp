@@ -7,16 +7,17 @@
 
 import Foundation
 
-final class WorldTimeRepository {
+struct WorldTimeRepository {
     
     private struct Constants {
         static let WORLD_TIME_API_URL = "https://worldtimeapi.org/api/timezone/Etc/UTC"
     }
     
+    private let networkService = NetworkService()
+    
     func fetchCurrentTime() async throws -> WorldTimeResponse {
-        let response = try await NetworkService.shared.fetch(urlString: Constants.WORLD_TIME_API_URL,
-                                                             decodeTo: WorldTimeResponse.self)
         
-        return response
+        return try await networkService.fetch(urlString: Constants.WORLD_TIME_API_URL,
+                                                     decodeTo: WorldTimeResponse.self)
     }
 }

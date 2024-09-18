@@ -7,9 +7,8 @@
 
 import Foundation
 
-final class NetworkService {
-    
-    static let shared = NetworkService()
+// MARK: - ネットワーク通信
+struct NetworkService {
     
     func fetch<T: Decodable>(urlString: String, decodeTo type: T.Type) async throws -> T {
         guard let url = URL(string: urlString) else {
@@ -44,6 +43,7 @@ final class NetworkService {
     }
 }
 
+// MARK: - ネットワーク通信エラーのenum
 enum NetworkError: LocalizedError {
     case badUrlError
     case noResponse

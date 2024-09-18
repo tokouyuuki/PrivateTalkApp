@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // MARK: - enum
 enum Tab: CaseIterable {
@@ -31,7 +32,7 @@ private struct Constants {
 extension Tab {
     /// タブバーに表示するイメージ名を返すメソッド
     /// - returns: イメージ名
-    func imageName() -> String {
+    var imageName: String {
         switch self {
         case .home:
             return Constants.HOME_VIEW_IMAGE_NAME
@@ -46,16 +47,16 @@ extension Tab {
     
     /// タブバーに表示するタブのテキストを返すメソッド
     /// - returns: タブ名
-    func tabText() -> String {
+    var tabText: LocalizedStringKey {
         switch self {
         case .home:
-            return Constants.HOME_VIEW_TAB_BAR_TEXT_KEY
+            return LocalizedStringKey(Constants.HOME_VIEW_TAB_BAR_TEXT_KEY)
         case .talk:
-            return Constants.TALK_VIEW_TAB_BAR_TEXT_KEY
+            return LocalizedStringKey(Constants.TALK_VIEW_TAB_BAR_TEXT_KEY)
         case .news:
-            return Constants.NEWS_VIEW_TAB_BAR_TEXT_KEY
+            return LocalizedStringKey(Constants.NEWS_VIEW_TAB_BAR_TEXT_KEY)
         case .setting:
-            return Constants.sSETTIMG_VIEW_TAB_BAR_TEXT_KEY
+            return LocalizedStringKey(Constants.sSETTIMG_VIEW_TAB_BAR_TEXT_KEY)
         }
     }
 }

@@ -22,7 +22,7 @@ struct CalendarModel {
     
     // カレンダーに表示する年月文字列
     var displayYearMonthString: String {
-        let yearMonthString = DateUtilities.convertDateToString(date: self.displayDate,
+        let yearMonthString = Date.convertDateToString(date: self.displayDate,
                                                                 format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         
         return yearMonthString ?? String.empty
