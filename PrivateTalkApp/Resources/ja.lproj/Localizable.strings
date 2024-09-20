@@ -6,5 +6,30 @@
   
 */
 
-// FSCalendar
-"calendar_format" = "yyyy年M月";
+// Date format
+"year_month_date_format" = "yyyy年M月";
+// TabBarView
+"home_tab_text" = "ホーム";
+"talk_tab_text" = "トーク";
+"news_tab_text" = "ニュース";
+"setting_tab_text" = "設定";
+// Calendar
+"today_button_text" = "今日";
+// レスポンスエラー文言
+"no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
+"response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";
+"response_error_404" = "ページが見つかりません。";
+"response_error_500" = "サーバーで問題が発生しました。しばらくしてからもう一度お試しください。";
+"response_error_502" = "サーバー間の通信に問題があります。しばらくしてからもう一度お試しください。";
+"response_error_503" = "現在サービスを利用できません。しばらくしてからもう一度お試しください。";
+"response_error_504" = "リクエストがタイムアウトしました。ネットワーク接続を確認して、もう一度お試しください。";
+// ネットワーク通信エラー文言
+"bad_url_error" = "アクセスしようとしているURLが無効です。URLを確認してください。";
+"no_connected_to_internet_error" = "インターネット接続が確認できません。ネットワーク設定を確認し、再度お試しください。";
+"timeout_error" = "サーバーからの応答が遅れています。しばらく待ってから、もう一度お試しください。";
+"cannot_find_host_error" = "アクセス先のサーバーが見つかりませんでした。URLを確認し、再度お試しください。";
+"cannot_connect_to_host_error" = "指定されたサーバーに接続できませんでした。ネットワーク状況を確認し、再度お試しください。";
+"unsupported_url_error" = "アクセスしようとしたURL形式がサポートされていません。正しいURLを使用してください。";
+"network_connection_lost_error" = "通信中にネットワーク接続が失われました。接続状況を確認し、もう一度お試しください。";
+
+"unexpected_error" = "予期せぬエラーが発生しました。";

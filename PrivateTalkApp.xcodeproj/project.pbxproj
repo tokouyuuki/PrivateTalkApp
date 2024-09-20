@@ -11,6 +11,7 @@
 		222BDF962C6DE92200638D4A /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222BDF952C6DE92100638D4A /* NewsView.swift */; };
 		223909802C6E3BF600B4DCFE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2239097F2C6E3BF600B4DCFE /* LICENSE.txt */; };
 		226D18ED2C7351D80066495A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 226D18EB2C7351D80066495A /* Localizable.strings */; };
+		22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B817832C7F5A200085D27B /* CalendarModel.swift */; };
 		22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */; };
 		22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE62C667A34006AD6D8 /* TabBarView.swift */; };
 		22D1BDE92C667A36006AD6D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BDE82C667A36006AD6D8 /* Assets.xcassets */; };
@@ -20,8 +21,13 @@
 		22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDFC2C667D5B006AD6D8 /* TalkView.swift */; };
 		22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BE002C667D80006AD6D8 /* SettingView.swift */; };
 		22D1BE042C667DFF006AD6D8 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BE032C667DFF006AD6D8 /* Colors.xcassets */; };
-		22E19FEE2C6F44D600C4051F /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22E19FED2C6F44D600C4051F /* Entitlements.plist */; };
 		22E19FF02C6F517700C4051F /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E19FEF2C6F517700C4051F /* CalendarView.swift */; };
+		22EBB41B2C76DC8500AB7019 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EBB41A2C76DC8500AB7019 /* CalendarViewModel.swift */; };
+		22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */; };
+		22EDDC812C7D942400750F2A /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC802C7D942400750F2A /* NetworkService.swift */; };
+		22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC852C7DD6C400750F2A /* WorldTimeRepository.swift */; };
+		22EDDC882C7DEE3800750F2A /* WorldTimeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC872C7DEE3800750F2A /* WorldTimeResponse.swift */; };
+		22EDDC8F2C7DFDE300750F2A /* WorldTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */; };
 		8EF16EB3B4B8B382C18D95F4 /* Pods_PrivateTalkApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFCA3F4449B6E8A53D87804 /* Pods_PrivateTalkApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +37,7 @@
 		2239097F2C6E3BF600B4DCFE /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		226D18EC2C7351D80066495A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		226D18EE2C7351DE0066495A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		22B817832C7F5A200085D27B /* CalendarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModel.swift; sourceTree = "<group>"; };
 		22D1BDE12C667A34006AD6D8 /* PrivateTalkApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrivateTalkApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppApp.swift; sourceTree = "<group>"; };
 		22D1BDE62C667A34006AD6D8 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
@@ -43,6 +50,12 @@
 		22D1BE032C667DFF006AD6D8 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		22E19FED2C6F44D600C4051F /* Entitlements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		22E19FEF2C6F517700C4051F /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		22EBB41A2C76DC8500AB7019 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtilities.swift; sourceTree = "<group>"; };
+		22EDDC802C7D942400750F2A /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		22EDDC852C7DD6C400750F2A /* WorldTimeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeRepository.swift; sourceTree = "<group>"; };
+		22EDDC872C7DEE3800750F2A /* WorldTimeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeResponse.swift; sourceTree = "<group>"; };
+		22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeService.swift; sourceTree = "<group>"; };
 		68DA4C6266FB7A8600959865 /* Pods-PrivateTalkApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrivateTalkApp.debug.xcconfig"; path = "Target Support Files/Pods-PrivateTalkApp/Pods-PrivateTalkApp.debug.xcconfig"; sourceTree = "<group>"; };
 		760FEC05D04C75F691B1D513 /* Pods-PrivateTalkApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrivateTalkApp.release.xcconfig"; path = "Target Support Files/Pods-PrivateTalkApp/Pods-PrivateTalkApp.release.xcconfig"; sourceTree = "<group>"; };
 		9AFCA3F4449B6E8A53D87804 /* Pods_PrivateTalkApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PrivateTalkApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,12 +73,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2224E1B42C75DB580099C855 /* Utilities */ = {
+		2224E1B42C75DB580099C855 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				223EC3922C9D06470028187C /* Utilities */,
 				2224E1B52C75DB810099C855 /* Extensions */,
+				22EDDC7F2C7D876600750F2A /* Data Sources */,
+				22EDDC842C7DD39F00750F2A /* Repositorys */,
+				22EDDC8D2C7DFBD500750F2A /* Services */,
 			);
-			path = Utilities;
+			path = Common;
 			sourceTree = "<group>";
 		};
 		2224E1B52C75DB810099C855 /* Extensions */ = {
@@ -100,6 +117,14 @@
 			path = License;
 			sourceTree = "<group>";
 		};
+		223EC3922C9D06470028187C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		22D1BDD82C667A34006AD6D8 = {
 			isa = PBXGroup;
 			children = (
@@ -131,7 +156,7 @@
 				22D1BDFE2C667D6B006AD6D8 /* Setting */,
 				22D1BE022C667D94006AD6D8 /* Resources */,
 				22D1BDEA2C667A36006AD6D8 /* Preview Content */,
-				2224E1B42C75DB580099C855 /* Utilities */,
+				2224E1B42C75DB580099C855 /* Common */,
 			);
 			path = PrivateTalkApp;
 			sourceTree = "<group>";
@@ -164,6 +189,8 @@
 		22D1BDF62C667CA7006AD6D8 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				22EDDC832C7DD37900750F2A /* Model */,
+				22EBB4192C76DC5500AB7019 /* ViewModel */,
 				22D1BDF72C667CB4006AD6D8 /* View */,
 			);
 			path = Home;
@@ -226,6 +253,55 @@
 				22E19FED2C6F44D600C4051F /* Entitlements.plist */,
 			);
 			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		22EBB4192C76DC5500AB7019 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				22EBB41A2C76DC8500AB7019 /* CalendarViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		22EDDC7F2C7D876600750F2A /* Data Sources */ = {
+			isa = PBXGroup;
+			children = (
+				22EDDC802C7D942400750F2A /* NetworkService.swift */,
+			);
+			path = "Data Sources";
+			sourceTree = "<group>";
+		};
+		22EDDC832C7DD37900750F2A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				22B817832C7F5A200085D27B /* CalendarModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		22EDDC842C7DD39F00750F2A /* Repositorys */ = {
+			isa = PBXGroup;
+			children = (
+				22EDDC852C7DD6C400750F2A /* WorldTimeRepository.swift */,
+				22EDDC892C7DF53E00750F2A /* ResponseBodys */,
+			);
+			path = Repositorys;
+			sourceTree = "<group>";
+		};
+		22EDDC892C7DF53E00750F2A /* ResponseBodys */ = {
+			isa = PBXGroup;
+			children = (
+				22EDDC872C7DEE3800750F2A /* WorldTimeResponse.swift */,
+			);
+			path = ResponseBodys;
+			sourceTree = "<group>";
+		};
+		22EDDC8D2C7DFBD500750F2A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		94783472EB47F1D3F80B0830 /* Pods */ = {
@@ -310,7 +386,6 @@
 				226D18ED2C7351D80066495A /* Localizable.strings in Resources */,
 				22D1BE042C667DFF006AD6D8 /* Colors.xcassets in Resources */,
 				22D1BDEC2C667A36006AD6D8 /* Preview Assets.xcassets in Resources */,
-				22E19FEE2C6F44D600C4051F /* Entitlements.plist in Resources */,
 				22D1BDE92C667A36006AD6D8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,14 +441,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22EDDC812C7D942400750F2A /* NetworkService.swift in Sources */,
 				22D1BDF52C667BA3006AD6D8 /* Tab.swift in Sources */,
+				22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */,
 				22D1BDF92C667D08006AD6D8 /* HomeView.swift in Sources */,
+				22EDDC8F2C7DFDE300750F2A /* WorldTimeService.swift in Sources */,
+				22EDDC882C7DEE3800750F2A /* WorldTimeResponse.swift in Sources */,
 				22E19FF02C6F517700C4051F /* CalendarView.swift in Sources */,
 				22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */,
+				22EBB41B2C76DC8500AB7019 /* CalendarViewModel.swift in Sources */,
+				22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */,
 				222BDF962C6DE92200638D4A /* NewsView.swift in Sources */,
 				2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */,
 				22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */,
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
+				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -398,6 +480,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -461,6 +544,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
