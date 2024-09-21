@@ -45,6 +45,10 @@ final class CalendarViewModel: ObservableObject {
             } catch {
                 // UTCかつ端末に依存する今日の日付をセットする
                 self.setDisplayDate(date: Date())
+                guard let networkError = error as? NetworkError else {
+                    return
+                }
+                Logger().log(networkError.errorDescription, level: .error)
             }
         }
     }
