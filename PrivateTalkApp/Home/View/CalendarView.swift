@@ -87,7 +87,7 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     
     /// 年月を変更した際の処理
     /// - parameter calendar: FSCalendar
-    @MainActor func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         // コールバック呼び出し現在の年月を親Viewに渡す
         self.parent.onCurrentDateChanged(calendar.currentPage)
         self.parent.todayButtonEnable = false
