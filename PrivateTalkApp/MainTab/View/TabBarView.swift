@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - Constants
 private struct Constants {
-    static let TAB_BAR_VIEW_SPACING = 15.0
+    static let TAB_BAR_VIEW_SPACING = 8.0
     static let ITEM_IN_TAB_SPACING = 5.0
     static let IMAGE_IN_TAB_WIDTH = 25.0
     static let IMAGE_IN_TAB_HEIGHT = 25.0
@@ -69,8 +69,6 @@ private struct CustomTabBar: View {
                 .disabled(currentTab == tab)
             }
         }
-        .frame(height: Constants.TAB_HEIGHT)
-        .padding(.bottom, Constants.TAB_BOTTOM)
     }
 }
 
