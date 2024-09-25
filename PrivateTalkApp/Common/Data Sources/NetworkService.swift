@@ -51,7 +51,7 @@ enum NetworkError: LocalizedError {
     case urlError(URLError.Code)
     case decodingError(DecodingError)
     
-    var errorDescription: String? {
+    var errorDescription: String {
         switch self {
         case .badUrlError:
             return NSLocalizedString("bad_url_error", comment: String.empty)
