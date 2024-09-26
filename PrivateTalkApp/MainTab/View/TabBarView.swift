@@ -59,10 +59,10 @@ private struct CustomTabBar: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: Constants.IMAGE_IN_TAB_WIDTH,
                                    height: Constants.IMAGE_IN_TAB_HEIGHT)
-                            .foregroundStyle(currentTab == tab ? Color.foreground : .gray)
+                            .foregroundStyle(currentTab == tab ? Color.primary : .gray)
                         Text(tab.tabText)
                             .font(.caption)
-                            .foregroundStyle(Color.foreground)
+                            .foregroundStyle(Color.primary)
                     }
                     .frame(maxWidth: .infinity)
                 }
