@@ -57,7 +57,7 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddScheduleButton()
+                AddEventButton()
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -84,11 +84,13 @@ private struct TodayButton: View {
 }
 
 // MARK: - 予定を追加するボタン
-private struct AddScheduleButton: View {
+private struct AddEventButton: View {
+    // モーダルシート画面の表示を管理する変数
+    @State var showSheet: Bool = false
     
     var body: some View {
         Button(action: {
-            // TODO: ロジックを実装完了次第追加
+            showSheet.toggle()
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -96,6 +98,9 @@ private struct AddScheduleButton: View {
                 .foregroundStyle(Color.primary)
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
+        }
+        .sheet(isPresented: $showSheet) {
+            EventSheetView()
         }
     }
 }
