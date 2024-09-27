@@ -12,6 +12,7 @@
 		223909802C6E3BF600B4DCFE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2239097F2C6E3BF600B4DCFE /* LICENSE.txt */; };
 		2251FD762C9E8A6B0005714E /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2251FD752C9E8A6B0005714E /* Logger.swift */; };
 		226D18ED2C7351D80066495A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 226D18EB2C7351D80066495A /* Localizable.strings */; };
+		22B1DCA22C9FEEC100E1019F /* EventSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B1DCA12C9FEEC100E1019F /* EventSheetView.swift */; };
 		22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B817832C7F5A200085D27B /* CalendarModel.swift */; };
 		22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */; };
 		22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE62C667A34006AD6D8 /* TabBarView.swift */; };
@@ -39,6 +40,7 @@
 		2251FD752C9E8A6B0005714E /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		226D18EC2C7351D80066495A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		226D18EE2C7351DE0066495A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		22B1DCA12C9FEEC100E1019F /* EventSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSheetView.swift; sourceTree = "<group>"; };
 		22B817832C7F5A200085D27B /* CalendarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModel.swift; sourceTree = "<group>"; };
 		22D1BDE12C667A34006AD6D8 /* PrivateTalkApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrivateTalkApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppApp.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 			children = (
 				22D1BDF82C667D08006AD6D8 /* HomeView.swift */,
 				22E19FEF2C6F517700C4051F /* CalendarView.swift */,
+				22B1DCA12C9FEEC100E1019F /* EventSheetView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -461,6 +464,7 @@
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
 				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,
+				22B1DCA22C9FEEC100E1019F /* EventSheetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
