@@ -205,11 +205,12 @@ private struct TextFieldView: View {
                     .focused($isWideTextFieldFocused) // trueならキーボード表示
             }
         } else {
-            TextField(placeholder, text: $text)
-                .textInputAutocapitalization(autocapitalization)
-                .onTapGesture {
+            TextField(placeholder, text: $text, onEditingChanged: { editing in
+                if editing {
                     isKeyboardActive = true
                 }
+            })
+                .textInputAutocapitalization(autocapitalization)
         }
     }
 }
