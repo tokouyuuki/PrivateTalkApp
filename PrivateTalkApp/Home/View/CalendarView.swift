@@ -8,19 +8,18 @@
 import SwiftUI
 import FSCalendar
 
+// MARK: - クロージャの更新先を決めるenum
+enum EventAction {
+    // 表示する年月の更新
+    case updateDisplayDate(Date)
+    // 選択日の更新
+    case updateSelectedDate(Date)
+}
+
 // MARK: - FSCalendarView
 struct CalendarView: UIViewRepresentable {
     
     typealias UIViewType = FSCalendar
-    
-    // カレンダーのViewModel
-    let calendarViewModel: CalendarViewModel
-    
-    // 今日ボタンの有効／無効を制御
-    @Binding var todayButtonEnable: Bool
-    
-    // 親Viewにカレンダーの現在日付を渡すためのクロージャ
-    let onCurrentDateChanged: (Date) -> Void
     
     private struct Constants {
         static let DEFAULT_LANGUAGE = "ja-JP"
@@ -30,6 +29,15 @@ struct CalendarView: UIViewRepresentable {
         static let TITLE_FONT_SIZE = 16.0
         static let TODAY_AND_SELECTED_BORDER_RADIUS = 1.0
     }
+    
+    // カレンダーのViewModel
+    let calendarViewModel: CalendarViewModel
+    
+    // 今日ボタンの有効／無効を制御
+    @Binding var todayButtonEnable: Bool
+    
+    // 親Viewにカレンダーの現在日付を渡すためのクロージャ
+    let onCurrentDateChanged: (EventAction) -> Void
     
     func makeCoordinator() -> FSCalendarCoordinator {
         return FSCalendarCoordinator(parent: self)
@@ -58,8 +66,9 @@ struct CalendarView: UIViewRepresentable {
         fsCalendar.delegate = context.coordinator
         fsCalendar.dataSource = context.coordinator
         
-        // コールバック呼び出し現在の年月を親Viewに渡す
-        self.onCurrentDateChanged(fsCalendar.currentPage)
+        // 月初と今日の日付を親Viewに渡す
+        self.onCurrentDateChanged(.updateDisplayDate(fsCalendar.currentPage))
+        self.onCurrentDateChanged(.updateSelectedDate(fsCalendar.today ?? Date()))
         
         return fsCalendar
     }
@@ -68,8 +77,9 @@ struct CalendarView: UIViewRepresentable {
         // カレンダーで表示している月とCalendarModelの月が異なるかどうか
         if !self.calendarViewModel.isMatchedDate(dateToCompare: uiView.currentPage) {
             if let displayDate = self.calendarViewModel.calendarModel?.displayDate {
-                // カレンダーの表示を今日の月にする
-                uiView.setCurrentPage(displayDate, animated: true)
+                // カレンダーの表示を今月にし、選択日を今日にする
+                uiView.select(displayDate, scrollToDate: true)
+                self.onCurrentDateChanged(.updateSelectedDate(displayDate))
                 self.todayButtonEnable = true
             }
         }
@@ -88,9 +98,15 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     /// 年月を変更した際の処理
     /// - parameter calendar: FSCalendar
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-        // コールバック呼び出し現在の年月を親Viewに渡す
-        self.parent.onCurrentDateChanged(calendar.currentPage)
+        // 月初の日付を親Viewに渡す
+        self.parent.onCurrentDateChanged(.updateDisplayDate(calendar.currentPage))
         self.parent.todayButtonEnable = false
+    }
+    
+    // 日付を選択した際の処理
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        // 選択された日付を親Viewに渡す
+        self.parent.onCurrentDateChanged(.updateSelectedDate(date))
     }
 }
 
