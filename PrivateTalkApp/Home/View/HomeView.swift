@@ -35,15 +35,15 @@ struct HomeView: View {
             headerView
             // カレンダー
             CalendarView(calendarViewModel: calendarViewModel,
-                         todayButtonEnable: $todayButtonEnable) { date in
-                self.calendarViewModel.setDisplayDate(date: date)
+                         todayButtonEnable: $todayButtonEnable) { eventAction in
+                updateViewModelDate(eventAction)
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
     }
     
     // ヘッダー部分
-    var headerView: some View {
+    private var headerView: some View {
         HStack(spacing: Constants.ELEMENTS_IN_THE_HEADER_SPACING) {
             // 年月テキスト
             Text(calendarViewModel.calendarModel?.displayYearMonthString ?? String.empty)
@@ -57,11 +57,22 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddEventButton()
+                AddEventButton(calendarViewModel: self.calendarViewModel)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(.horizontal, Constants.HEADER_HORIZONTAL)
+    }
+    
+    /// ViewModelの更新をする
+    /// - parameter eventAction: 更新するViewModelの値を決めるenum
+    private func updateViewModelDate(_ eventAction: EventAction) {
+        switch eventAction {
+        case .updateDisplayDate(let date):
+            self.calendarViewModel.setDisplayDate(date)
+        case .updateSelectedDate(let date):
+            self.calendarViewModel.setSelectedDate(date)
+        }
     }
 }
 
@@ -85,6 +96,8 @@ private struct TodayButton: View {
 
 // MARK: - 予定を追加するボタン
 private struct AddEventButton: View {
+    // カレンダーのViewModel
+    let calendarViewModel: CalendarViewModel
     // モーダルシート画面の表示を管理する変数
     @State var showSheet: Bool = false
     
@@ -100,7 +113,8 @@ private struct AddEventButton: View {
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
         .sheet(isPresented: $showSheet) {
-            EventSheetView()
+            EventSheetView(selectedStartDate: calendarViewModel.selectedDate,
+                           selectedEndDate: calendarViewModel.selectedEndDate)
         }
     }
 }

@@ -28,6 +28,10 @@ private struct Constants {
 
 // MARK: - 予定追加シート（モーダル）
 struct EventSheetView: View {
+    // 選択している日付（開始日）
+    let selectedStartDate: Date
+    // 選択している日付（終了日）
+    let selectedEndDate: Date
     // 終日設定かどうか（トグルをONにすれば、true）
     @State var isAllDay = false
     // タイトル
@@ -46,10 +50,9 @@ struct EventSheetView: View {
     @State var isKeyboardActive = false
     // シート内の予定の編集が行われたかどうか
     private var isEditedEvent: Bool {
-        // TODO: startDateとendDateの条件はViewModelを実装終わり次第修正する
         return isAllDay
-        || startDate != nil
-        || endDate != nil
+        || (startDate != selectedStartDate && startDate != nil)
+        || (endDate != selectedEndDate && endDate != nil)
         || !titleText.isEmpty
         || !placeText.isEmpty
         || !urlText.isEmpty
@@ -68,11 +71,15 @@ struct EventSheetView: View {
                 // 日付設定欄
                 Section {
                     Toggle(Constants.ALL_DAY_LABEL_TEXT_KEY, isOn: $isAllDay)
-                    DateSettingView(isAllDay: $isAllDay, label: Constants.START_LABEL_TEXT_KEY,
+                    DateSettingView(date: selectedStartDate,
+                                    isAllDay: $isAllDay,
+                                    label: Constants.START_LABEL_TEXT_KEY,
                                     onChanged: { newValue in
                         self.startDate = newValue
                     })
-                    DateSettingView(isAllDay: $isAllDay, label: Constants.END_LABEL_TEXT_KEY,
+                    DateSettingView(date: selectedEndDate,
+                                    isAllDay: $isAllDay,
+                                    label: Constants.END_LABEL_TEXT_KEY,
                                     onChanged: { newValue in
                         self.endDate = newValue
                     })
@@ -218,8 +225,7 @@ private struct TextFieldView: View {
 // MARK: - 日付設定 View
 private struct DateSettingView: View {
     // 日付
-    // TODO: 選択した日付をデフォ値とするため、ViewModelの実装が終わり次第修正する
-    @State private var date = Date()
+    @State var date: Date
     // 終日設定かどうか
     @Binding var isAllDay: Bool
     // Listの項目名
@@ -240,5 +246,5 @@ private struct DateSettingView: View {
 }
 
 #Preview {
-    EventSheetView()
+    EventSheetView(selectedStartDate: Date(), selectedEndDate: Date())
 }
