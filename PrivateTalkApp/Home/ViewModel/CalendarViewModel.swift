@@ -13,6 +13,7 @@ final class CalendarViewModel: ObservableObject {
     
     private struct Constants {
         static let FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
+        static let YEAR_MONTH_DATE_FORMAT_KEY = "year_month_date_format"
     }
     
     // カレンダーのModel
@@ -53,15 +54,13 @@ final class CalendarViewModel: ObservableObject {
         }
     }
     
-    /// 日付がCalendarModelと一致しているかどうか
+    /// 年月がCalendarModelと一致しているかどうか
     /// - parameter dateToCompare: 比較したいDate
     /// - returns: 一致すればtrue / 一致しなければfalse
     func isMatchedDate(dateToCompare: Date) -> Bool {
-        // 比較したいDate
-        let timestampToCompare = DateUtilities.convertDateToTimestamp(date: dateToCompare)
-        // CalendarModelに保存しているDate
-        let displayDateTimestamp = DateUtilities.convertDateToTimestamp(date: self.calendarModel?.displayDate)
+        // 比較したい年月
+        let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare, format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         
-        return displayDateTimestamp == timestampToCompare
+        return dateToCompareString == self.calendarModel?.displayYearMonthString
     }
 }

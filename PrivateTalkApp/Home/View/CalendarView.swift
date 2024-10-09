@@ -90,7 +90,17 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         // コールバック呼び出し現在の年月を親Viewに渡す
         self.parent.onCurrentDateChanged(calendar.currentPage)
-        self.parent.todayButtonEnable = false
+        Task { @MainActor in
+            if let today = calendar.today {
+                if self.parent.calendarViewModel.isMatchedDate(dateToCompare: today) {
+                    // カレンダーが今日の月だったら、今日ボタンを押せなくする
+                    self.parent.todayButtonEnable = true
+                } else {
+                    // カレンダーが今日の月でなければ、今日ボタンを押せるようにする
+                    self.parent.todayButtonEnable = false
+                }
+            }
+        }
     }
 }
 
