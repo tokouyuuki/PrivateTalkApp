@@ -34,9 +34,10 @@ final class CalendarViewModel: ObservableObject {
         return newDate ?? self.selectedDate
     }
     
+    // MARK: - Privateメソッド
     /// 年月文字列をセット
     /// - parameter date: セットしたいDate
-    func setDisplayDate(_ date: Date?) {
+    private func setDisplayDate(_ date: Date?) {
         Task { [weak self] in
             guard let self = self else {
                 return
@@ -47,7 +48,7 @@ final class CalendarViewModel: ObservableObject {
     
     /// カレンダーで選択した日付をセット
     /// - parameter date: 選択したDate
-    func setSelectedDate(_ date: Date) {
+    private func setSelectedDate(_ date: Date) {
         let calendar = Calendar.current
         // 現在の時間を抽出
         guard let currentHourComponent = calendar.dateComponents([.hour], from: Date()).hour else {
@@ -62,6 +63,7 @@ final class CalendarViewModel: ObservableObject {
         self.selectedDate = newDate ?? Date()
     }
     
+    // MARK: - Publicメソッド
     /// 今日ボタンを押下された際の処理
     func tapTodayButton() {
         Task {
@@ -92,5 +94,16 @@ final class CalendarViewModel: ObservableObject {
         let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare, format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         
         return dateToCompareString == self.calendarModel?.displayYearMonthString
+    }
+    
+    /// 日付の更新をする
+    /// - parameter eventAction: 更新する値を決めるenum
+    func updateDate(_ eventAction: EventAction) {
+        switch eventAction {
+        case .updateDisplayDate(let date):
+            self.setDisplayDate(date)
+        case .updateSelectedDate(let date):
+            self.setSelectedDate(date)
+        }
     }
 }

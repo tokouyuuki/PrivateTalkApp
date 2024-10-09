@@ -36,7 +36,7 @@ struct HomeView: View {
             // カレンダー
             CalendarView(calendarViewModel: calendarViewModel,
                          todayButtonEnable: $todayButtonEnable) { eventAction in
-                updateViewModelDate(eventAction)
+                calendarViewModel.updateDate(eventAction)
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
@@ -57,22 +57,12 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddEventButton(calendarViewModel: self.calendarViewModel)
+                AddEventButton(selectedDate: self.calendarViewModel.selectedDate,
+                               selectedEndDate: self.calendarViewModel.selectedEndDate)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(.horizontal, Constants.HEADER_HORIZONTAL)
-    }
-    
-    /// ViewModelの更新をする
-    /// - parameter eventAction: 更新するViewModelの値を決めるenum
-    private func updateViewModelDate(_ eventAction: EventAction) {
-        switch eventAction {
-        case .updateDisplayDate(let date):
-            self.calendarViewModel.setDisplayDate(date)
-        case .updateSelectedDate(let date):
-            self.calendarViewModel.setSelectedDate(date)
-        }
     }
 }
 
@@ -96,8 +86,10 @@ private struct TodayButton: View {
 
 // MARK: - 予定を追加するボタン
 private struct AddEventButton: View {
-    // カレンダーのViewModel
-    let calendarViewModel: CalendarViewModel
+    // 選択している日付
+    let selectedDate: Date
+    // 選択している日付の終了日
+    var selectedEndDate: Date
     // モーダルシート画面の表示を管理する変数
     @State var showSheet: Bool = false
     
@@ -113,8 +105,8 @@ private struct AddEventButton: View {
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
         .sheet(isPresented: $showSheet) {
-            EventSheetView(selectedStartDate: calendarViewModel.selectedDate,
-                           selectedEndDate: calendarViewModel.selectedEndDate)
+            EventSheetView(selectedStartDate: selectedDate,
+                           selectedEndDate: selectedEndDate)
         }
     }
 }

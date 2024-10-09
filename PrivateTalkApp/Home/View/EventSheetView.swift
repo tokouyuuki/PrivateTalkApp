@@ -198,16 +198,15 @@ private struct TextFieldView: View {
     var body: some View {
         if isExpandedTextField {
             ZStack(alignment: .topLeading) {
-                // TextFieldの高さを広げる、かつ領域全体をタップ可能にするため透明なButtonを配置
-                Button {
-                    isKeyboardActive = true
-                    isWideTextFieldFocused = true
-                } label: {
-                    Color.clear
-                        .frame(height: Constants.MEMO_TEXT_FIELD_HEIGHT)
-                }
-                TextField(placeholder, text: $text, axis: .vertical)
-                    .autocorrectionDisabled() // 自動改行を可能に設定
+                // TextFieldの高さを広げる、かつ領域全体をタップ可能にするため透明なViewを配置
+                Color.clear
+                    .frame(height: Constants.MEMO_TEXT_FIELD_HEIGHT)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isKeyboardActive = true
+                        isWideTextFieldFocused = true
+                    }
+                TextField(placeholder, text: $text, axis: .vertical) // axisで自動改行を可能に設定
                     .textInputAutocapitalization(autocapitalization)
                     .focused($isWideTextFieldFocused) // trueならキーボード表示
             }
