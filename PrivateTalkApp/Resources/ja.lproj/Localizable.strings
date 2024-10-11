@@ -15,6 +15,20 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+// 予定編集モーダル
+"event_sheet_title" = "新規予定";
+"event_sheet_add_button_text" = "追加";
+"event_sheet_cancel_button_text" = "キャンセル";
+"placeholder_title" = "タイトル";
+"placeholder_place" = "場所またはビデオ通話";
+"placeholder_url" = "URL";
+"placeholder_memo" = "メモ";
+"all_day_label_text" = "終日";
+"date_setting_view_start_label_text" = "開始";
+"date_setting_view_end_label_text" = "終了";
+"cancel_dialog_title" = "この新規予定を破棄してもよろしいですか？";
+"cancel_dialog_destruction" = "変更内容を破棄";
+"cancel_dialog_continue" = "編集を続ける";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";

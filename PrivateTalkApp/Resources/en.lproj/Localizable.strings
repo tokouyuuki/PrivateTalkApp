@@ -15,6 +15,20 @@
 "setting_tab_text" = "Setting";
 // Calendar
 "today_button_text" = "Today";
+// 予定編集モーダル
+"event_sheet_title" = "New event";
+"event_sheet_add_button_text" = "Add";
+"event_sheet_cancel_button_text" = "cancel";
+"placeholder_title" = "Title";
+"placeholder_place" = "Location or Video Call";
+"placeholder_url" = "URL";
+"placeholder_memo" = "Notes";
+"all_day_label_text" = "All-day";
+"date_setting_view_start_label_text" = "Starts";
+"date_setting_view_end_label_text" = "Ends";
+"cancel_dialog_title" = "The new event will be discarded. Are you sure?";
+"cancel_dialog_destruction" = "discard changes";
+"cancel_dialog_continue" = "continue editing";
 // レスポンスエラー文言
 "url_nil_error" = "he provided URL is invalid. Please check and try again.";
 "no_response" = "Unable to connect to the server. Please check your network connection and try again.";
