@@ -17,10 +17,10 @@
 "today_button_text" = "今日";
 // 予定編集モーダル
 "event_sheet_title" = "新規予定";
-"event_sheet_save_button_text" = "保存";
+"event_sheet_add_button_text" = "追加";
 "event_sheet_cancel_button_text" = "キャンセル";
 "placeholder_title" = "タイトル";
-"placeholder_place" = "場所";
+"placeholder_place" = "場所またはビデオ通話";
 "placeholder_url" = "URL";
 "placeholder_memo" = "メモ";
 "all_day_label_text" = "終日";

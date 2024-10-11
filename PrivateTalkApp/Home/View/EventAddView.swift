@@ -1,5 +1,5 @@
 //
-//  EventSheetView.swift
+//  EventAddView.swift
 //  PrivateTalkApp
 //
 //  Created by 都甲裕希 on 2024/09/22.
@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Constants
 private struct Constants {
     static let EVENT_SHEET_TITLE_KEY = LocalizedStringKey("event_sheet_title")
-    static let EVENT_SHEET_SAVE_BUTTON_TEXT_KEY = LocalizedStringKey("event_sheet_save_button_text")
+    static let EVENT_SHEET_ADD_BUTTON_TEXT_KEY = LocalizedStringKey("event_sheet_add_button_text")
     static let EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY = LocalizedStringKey("event_sheet_cancel_button_text")
     static let PLACEHOLDER_TEXT_KEY = LocalizedStringKey("placeholder_title")
     static let PLACEHOLDER_PLACE_KEY = LocalizedStringKey("placeholder_place")
@@ -26,86 +26,71 @@ private struct Constants {
     static let MEMO_TEXT_FIELD_HEIGHT = 200.0
 }
 
-// MARK: - 予定追加シート（モーダル）
-struct EventSheetView: View {
-    // 選択している日付（開始日）
-    let selectedStartDate: Date
-    // 選択している日付（終了日）
-    let selectedEndDate: Date
-    // 終日設定かどうか（トグルをONにすれば、true）
-    @State var isAllDay = false
-    // タイトル
-    @State var titleText = String.empty
-    // 場所
-    @State var placeText = String.empty
-    // URL
-    @State var urlText = String.empty
-    // メモ
-    @State var memoText = String.empty
-    // 開始日
-    @State var startDate: Date?
-    // 終了日
-    @State var endDate: Date?
+// MARK: - 予定追加 View
+struct EventAddView: View {
+    
+    // dismissハンドラー
+    @Environment(\.dismiss) var dismiss
     // キーボードがアクティブかどうか
     @State var isKeyboardActive = false
-    // シート内の予定の編集が行われたかどうか
-    private var isEditedEvent: Bool {
-        return isAllDay
-        || (startDate != selectedStartDate && startDate != nil)
-        || (endDate != selectedEndDate && endDate != nil)
-        || !titleText.isEmpty
-        || !placeText.isEmpty
-        || !urlText.isEmpty
-        || !memoText.isEmpty
-    }
+    // 予定追加のViewModel
+    @StateObject var eventAddViewModel: EventAddViewModel
     
     var body: some View {
         NavigationStack {
             List {
-                // タイトル記入欄
+                // タイトル記入、場所またはビデオ通話欄
                 Section {
                     TextFieldView(isKeyboardActive: $isKeyboardActive,
-                                  text: $titleText,
+                                  text: $eventAddViewModel.titleText,
                                   placeholder: Constants.PLACEHOLDER_TEXT_KEY)
+                    // TODO: 未完成
+                    TextFieldView(isKeyboardActive: $isKeyboardActive,
+                                  text: $eventAddViewModel.placeText,
+                                  placeholder: Constants.PLACEHOLDER_PLACE_KEY)
                 }
                 // 日付設定欄
                 Section {
-                    Toggle(Constants.ALL_DAY_LABEL_TEXT_KEY, isOn: $isAllDay)
-                    DateSettingView(date: selectedStartDate,
-                                    isAllDay: $isAllDay,
-                                    label: Constants.START_LABEL_TEXT_KEY,
-                                    onChanged: { newValue in
-                        self.startDate = newValue
-                    })
-                    DateSettingView(date: selectedEndDate,
-                                    isAllDay: $isAllDay,
-                                    label: Constants.END_LABEL_TEXT_KEY,
-                                    onChanged: { newValue in
-                        self.endDate = newValue
-                    })
+                    Toggle(Constants.ALL_DAY_LABEL_TEXT_KEY, isOn: $eventAddViewModel.isAllDay)
+                    DateSettingView(date: $eventAddViewModel.startDate,
+                                    isAllDay: $eventAddViewModel.isAllDay,
+                                    label: Constants.START_LABEL_TEXT_KEY)
+                    DateSettingView(date: $eventAddViewModel.endDate,
+                                    isAllDay: $eventAddViewModel.isAllDay,
+                                    label: Constants.END_LABEL_TEXT_KEY)
                 }
-                // 場所設定欄
+                // 繰り返し設定欄
+                Section {
+                    // TODO: 未完成
+                    Text("繰り返し")
+                }
+                // 通知設定欄
+                Section {
+                    // TODO: 未完成
+                    Text("通知")
+                }
+                // URL、メモ欄
                 Section {
                     TextFieldView(isKeyboardActive: $isKeyboardActive,
-                                  text: $placeText,
-                                  placeholder: Constants.PLACEHOLDER_PLACE_KEY)
-                    TextFieldView(isKeyboardActive: $isKeyboardActive,
-                                  text: $urlText,
+                                  text: $eventAddViewModel.urlText,
                                   placeholder: Constants.PLACEHOLDER_URL,
                                   autocapitalization: .never)
-                }
-                // メモ欄
-                Section {
                     TextFieldView(isKeyboardActive: $isKeyboardActive,
-                                  text: $memoText,
+                                  text: $eventAddViewModel.memoText,
                                   placeholder: Constants.PLACEHOLDER_MEMO,
                                   isExpandedTextField: true)
                 }
             }
             .navigationBarTitle(Constants.EVENT_SHEET_TITLE_KEY, displayMode: .inline)
             .navigationBarItems(
-                leading: NavigationBarCancelButton(isEditedEvent: isEditedEvent),
-                trailing: NavigationBarSaveButton(isEditedEvent: isEditedEvent)
+                leading: NavigationBarCancelButton(isEditedEvent: eventAddViewModel.isEditedEvent,
+                                                   onCanceled: {
+                                                       dismiss()
+                                                   }),
+                trailing: NavigationBarSaveButton(isEditedEvent: eventAddViewModel.isEditedEvent,
+                                                  onTapped: {
+                                                      dismiss()
+                                                  })
             )
             .simultaneousGesture(DragGesture().onChanged({ _ in // Listのスクロールを検知
                 if isKeyboardActive {
@@ -117,6 +102,7 @@ struct EventSheetView: View {
                     isKeyboardActive = false
                 }
             }))
+            .interactiveDismissDisabled(eventAddViewModel.isEditedEvent)
         }
     }
 }
@@ -124,11 +110,11 @@ struct EventSheetView: View {
 // MARK: - ナビゲーションバーアイテム（キャンセルボタン）
 private struct NavigationBarCancelButton: View {
     // シート内の予定の編集が行われたかどうか
-    var isEditedEvent: Bool
+    let isEditedEvent: Bool
     // ダイアログを表示するかどうか
     @State var isShowDialog = false
-    // dismissハンドラー
-    @Environment(\.dismiss) var dismiss
+    // キャンセル実行時のクロージャ
+    let onCanceled: () -> Void
     
     var body: some View {
         Button {
@@ -137,7 +123,7 @@ private struct NavigationBarCancelButton: View {
                 isShowDialog = true
             } else {
                 // 予定の編集がされていないならモーダルを閉じる
-                dismiss()
+                onCanceled()
             }
         } label: {
             Text(Constants.EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY)
@@ -147,7 +133,7 @@ private struct NavigationBarCancelButton: View {
                             isPresented: $isShowDialog,
                             titleVisibility: .visible) {
             Button(role: .destructive) {
-                dismiss()
+                onCanceled()
             } label: {
                 Text(Constants.CANCEL_DIALOG_DESTRUCTION_KEY)
                     .foregroundStyle(.symbol)
@@ -165,15 +151,15 @@ private struct NavigationBarCancelButton: View {
 // MARK: - ナビゲーションバーアイテム（保存ボタン）
 private struct NavigationBarSaveButton: View {
     // シート内の予定の編集が行われたかどうか（保存ボタンが有効かどうか）
-    var isEditedEvent: Bool
-    // dismissハンドラー
-    @Environment(\.dismiss) var dismiss
+    let isEditedEvent: Bool
+    // 保存ボタン押下時のクロージャ
+    let onTapped: () -> Void
     
     var body: some View {
         Button {
-            dismiss()
+            onTapped()
         } label: {
-            Text(Constants.EVENT_SHEET_SAVE_BUTTON_TEXT_KEY)
+            Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
                 .foregroundStyle(isEditedEvent ? .symbol : .gray)
         }
         .disabled(!isEditedEvent)
@@ -224,26 +210,20 @@ private struct TextFieldView: View {
 // MARK: - 日付設定 View
 private struct DateSettingView: View {
     // 日付
-    @State var date: Date
+    @Binding var date: Date
     // 終日設定かどうか
     @Binding var isAllDay: Bool
     // Listの項目名
     let label: LocalizedStringKey
-    // 日付変更時のクロージャ
-    let onChanged: (Date) -> Void
     
     var body: some View {
         DatePicker(label,
                    selection: $date,
                    displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
-        .onChange(of: date, perform: { newValue in
-            // トグルOMで、newValue = trueとなる
-            onChanged(newValue)
-        })
         .frame(height: Constants.DATE_PICKER_HEIGHT)
     }
 }
 
 #Preview {
-    EventSheetView(selectedStartDate: Date(), selectedEndDate: Date())
+    EventAddView(eventAddViewModel: EventAddViewModel(startDate: Date(), endDate: Date()))
 }

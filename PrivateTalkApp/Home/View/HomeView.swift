@@ -86,6 +86,7 @@ private struct TodayButton: View {
 
 // MARK: - 予定を追加するボタン
 private struct AddEventButton: View {
+    
     // 選択している日付
     let selectedDate: Date
     // 選択している日付の終了日
@@ -105,8 +106,8 @@ private struct AddEventButton: View {
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
         .sheet(isPresented: $showSheet) {
-            EventSheetView(selectedStartDate: selectedDate,
-                           selectedEndDate: selectedEndDate)
+            EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
+                                                              endDate: selectedEndDate))
         }
     }
 }
