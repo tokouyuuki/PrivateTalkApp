@@ -25,11 +25,7 @@ final class EventStoreManager {
         // カレンダーイベントへのアクセスステータスを取得
         let status = EKEventStore.authorizationStatus(for: .event)
         
-        if #available(iOS 17.0, *) {
-            return status == .fullAccess
-        } else {
-            return status == .authorized
-        }
+        return status == .fullAccess
     }
     
     /// 新規イベントを作成
