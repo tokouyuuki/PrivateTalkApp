@@ -67,18 +67,10 @@ final class CalendarViewModel: ObservableObject {
     /// カレンダーイベントへのフルアクセスを要求
     func requestFullAccessToEvents() {
         Task {
-            if #available(iOS 17.0, *) {
-                do {
-                    try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
-                } catch {
-                    Logger().log(error.localizedDescription, level: .error)
-                }
-            } else {
-                do {
-                    try await EventStoreManager.shared.eventStore.requestAccess(to: .event)
-                } catch {
-                    Logger().log(error.localizedDescription, level: .error)
-                }
+            do {
+                try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
+            } catch {
+                Logger().log(error.localizedDescription, level: .error)
             }
         }
     }
