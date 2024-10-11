@@ -11,6 +11,9 @@ import SwiftUI
 private struct Constants {
     static let ADD_SCHEDULE_BUTTON_IMAGE_NAME = "plus.circle.fill"
     static let TODAY_BUTTON_TEXT_KEY = LocalizedStringKey("today_button_text")
+    static let EVENT_ACCESS_DENIED_ALERT_TITLE_KEY = LocalizedStringKey("event_access_denied_alert_title")
+    static let EVENT_ACCESS_DENIED_ALERT_MESSAGE_KEY = LocalizedStringKey("event_access_denied_alert_message")
+    static let EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY = LocalizedStringKey("event_access_denied_alert_button_text")
     static let HEADER_AND_CALENDAR_SPACING = 8.0
     static let ELEMENTS_IN_THE_HEADER_SPACING = 0.0
     static let HEADER_TITLE_FONT_SIZE = 20.0
@@ -40,6 +43,10 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
+        .onAppear {
+            // カレンダーイベントのアクセスを要求する
+            calendarViewModel.requestFullAccessToEvents()
+        }
     }
     
     // ヘッダー部分
@@ -92,11 +99,19 @@ private struct AddEventButton: View {
     // 選択している日付の終了日
     var selectedEndDate: Date
     // モーダルシート画面の表示を管理する変数
-    @State var showSheet: Bool = false
+    @State var isShowSheet = false
+    // カレンダーアクセス訴求のアラートを管理する変数
+    @State var isShowAlert = false
     
     var body: some View {
         Button(action: {
-            showSheet.toggle()
+            if EventStoreManager.shared.isFullAccessToEvents() {
+                // カレンダーイベントへのアクセス権がある場合、モーダルシートを表示
+                isShowSheet.toggle()
+            } else {
+                // カレンダーイベントへのアクセス権限がない場合、アラートを表示
+                isShowAlert.toggle()
+            }
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -105,9 +120,21 @@ private struct AddEventButton: View {
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
-        .sheet(isPresented: $showSheet) {
+        .sheet(isPresented: $isShowSheet) {
             EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
                                                               endDate: selectedEndDate))
+        }
+        // カレンダーへのフルアクセスを訴求するアラート
+        .alert(Constants.EVENT_ACCESS_DENIED_ALERT_TITLE_KEY,
+               isPresented: $isShowAlert) {
+            Button(Constants.EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY) {
+                // 設定アプリのカレンダーアクセス画面を開く
+                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsUrl)
+                }
+            }
+        } message: {
+            Text(Constants.EVENT_ACCESS_DENIED_ALERT_MESSAGE_KEY)
         }
     }
 }
