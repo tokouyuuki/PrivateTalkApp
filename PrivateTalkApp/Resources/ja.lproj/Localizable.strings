@@ -15,6 +15,10 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+// カレンダーイベントへのアクセス訴求アラート
+"event_access_denied_alert_title" = "アクセスが拒否されました";
+"event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";
+"event_access_denied_alert_button_text" = "設定";
 // 予定編集モーダル
 "event_sheet_title" = "新規予定";
 "event_sheet_add_button_text" = "追加";

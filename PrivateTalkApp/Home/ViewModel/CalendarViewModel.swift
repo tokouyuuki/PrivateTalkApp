@@ -64,6 +64,25 @@ final class CalendarViewModel: ObservableObject {
     }
     
     // MARK: - Publicメソッド
+    /// カレンダーイベントへのフルアクセスを要求
+    func requestFullAccessToEvents() {
+        Task {
+            if #available(iOS 17.0, *) {
+                do {
+                    try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
+                } catch {
+                    Logger().log(error.localizedDescription, level: .error)
+                }
+            } else {
+                do {
+                    try await EventStoreManager.shared.eventStore.requestAccess(to: .event)
+                } catch {
+                    Logger().log(error.localizedDescription, level: .error)
+                }
+            }
+        }
+    }
+    
     /// 今日ボタンを押下された際の処理
     func tapTodayButton() {
         Task {

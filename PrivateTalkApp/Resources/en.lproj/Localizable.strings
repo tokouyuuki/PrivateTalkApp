@@ -15,6 +15,10 @@
 "setting_tab_text" = "Setting";
 // Calendar
 "today_button_text" = "Today";
+// カレンダーイベントへのアクセス訴求アラート
+"event_access_denied_alert_title" = "Access Denied";
+"event_access_denied_alert_message" = "Please enable calendar full access in settings.";
+"event_access_denied_alert_button_text" = "Settings";
 // 予定編集モーダル
 "event_sheet_title" = "New event";
 "event_sheet_add_button_text" = "Add";
