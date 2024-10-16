@@ -11,7 +11,7 @@ import SwiftUI
 private struct Constants {
     static let ADD_SCHEDULE_BUTTON_IMAGE_NAME = "plus.circle.fill"
     static let TODAY_BUTTON_TEXT_KEY = LocalizedStringKey("today_button_text")
-    static let EVENT_ACCESS_DENIED_ALERT_TITLE_KEY = LocalizedStringKey("event_access_denied_alert_title")
+    static let EVENT_ACCESS_DENIED_ERROR_MESSAGE = LocalizedStringKey("event_access_denied_error")
     static let EVENT_ACCESS_DENIED_ALERT_MESSAGE_KEY = LocalizedStringKey("event_access_denied_alert_message")
     static let EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY = LocalizedStringKey("event_access_denied_alert_button_text")
     static let HEADER_AND_CALENDAR_SPACING = 8.0
@@ -125,7 +125,7 @@ private struct AddEventButton: View {
                                                               endDate: selectedEndDate))
         }
         // カレンダーへのフルアクセスを訴求するアラート
-        .alert(Constants.EVENT_ACCESS_DENIED_ALERT_TITLE_KEY,
+        .alert(Constants.EVENT_ACCESS_DENIED_ERROR_MESSAGE,
                isPresented: $isShowAlert) {
             Button(Constants.EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY) {
                 // 設定アプリのカレンダーアクセス画面を開く

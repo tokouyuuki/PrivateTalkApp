@@ -16,7 +16,7 @@
 // Calendar
 "today_button_text" = "Today";
 // カレンダーイベントへのアクセス訴求アラート
-"event_access_denied_alert_title" = "Access Denied";
+"event_access_denied_error" = "Access Denied";
 "event_access_denied_alert_message" = "Please enable calendar full access in settings.";
 "event_access_denied_alert_button_text" = "Settings";
 // 予定編集モーダル
@@ -33,6 +33,7 @@
 "cancel_dialog_title" = "The new event will be discarded. Are you sure?";
 "cancel_dialog_destruction" = "discard changes";
 "cancel_dialog_continue" = "continue editing";
+"event_save_failed_error" = "Could not add the event. Please try again.";
 // レスポンスエラー文言
 "url_nil_error" = "he provided URL is invalid. Please check and try again.";
 "no_response" = "Unable to connect to the server. Please check your network connection and try again.";

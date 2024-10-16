@@ -16,7 +16,7 @@
 // Calendar
 "today_button_text" = "今日";
 // カレンダーイベントへのアクセス訴求アラート
-"event_access_denied_alert_title" = "アクセスが拒否されました";
+"event_access_denied_error" = "アクセスが拒否されました";
 "event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";
 "event_access_denied_alert_button_text" = "設定";
 // 予定編集モーダル
@@ -33,6 +33,7 @@
 "cancel_dialog_title" = "この新規予定を破棄してもよろしいですか？";
 "cancel_dialog_destruction" = "変更内容を破棄";
 "cancel_dialog_continue" = "編集を続ける";
+"event_save_failed_error" = "イベントを追加できませんでした。再度お試しください。";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";
