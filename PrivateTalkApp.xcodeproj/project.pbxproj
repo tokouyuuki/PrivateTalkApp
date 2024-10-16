@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224E1B62C75DC2B0099C855 /* StringExtension.swift */; };
+		2227BAF12CBF4F600087C314 /* PrivateTalkAppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */; };
 		222BDF962C6DE92200638D4A /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222BDF952C6DE92100638D4A /* NewsView.swift */; };
 		223909802C6E3BF600B4DCFE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2239097F2C6E3BF600B4DCFE /* LICENSE.txt */; };
 		2251FD762C9E8A6B0005714E /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2251FD752C9E8A6B0005714E /* Logger.swift */; };
@@ -37,6 +38,7 @@
 
 /* Begin PBXFileReference section */
 		2224E1B62C75DC2B0099C855 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
+		2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppError.swift; sourceTree = "<group>"; };
 		222BDF952C6DE92100638D4A /* NewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsView.swift; sourceTree = "<group>"; };
 		2239097F2C6E3BF600B4DCFE /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		2251FD752C9E8A6B0005714E /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			children = (
 				22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */,
 				2251FD752C9E8A6B0005714E /* Logger.swift */,
+				2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -481,6 +484,7 @@
 				22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */,
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
 				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
+				2227BAF12CBF4F600087C314 /* PrivateTalkAppError.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,
 				22B1DCA22C9FEEC100E1019F /* EventAddView.swift in Sources */,
 			);
