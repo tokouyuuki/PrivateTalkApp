@@ -35,15 +35,15 @@ struct HomeView: View {
             headerView
             // カレンダー
             CalendarView(calendarViewModel: calendarViewModel,
-                         todayButtonEnable: $todayButtonEnable) { date in
-                self.calendarViewModel.setDisplayDate(date: date)
+                         todayButtonEnable: $todayButtonEnable) { eventAction in
+                calendarViewModel.updateDate(eventAction)
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
     }
     
     // ヘッダー部分
-    var headerView: some View {
+    private var headerView: some View {
         HStack(spacing: Constants.ELEMENTS_IN_THE_HEADER_SPACING) {
             // 年月テキスト
             Text(calendarViewModel.calendarModel?.displayYearMonthString ?? String.empty)
@@ -57,7 +57,8 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddScheduleButton()
+                AddEventButton(selectedDate: self.calendarViewModel.selectedDate,
+                               selectedEndDate: self.calendarViewModel.selectedEndDate)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -84,11 +85,18 @@ private struct TodayButton: View {
 }
 
 // MARK: - 予定を追加するボタン
-private struct AddScheduleButton: View {
+private struct AddEventButton: View {
+    
+    // 選択している日付
+    let selectedDate: Date
+    // 選択している日付の終了日
+    var selectedEndDate: Date
+    // モーダルシート画面の表示を管理する変数
+    @State var showSheet: Bool = false
     
     var body: some View {
         Button(action: {
-            // TODO: ロジックを実装完了次第追加
+            showSheet.toggle()
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -96,6 +104,10 @@ private struct AddScheduleButton: View {
                 .foregroundStyle(Color.primary)
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
+        }
+        .sheet(isPresented: $showSheet) {
+            EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
+                                                              endDate: selectedEndDate))
         }
     }
 }
