@@ -92,7 +92,7 @@ final class CalendarViewModel: ObservableObject {
                 guard let privateTalkAppError = error as? PrivateTalkAppError else {
                     return
                 }
-                Logger().log(privateTalkAppError.errorDescription, level: .error)
+                Logger().log(privateTalkAppError.errorDescription ?? String.empty, level: .error)
             }
         }
     }

@@ -15,6 +15,9 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+// カスタムアラートの文言
+"default_alert_title" = "エラー";
+"default_alert_button_text" = "了解";
 // カレンダーイベントへのアクセス訴求アラート
 "event_access_denied_error" = "アクセスが拒否されました";
 "event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";

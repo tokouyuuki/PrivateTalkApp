@@ -21,7 +21,7 @@ enum PrivateTalkAppError: LocalizedError {
     // 予期せぬエラー
     case unexpected
     
-    var errorDescription: String {
+    var errorDescription: String? {
         switch self {
         case .networkError(let networkError):
             return networkError.errorDescription
@@ -60,7 +60,7 @@ enum NetworkError: LocalizedError {
     // デコードエラー
     case decodingError
     
-    internal var errorDescription: String {
+    var errorDescription: String? {
         switch self {
         case .badUrlError:
             return Constants.BAD_URL_ERROR_MESSAGE
@@ -113,12 +113,17 @@ enum EventError: LocalizedError {
     // イベントの保存失敗
     case saveFailed
     
-    var errorDescription: String {
+    var errorDescription: String? {
         switch self {
         case .notAccess:
             return Constants.EVENT_ACCESS_DENIED_ERROR_MESSAGE
         case .saveFailed:
             return Constants.EVENT_SAVE_FAILED_ERROR_MESSAGE
         }
+    }
+    
+    // アクセス権限があるかどうか
+    var isNotAccess: Bool {
+        return self == .notAccess
     }
 }

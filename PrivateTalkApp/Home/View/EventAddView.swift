@@ -88,8 +88,18 @@ struct EventAddView: View {
                                                        dismiss()
                                                    }),
                 trailing: NavigationBarSaveButton(isEditedEvent: eventAddViewModel.isEditedEvent,
-                                                  onTapped: {
-                                                      dismiss()
+                                                  error: eventAddViewModel.error,
+                                                  isSavedEventSuccessfully: $eventAddViewModel.isSavedEventSuccessfully,
+                                                  showErrorDialog: $eventAddViewModel.showErrorDialog,
+                                                  onAction: { actionType in
+                                                      switch actionType {
+                                                      case .saveButtonTapped:
+                                                          eventAddViewModel.addEvent()
+                                                      case .saveCompleted:
+                                                          dismiss()
+                                                      case .alertDismissed:
+                                                          eventAddViewModel.resetError()
+                                                      }
                                                   })
             )
             .simultaneousGesture(DragGesture().onChanged({ _ in // Listのスクロールを検知
@@ -150,17 +160,40 @@ private struct NavigationBarCancelButton: View {
 
 // MARK: - ナビゲーションバーアイテム（保存ボタン）
 private struct NavigationBarSaveButton: View {
+    // アクションが発生した時に呼ばれるクロージャのタイプ
+    enum ActionType {
+        // 保存ボタン押下時
+        case saveButtonTapped
+        // 保存完了時
+        case saveCompleted
+        // アラートを閉じた時
+        case alertDismissed
+    }
     // シート内の予定の編集が行われたかどうか（保存ボタンが有効かどうか）
     let isEditedEvent: Bool
-    // 保存ボタン押下時のクロージャ
-    let onTapped: () -> Void
-    
+    // PrivateTalkAppError
+    let error: PrivateTalkAppError?
+    // 予定の保存が成功したかどうか
+    @Binding var isSavedEventSuccessfully: Bool
+    // 予定の保存が失敗したかどうか
+    @Binding var showErrorDialog: Bool
+    // アクションが発生した時に呼ばれるクロージャ
+    let onAction: (ActionType) -> Void
+        
     var body: some View {
         Button {
-            onTapped()
+            onAction(.saveButtonTapped)
         } label: {
             Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
                 .foregroundStyle(isEditedEvent ? .symbol : .gray)
+        }
+        .onChange(of: isSavedEventSuccessfully, { oldValue, newValue in
+            if newValue {
+                onAction(.saveCompleted)
+            }
+        })
+        .customAlertDialog(isShowAlert: $showErrorDialog, privateTalkAppError: error) {
+            onAction(.alertDismissed)
         }
         .disabled(!isEditedEvent)
     }
