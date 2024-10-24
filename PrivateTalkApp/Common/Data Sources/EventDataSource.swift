@@ -18,4 +18,12 @@ struct EventDataSource {
             try EventStoreManager.shared.eventStore.save(event, span: .thisEvent, commit: true)
         }.value
     }
+    
+    /// イベントを取得する
+    /// - parameter predicate: フィルタリングする条件
+    func fetchEvent(predicate: NSPredicate) async -> [EKEvent] {
+        await Task {
+            return EventStoreManager.shared.eventStore.events(matching: predicate)
+        }.value
+    }
 }

@@ -36,14 +36,10 @@ struct HomeView: View {
             // カレンダー
             CalendarView(calendarViewModel: calendarViewModel,
                          todayButtonEnable: $todayButtonEnable) { eventAction in
-                calendarViewModel.updateDate(eventAction)
+                calendarViewModel.handleAction(eventAction)
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
-        .onAppear {
-            // カレンダーイベントのアクセスを要求する
-            calendarViewModel.requestFullAccessToEvents()
-        }
     }
     
     // ヘッダー部分

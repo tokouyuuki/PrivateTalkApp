@@ -25,4 +25,15 @@ struct EventRepository {
             throw PrivateTalkAppError.eventError(.saveFailed)
         }
     }
+    
+    /// イベントを取得する
+    /// - parameter startDate: 取得したいイベントの開始日
+    /// - parameter endDate: 取得したいイベントの終了日
+    func fetchEvent(startDate: Date, endDate: Date) async throws(PrivateTalkAppError) -> [EKEvent] {
+        if !EventStoreManager.shared.isFullAccessToEvents() {
+            throw PrivateTalkAppError.eventError(.notAccess)
+        }
+        let predicate = EventStoreManager.shared.eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: nil)
+        return await eventDataSource.fetchEvent(predicate: predicate)
+    }
 }
