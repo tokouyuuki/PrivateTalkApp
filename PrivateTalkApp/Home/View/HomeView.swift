@@ -36,10 +36,14 @@ struct HomeView: View {
             // カレンダー
             CalendarView(calendarViewModel: calendarViewModel,
                          todayButtonEnable: $todayButtonEnable) { eventAction in
-                calendarViewModel.updateDate(eventAction)
+                calendarViewModel.handleAction(eventAction)
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
+        .customAlertDialog(isShowAlert: $calendarViewModel.showErrorDialog,
+                           privateTalkAppError: calendarViewModel.error) {
+            calendarViewModel.resetError()
+        }
     }
     
     // ヘッダー部分
@@ -92,11 +96,19 @@ private struct AddEventButton: View {
     // 選択している日付の終了日
     var selectedEndDate: Date
     // モーダルシート画面の表示を管理する変数
-    @State var showSheet: Bool = false
+    @State var isShowSheet = false
+    // カレンダーアクセス訴求のアラートを管理する変数
+    @State var isShowAlert = false
     
     var body: some View {
         Button(action: {
-            showSheet.toggle()
+            if EventStoreManager.shared.isFullAccessToEvents() {
+                // カレンダーイベントへのアクセス権がある場合、モーダルシートを表示
+                isShowSheet.toggle()
+            } else {
+                // カレンダーイベントへのアクセス権限がない場合、アラートを表示
+                isShowAlert.toggle()
+            }
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -105,9 +117,14 @@ private struct AddEventButton: View {
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
-        .sheet(isPresented: $showSheet) {
+        .sheet(isPresented: $isShowSheet) {
             EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
                                                               endDate: selectedEndDate))
+        }
+        // カレンダーへのフルアクセスを訴求するアラート
+        .customAlertDialog(isShowAlert: $isShowAlert,
+                           privateTalkAppError: .eventError(.notAccess)) {
+            isShowAlert = false
         }
     }
 }

@@ -8,12 +8,16 @@
 import SwiftUI
 import FSCalendar
 
-// MARK: - クロージャの更新先を決めるenum
+// MARK: - 行うアクション
 enum EventAction {
     // 表示する年月の更新
     case updateDisplayDate(Date)
     // 選択日の更新
     case updateSelectedDate(Date)
+    // カレンダーイベントへのアクセス要求
+    case requestFullAccessToEvents
+    // カレンダーイベント取得
+    case fetchEvent
 }
 
 // MARK: - FSCalendarView
@@ -69,6 +73,7 @@ struct CalendarView: UIViewRepresentable {
         // 月初と今日の日付を親Viewに渡す
         self.onCurrentDateChanged(.updateDisplayDate(fsCalendar.currentPage))
         self.onCurrentDateChanged(.updateSelectedDate(fsCalendar.today ?? Date()))
+        self.onCurrentDateChanged(.requestFullAccessToEvents)
         
         return fsCalendar
     }
@@ -83,6 +88,7 @@ struct CalendarView: UIViewRepresentable {
                 self.todayButtonEnable = true
             }
         }
+        uiView.reloadData()
     }
 }
 
@@ -100,6 +106,7 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         // 月初の日付を親Viewに渡す
         self.parent.onCurrentDateChanged(.updateDisplayDate(calendar.currentPage))
+        self.parent.onCurrentDateChanged(.fetchEvent)
         Task { @MainActor in
             if let today = calendar.today {
                 if self.parent.calendarViewModel.isMatchedDate(dateToCompare: today) {

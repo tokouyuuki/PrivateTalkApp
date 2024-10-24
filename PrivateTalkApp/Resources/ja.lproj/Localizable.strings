@@ -15,6 +15,13 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+// カスタムアラートの文言
+"default_alert_title" = "エラー";
+"default_alert_button_text" = "了解";
+// カレンダーイベントへのアクセス訴求アラート
+"event_access_denied_error" = "アクセスが拒否されました";
+"event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";
+"event_access_denied_alert_button_text" = "設定";
 // 予定編集モーダル
 "event_sheet_title" = "新規予定";
 "event_sheet_add_button_text" = "追加";
@@ -29,6 +36,7 @@
 "cancel_dialog_title" = "この新規予定を破棄してもよろしいですか？";
 "cancel_dialog_destruction" = "変更内容を破棄";
 "cancel_dialog_continue" = "編集を続ける";
+"event_save_failed_error" = "イベントを追加できませんでした。再度お試しください。";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";

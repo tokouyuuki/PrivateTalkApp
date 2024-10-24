@@ -6,11 +6,18 @@
 //
 
 import Foundation
+import EventKit
 
 // MARK: - 予定追加 ViewModel
 @MainActor
 final class EventAddViewModel: ObservableObject {
     
+    // 開始日の初期値
+    private let initialStartDate: Date
+    // 終了日の初期値
+    private let initialEndDate: Date
+    // カレンダーイベントRepository
+    private let eventRepository = EventRepository()
     // 終日設定かどうか
     @Published var isAllDay = false
     // タイトル
@@ -25,10 +32,18 @@ final class EventAddViewModel: ObservableObject {
     @Published var startDate: Date
     // 終了日
     @Published var endDate: Date
+    // エラーが発生した際に使用する変数
+    var error: PrivateTalkAppError?
+    // 予定の保存が成功したかどうか
+    @Published var isSavedEventSuccessfully = false
+    // 予定の保存が失敗したかどうか
+    @Published var showErrorDialog = false
     
-    /// - parameter selectedStartDate: カレンダーで選択している日付（開始日）
-    /// - parameter selectedEndDate: カレンダーで選択している日付（終了日）
+    /// - parameter startDate: カレンダーで選択している日付（開始日）
+    /// - parameter endDate: カレンダーで選択している日付（終了日）
     init(startDate: Date, endDate: Date) {
+        self.initialStartDate = startDate
+        self.initialEndDate = endDate
         self.startDate = startDate
         self.endDate = endDate
     }
@@ -36,10 +51,40 @@ final class EventAddViewModel: ObservableObject {
     // 予定の編集が行われたかどうか
     var isEditedEvent: Bool {
         return self.isAllDay
-        // TODO: startDate、endDateも付け加える
+        || self.startDate != self.initialStartDate
+        || self.endDate != self.initialEndDate
         || !self.titleText.isEmpty
         || !self.placeText.isEmpty
         || !self.urlText.isEmpty
         || !self.memoText.isEmpty
+    }
+    
+    /// 予定を追加する
+    func addEvent() {
+        Task {
+            do {
+                // 入力値を元に、新規予定を作成
+                let event = EventStoreManager.shared.createNewEvent(startDate: self.startDate,
+                                                                    endDate: self.endDate,
+                                                                    title: self.titleText,
+                                                                    isAllDay: self.isAllDay,
+                                                                    notes: self.memoText)
+                // 予定を追加
+                try await eventRepository.addEvent(event: event)
+                self.isSavedEventSuccessfully = true
+            } catch let privateTalkAppError as PrivateTalkAppError {
+                self.error = privateTalkAppError
+                self.showErrorDialog = true
+            } catch {
+                Logger().log(error.localizedDescription, level: .error)
+            }
+        }
+    }
+    
+    /// エラーをリセットする
+    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
+    func resetError() {
+        self.error = nil
+        self.showErrorDialog = false
     }
 }
