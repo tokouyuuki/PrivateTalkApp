@@ -24,10 +24,14 @@ final class CalendarViewModel: ObservableObject {
     @MainActor @Published var calendarModel: CalendarModel?
     // 表示している月の予定のリスト
     @Published var eventList = [EKEvent]()
+    // エラーダイアログを表示するかどうか
+    @MainActor @Published var showErrorDialog = false
     // WorlTimeAPIの世界時刻情報を取得するために使用するService
     private let worldTimeService = WorldTimeService()
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
+    // エラーが発生した際に使用する変数
+    @MainActor var error: PrivateTalkAppError?
     // 選択している日付
     @MainActor var selectedDate: Date = Date()
     
@@ -73,14 +77,19 @@ final class CalendarViewModel: ObservableObject {
     // MARK: - Publicメソッド
     /// カレンダーイベントへのフルアクセスを要求
     func requestFullAccessToEvents() {
-        Task {
+        Task { @MainActor in
             do {
                 let isFullAccess = try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
                 if isFullAccess {
                     fetchEvent()
+                } else {
+                    self.error = PrivateTalkAppError.eventError(.notAccess)
+                    self.showErrorDialog = true
                 }
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
+                self.error = PrivateTalkAppError.unexpected
+                self.showErrorDialog = true
             }
         }
     }
@@ -159,8 +168,20 @@ final class CalendarViewModel: ObservableObject {
                 }
                 self.eventList = try await eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
             } catch {
-                
+                guard let privateTalkAppError = error as? PrivateTalkAppError else {
+                    return
+                }
+                Logger().log(privateTalkAppError.errorDescription ?? String.empty, level: .error)
             }
+        }
+    }
+    
+    /// エラーをリセットする
+    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
+    func resetError() {
+        Task { @MainActor in
+            self.error = nil
+            self.showErrorDialog = false
         }
     }
 }

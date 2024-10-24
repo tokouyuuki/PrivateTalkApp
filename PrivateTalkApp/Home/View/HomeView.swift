@@ -40,6 +40,10 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
+        .customAlertDialog(isShowAlert: $calendarViewModel.showErrorDialog,
+                           privateTalkAppError: calendarViewModel.error) {
+            calendarViewModel.resetError()
+        }
     }
     
     // ヘッダー部分
