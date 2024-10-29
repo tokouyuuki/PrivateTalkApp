@@ -62,7 +62,7 @@ struct HomeView: View {
                 TodayButton(todayButtonEnable: todayButtonEnable,
                             onButtonTapped: {
                     // 今日の日付をセットし、カレンダーを更新させる
-                    calendarViewModel.tapTodayButton()
+                    calOendarViewModel.tapTodayButton()
                 })
                 AddEventButton(onTap: calendarViewModel.onTapAddEventButton)
             }

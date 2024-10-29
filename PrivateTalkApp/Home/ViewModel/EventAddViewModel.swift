@@ -32,13 +32,12 @@ final class EventAddViewModel: ObservableObject {
     @Published var startDate: Date
     // 終了日
     @Published var endDate: Date
-    // エラーが発生した際に使用する変数
-    var error: PrivateTalkAppError?
     // 予定の保存が成功したかどうか
-    @Published var isSavedEventSuccessfully = false
-    // 予定の保存が失敗したかどうか
-    @Published var showErrorDialog = false
-    
+    @Published var shouldDismiss = false
+    @Published var massAlertType: MasappAlertType = .none
+    @Published var showCancelConfirmationAlert = false
+
+
     /// - parameter startDate: カレンダーで選択している日付（開始日）
     /// - parameter endDate: カレンダーで選択している日付（終了日）
     init(startDate: Date, endDate: Date) {
@@ -71,20 +70,20 @@ final class EventAddViewModel: ObservableObject {
                                                                     notes: self.memoText)
                 // 予定を追加
                 try await eventRepository.addEvent(event: event)
-                self.isSavedEventSuccessfully = true
+                shouldDismiss = true
             } catch let privateTalkAppError as PrivateTalkAppError {
-                self.error = privateTalkAppError
-                self.showErrorDialog = true
+                massAlertType = .init(error: privateTalkAppError)
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
             }
         }
     }
-    
-    /// エラーをリセットする
-    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
-    func resetError() {
-        self.error = nil
-        self.showErrorDialog = false
+
+    func onTapCancelButton() {
+        if isEditedEvent {
+            showCancelConfirmationAlert = true
+        } else {
+            shouldDismiss = true
+        }
     }
 }
