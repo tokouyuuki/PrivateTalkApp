@@ -23,12 +23,12 @@ private struct Constants {
 
 // MARK: - ホーム View
 struct HomeView: View {
-    
+
     // カレンダーのViewModel
     @StateObject private var calendarViewModel = CalendarViewModel()
     // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
     @State private var todayButtonEnable: Bool = true
-    
+
     var body: some View {
         VStack(spacing: Constants.HEADER_AND_CALENDAR_SPACING) {
             // ヘッダー
@@ -40,12 +40,15 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
-        .customAlertDialog(isShowAlert: $calendarViewModel.showErrorDialog,
-                           privateTalkAppError: calendarViewModel.error) {
-            calendarViewModel.resetError()
+        .masappAlert(type: $calendarViewModel.alertType, onDismiss: {})
+        .sheet(isPresented: $calendarViewModel.showEventAddView) {
+            EventAddView(eventAddViewModel: .init(
+                startDate: calendarViewModel.selectedDate,
+                endDate: calendarViewModel.selectedEndDate
+            ))
         }
     }
-    
+
     // ヘッダー部分
     private var headerView: some View {
         HStack(spacing: Constants.ELEMENTS_IN_THE_HEADER_SPACING) {
@@ -61,8 +64,7 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddEventButton(selectedDate: self.calendarViewModel.selectedDate,
-                               selectedEndDate: self.calendarViewModel.selectedEndDate)
+                AddEventButton(onTap: calendarViewModel.onTapAddEventButton)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -72,10 +74,10 @@ struct HomeView: View {
 
 // MARK: - 今日を表示するボタン
 private struct TodayButton: View {
-    
+
     let todayButtonEnable: Bool
     let onButtonTapped: () -> Void
-    
+
     var body: some View {
         Button(action: {
             onButtonTapped()
@@ -90,25 +92,11 @@ private struct TodayButton: View {
 
 // MARK: - 予定を追加するボタン
 private struct AddEventButton: View {
-    
-    // 選択している日付
-    let selectedDate: Date
-    // 選択している日付の終了日
-    var selectedEndDate: Date
-    // モーダルシート画面の表示を管理する変数
-    @State var isShowSheet = false
-    // カレンダーアクセス訴求のアラートを管理する変数
-    @State var isShowAlert = false
-    
+    let onTap: () -> Void
+
     var body: some View {
         Button(action: {
-            if EventStoreManager.shared.isFullAccessToEvents() {
-                // カレンダーイベントへのアクセス権がある場合、モーダルシートを表示
-                isShowSheet.toggle()
-            } else {
-                // カレンダーイベントへのアクセス権限がない場合、アラートを表示
-                isShowAlert.toggle()
-            }
+            onTap()
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -116,15 +104,6 @@ private struct AddEventButton: View {
                 .foregroundStyle(Color.primary)
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
-        }
-        .sheet(isPresented: $isShowSheet) {
-            EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
-                                                              endDate: selectedEndDate))
-        }
-        // カレンダーへのフルアクセスを訴求するアラート
-        .customAlertDialog(isShowAlert: $isShowAlert,
-                           privateTalkAppError: .eventError(.notAccess)) {
-            isShowAlert = false
         }
     }
 }

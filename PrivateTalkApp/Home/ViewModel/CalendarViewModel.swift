@@ -25,16 +25,13 @@ final class CalendarViewModel: ObservableObject {
     // 表示している月の予定のリスト
     @Published var eventList = [EKEvent]()
     // エラーダイアログを表示するかどうか
-    @MainActor @Published var showErrorDialog = false
+    @MainActor @Published var alertType: MasappAlertType = .none
     // WorlTimeAPIの世界時刻情報を取得するために使用するService
     private let worldTimeService = WorldTimeService()
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
-    // エラーが発生した際に使用する変数
-    @MainActor var error: PrivateTalkAppError?
     // 選択している日付
     @MainActor var selectedDate: Date = Date()
-    
     // 選択している日付の終了日
     @MainActor var selectedEndDate: Date {
         // １時間プラスした時刻に変換する
@@ -42,7 +39,10 @@ final class CalendarViewModel: ObservableObject {
                                             to: self.selectedDate)
         return newDate ?? self.selectedDate
     }
-    
+
+    @MainActor
+    @Published var showEventAddView: Bool = false
+
     // MARK: - Privateメソッド
     /// 年月文字列をセット
     /// - parameter date: セットしたいDate
@@ -83,13 +83,11 @@ final class CalendarViewModel: ObservableObject {
                 if isFullAccess {
                     fetchEvent()
                 } else {
-                    self.error = PrivateTalkAppError.eventError(.notAccess)
-                    self.showErrorDialog = true
+                    alertType = .init(error: .eventError(.notAccess))
                 }
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
-                self.error = PrivateTalkAppError.unexpected
-                self.showErrorDialog = true
+                alertType = .init(error: .unexpected)
             }
         }
     }
@@ -175,13 +173,13 @@ final class CalendarViewModel: ObservableObject {
             }
         }
     }
-    
-    /// エラーをリセットする
-    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
-    func resetError() {
-        Task { @MainActor in
-            self.error = nil
-            self.showErrorDialog = false
+
+    @MainActor
+    func onTapAddEventButton() {
+        if EventStoreManager.shared.isFullAccessToEvents() {
+            showEventAddView = true
+        } else {
+            alertType = .init(error: .eventError(.notAccess))
         }
     }
 }

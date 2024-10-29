@@ -8,96 +8,99 @@
 import Foundation
 import SwiftUI
 
-// MARK: - カスタムアラート
-struct CustomAlertDialog: ViewModifier {
-    
-    private struct Constants {
-        static let EVENT_ACCESS_DENIED_ALERT_MESSAGE = NSLocalizedString("event_access_denied_alert_message", comment: String.empty)
-        static let EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY = NSLocalizedString("event_access_denied_alert_button_text", comment: String.empty)
-        static let DEFAULT_ALERT_TITLE_KEY = NSLocalizedString("default_alert_title", comment: String.empty)
-        static let DEFAULT_ALERT_BUTTON_TEXT_KEY = NSLocalizedString("default_alert_button_text", comment: String.empty)
-    }
-    
-    // アラートを管理する状態変数（同期用）
-    @State var isShowSelfAlert: Bool = false
-    // アラートを管理する状態変数（表示元からのバインド）
-    @Binding var isShowAlert: Bool
-    // PrivateTalkAppError
-    let privateTalkAppError: PrivateTalkAppError?
-    // アラートを閉じた時に呼ばれるクロージャ
-    let onDismiss: () -> Void
-    
-    func body(content: Content) -> some View {
-        switch privateTalkAppError {
-            // カレンダーイベントエラーダイアログ
+private struct MasappErrorAlertConstants {
+    static let EVENT_ACCESS_DENIED_ALERT_MESSAGE = NSLocalizedString("event_access_denied_alert_message", comment: String.empty)
+    static let EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY = NSLocalizedString("event_access_denied_alert_button_text", comment: String.empty)
+    static let DEFAULT_ALERT_TITLE_KEY = NSLocalizedString("default_alert_title", comment: String.empty)
+    static let DEFAULT_ALERT_BUTTON_TEXT_KEY = NSLocalizedString("default_alert_button_text", comment: String.empty)
+}
+
+enum MasappAlertType {
+    case none
+    case noCalendarPermission(Error)
+    case simpleError(Error?)
+
+    init(error: PrivateTalkAppError) {
+        switch error {
+        case .networkError(let networkError):
+            self = .simpleError(networkError)
         case .eventError(let eventError):
-            if eventError.isNotAccess {
-                // カレンダーへのフルアクセスを訴求するアラート
-                alert(title: eventError.errorDescription,
-                      buttonText: Constants.EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY,
-                      message: Constants.EVENT_ACCESS_DENIED_ALERT_MESSAGE,
-                      content: content) {
-                    // 設定アプリのカレンダーアクセス画面を開く
-                    if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(settingsUrl)
-                    }
-                    onDismiss()
-                }
-            } else {
-                alert(message: eventError.errorDescription,
-                      content: content) {
-                    onDismiss()
-                }
-            }
-            // その他エラーダイアログ
-        default:
-            alert(message: privateTalkAppError?.errorDescription,
-                  content: content) {
-                onDismiss()
-            }
+            self = .noCalendarPermission(eventError)
+        case .unexpected:
+            self = .simpleError(nil)
         }
     }
-    
-    /// アラート
-    /// - parameter title: アラートタイトル
-    /// - parameter buttonText: アラートボタンテキスト
-    /// - parameter message: アラートメッセージ
-    /// - parameter content: content
-    /// - parameter onTapped: アラートのボタンを押下した時に呼ばれるクロージャ
-    func alert(title: String? = Constants.DEFAULT_ALERT_TITLE_KEY,
-               buttonText: String = Constants.DEFAULT_ALERT_BUTTON_TEXT_KEY,
-               message: String?,
-               content: Content,
-               onTapped: @escaping () -> Void) -> some View {
-        content
-            .onChange(of: isShowAlert, initial: true, { oldValue, newValue in
-                if newValue {
-                    isShowSelfAlert = true
-                }
-            })
-            .alert(title ?? String.empty, isPresented: $isShowSelfAlert) {
-                Button(buttonText) {
-                    isShowSelfAlert = false
-                    onTapped()
-                }
-            } message: {
-                Text(message ?? String.empty)
-            }
+
+    var isPresented: Bool {
+        switch self {
+        case .none:
+            return false
+        default:
+            return true
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .none:
+            return ""
+        case .noCalendarPermission(let error):
+            return error.localizedDescription
+        case .simpleError:
+            return MasappErrorAlertConstants.DEFAULT_ALERT_TITLE_KEY
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .none:
+            return ""
+        case .noCalendarPermission(let error):
+            return MasappErrorAlertConstants.EVENT_ACCESS_DENIED_ALERT_MESSAGE
+        case .simpleError(let error):
+            return error?.localizedDescription ?? ""
+        }
     }
 }
 
+struct MasappAlert: ViewModifier {
+    let type: Binding<MasappAlertType>
+    let onDismiss: () -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        content
+            .alert(
+                type.wrappedValue.title,
+                isPresented: .init(
+                    get: { type.wrappedValue.isPresented },
+                    set: { _ in type.wrappedValue = .none }),
+                actions: {
+                    switch type.wrappedValue {
+                    case .none:
+                        EmptyView()
+                    case .noCalendarPermission(let error):
+                        Button(MasappErrorAlertConstants.EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY) {
+                            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(settingsUrl)
+                            }
+                            onDismiss()
+                        }
+                    case .simpleError(let error):
+                        Button(MasappErrorAlertConstants.DEFAULT_ALERT_BUTTON_TEXT_KEY) {
+                            onDismiss()
+                        }
+                    }
+                },
+                message: {
+                    Text(type.wrappedValue.message)
+                }
+            )
+    }
+}
 // MARK: - extension
 extension View {
-    
-    /// エラーの内容によってカスタムアラートを生成するモディファイア
-    /// - parameter isShowAlert: アラートを管理する状態変数
-    /// - parameter privateTalkAppError: PrivateTalkAppError
-    /// - parameter onDismiss: アラートを閉じた時に呼ばれるクロージャ
-    func customAlertDialog(isShowAlert: Binding<Bool>,
-                           privateTalkAppError: PrivateTalkAppError?,
-                           onDismiss: @escaping () -> Void) -> some View {
-        self.modifier(CustomAlertDialog(isShowAlert: isShowAlert,
-                                        privateTalkAppError: privateTalkAppError,
-                                        onDismiss: onDismiss))
+    func masappAlert(type: Binding<MasappAlertType>, onDismiss: @escaping () -> Void) -> some View {
+        self.modifier(MasappAlert(type: type, onDismiss: onDismiss))
     }
 }
