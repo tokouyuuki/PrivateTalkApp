@@ -17,7 +17,8 @@ final class CalendarViewModel: ObservableObject {
         static let SELECTED_END_DATE_ADD_HOUR = 1
         static let SELECTED_DATE_MINUTE = 0
         static let SELECTED_DATE_SECOND = 0
-        static let ADD_MONTH = 1
+        static let ADD_MONTH = 2
+        static let SUBTRACT_MONTH = -1
     }
     
     // カレンダーのModel
@@ -55,6 +56,15 @@ final class CalendarViewModel: ObservableObject {
         }
     }
     
+    /// CalendarViewに再描画を行うよう通知
+    /// UIViewRepresentableを使用すると、カレンダーセル構築とイベント取得のタイミングがコントロールできない。
+    /// そのため、イベントを取得したタイミングで通知を送信する。
+    private func notifyCalendarView() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name("calendarReload"), object: nil)
+        }
+    }
+    
     /// カレンダーで選択した日付をセット
     /// - parameter date: 選択したDate
     private func setSelectedDate(_ date: Date) {
@@ -83,6 +93,7 @@ final class CalendarViewModel: ObservableObject {
                 if isFullAccess {
                     fetchEvent()
                 } else {
+                    notifyCalendarView()
                     self.error = PrivateTalkAppError.eventError(.notAccess)
                     self.showErrorDialog = true
                 }
@@ -142,31 +153,33 @@ final class CalendarViewModel: ObservableObject {
         }
     }
     
-    /// 日付に対するイベントのタイトルを取得
+    /// 日付に対するイベントのリストを取得
     /// - parameter date: 取得したいタイトルの日付
     /// - returns: イベントのリスト
-    func getSubtitle(date: Date) -> [String] {
-        let subtitle = eventList.filter {
-            $0.startDate == date
-        }.compactMap {
-            $0.title
-        }
+    func getEventList(date: Date) -> [EKEvent] {
+        let calendar = Calendar.current
+        let eventList = eventList.filter {
+            calendar.isDate($0.startDate, inSameDayAs: date)
+        }.sorted(by: { (a, b) -> Bool in
+            return a.startDate < b.startDate
+        })
         
-        return subtitle
+        return eventList
     }
     
     /// イベントを取得
     func fetchEvent() {
         Task { @MainActor in
             do {
-                guard let startDate = calendarModel?.displayDate else {
-                    return
-                }
+                let subtract = DateComponents(month: Constants.SUBTRACT_MONTH)
                 let addMonth = DateComponents(month: Constants.ADD_MONTH)
-                guard let endDate = Calendar.current.date(byAdding: addMonth, to: startDate) else {
+                guard let thisMonth = self.calendarModel?.displayDate,
+                      let startDate = Calendar.current.date(byAdding: subtract, to: thisMonth),
+                      let endDate = Calendar.current.date(byAdding: addMonth, to: thisMonth) else {
                     return
                 }
                 self.eventList = try await eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
+                notifyCalendarView()
             } catch {
                 guard let privateTalkAppError = error as? PrivateTalkAppError else {
                     return

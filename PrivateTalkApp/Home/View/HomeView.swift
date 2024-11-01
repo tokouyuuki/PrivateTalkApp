@@ -62,7 +62,11 @@ struct HomeView: View {
                     calendarViewModel.tapTodayButton()
                 })
                 AddEventButton(selectedDate: self.calendarViewModel.selectedDate,
-                               selectedEndDate: self.calendarViewModel.selectedEndDate)
+                               selectedEndDate: self.calendarViewModel.selectedEndDate,
+                               onDismiss: {
+                    // 新しくイベントを取得し、カレンダーを更新する
+                    calendarViewModel.fetchEvent()
+                })
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -99,6 +103,8 @@ private struct AddEventButton: View {
     @State var isShowSheet = false
     // カレンダーアクセス訴求のアラートを管理する変数
     @State var isShowAlert = false
+    // モーダルを閉じた時に呼ばれるクロージャ
+    let onDismiss: () -> Void
     
     var body: some View {
         Button(action: {
@@ -117,10 +123,12 @@ private struct AddEventButton: View {
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
         }
-        .sheet(isPresented: $isShowSheet) {
+        .sheet(isPresented: $isShowSheet,
+               onDismiss: { onDismiss() },
+               content: {
             EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
                                                               endDate: selectedEndDate))
-        }
+        })
         // カレンダーへのフルアクセスを訴求するアラート
         .customAlertDialog(isShowAlert: $isShowAlert,
                            privateTalkAppError: .eventError(.notAccess)) {
