@@ -44,6 +44,18 @@ final class CalendarViewModel: ObservableObject {
         return newDate ?? self.selectedDate
     }
     
+    init() {
+        // イベント変更通知を監視
+        NotificationCenter.default.addObserver(forName: .EKEventStoreChanged,
+                                               object: nil,
+                                               queue: .main) { [weak self] _ in
+            guard let self = self else {
+                return
+            }
+            self.fetchEvent()
+        }
+    }
+    
     // MARK: - Privateメソッド
     /// 年月文字列をセット
     /// - parameter date: セットしたいDate
@@ -133,7 +145,8 @@ final class CalendarViewModel: ObservableObject {
     @MainActor
     func isMatchedDate(dateToCompare: Date) -> Bool {
         // 比較したい年月
-        let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare, format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+        let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare,
+                                                                    format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         
         return dateToCompareString == self.calendarModel?.displayYearMonthString
     }

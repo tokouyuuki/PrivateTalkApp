@@ -82,6 +82,7 @@ struct CalendarView: UIViewRepresentable {
         // 月初と今日の日付を親Viewに渡す
         self.onCurrentDateChanged(.updateDisplayDate(fsCalendar.currentPage))
         self.onCurrentDateChanged(.updateSelectedDate(fsCalendar.today ?? Date()))
+        // カレンダーイベントへのフルアクセスを要求
         self.onCurrentDateChanged(.requestFullAccessToEvents)
         
         return fsCalendar
@@ -114,6 +115,7 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         // 月初の日付を親Viewに渡す
         self.parent.onCurrentDateChanged(.updateDisplayDate(calendar.currentPage))
+        // 新しいイベントを取得する
         self.parent.onCurrentDateChanged(.fetchEvent)
         Task { @MainActor in
             if let today = calendar.today {
