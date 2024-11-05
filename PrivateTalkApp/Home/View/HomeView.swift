@@ -40,10 +40,16 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, Constants.MAIN_STACK_PADDING)
-        .customAlertDialog(isShowAlert: $calendarViewModel.showErrorDialog,
-                           privateTalkAppError: calendarViewModel.error) {
-            calendarViewModel.resetError()
-        }
+        .sheet(isPresented: $calendarViewModel.showEventAddView,
+               onDismiss: {
+            // 新しくイベントを取得し、カレンダーを更新する
+            calendarViewModel.fetchEvent()
+        },
+               content: {
+            EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
+                                                  endDate: calendarViewModel.selectedEndDate))
+        })
+        .customAlertDialog(type: $calendarViewModel.alertType, onDismiss: {})
     }
     
     // ヘッダー部分
@@ -61,11 +67,8 @@ struct HomeView: View {
                     // 今日の日付をセットし、カレンダーを更新させる
                     calendarViewModel.tapTodayButton()
                 })
-                AddEventButton(selectedDate: self.calendarViewModel.selectedDate,
-                               selectedEndDate: self.calendarViewModel.selectedEndDate,
-                               onDismiss: {
-                    // 新しくイベントを取得し、カレンダーを更新する
-                    calendarViewModel.fetchEvent()
+                AddEventButton(onTapped: {
+                    calendarViewModel.onTapAddEventView()
                 })
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -95,26 +98,12 @@ private struct TodayButton: View {
 // MARK: - 予定を追加するボタン
 private struct AddEventButton: View {
     
-    // 選択している日付
-    let selectedDate: Date
-    // 選択している日付の終了日
-    var selectedEndDate: Date
-    // モーダルシート画面の表示を管理する変数
-    @State var isShowSheet = false
-    // カレンダーアクセス訴求のアラートを管理する変数
-    @State var isShowAlert = false
-    // モーダルを閉じた時に呼ばれるクロージャ
-    let onDismiss: () -> Void
+    // ボタンタップ時に呼ばれるクロージャ
+    let onTapped: () -> Void
     
     var body: some View {
         Button(action: {
-            if EventStoreManager.shared.isFullAccessToEvents() {
-                // カレンダーイベントへのアクセス権がある場合、モーダルシートを表示
-                isShowSheet.toggle()
-            } else {
-                // カレンダーイベントへのアクセス権限がない場合、アラートを表示
-                isShowAlert.toggle()
-            }
+            onTapped()
         }) {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
@@ -122,17 +111,6 @@ private struct AddEventButton: View {
                 .foregroundStyle(Color.primary)
                 .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
                        height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
-        }
-        .sheet(isPresented: $isShowSheet,
-               onDismiss: { onDismiss() },
-               content: {
-            EventAddView(eventAddViewModel: EventAddViewModel(startDate: selectedDate,
-                                                              endDate: selectedEndDate))
-        })
-        // カレンダーへのフルアクセスを訴求するアラート
-        .customAlertDialog(isShowAlert: $isShowAlert,
-                           privateTalkAppError: .eventError(.notAccess)) {
-            isShowAlert = false
         }
     }
 }

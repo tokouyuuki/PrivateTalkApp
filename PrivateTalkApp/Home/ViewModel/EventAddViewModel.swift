@@ -32,12 +32,12 @@ final class EventAddViewModel: ObservableObject {
     @Published var startDate: Date
     // 終了日
     @Published var endDate: Date
-    // エラーが発生した際に使用する変数
-    var error: PrivateTalkAppError?
-    // 予定の保存が成功したかどうか
-    @Published var isSavedEventSuccessfully = false
-    // 予定の保存が失敗したかどうか
-    @Published var showErrorDialog = false
+    // エラーが発生した際に表示するアラートのタイプ
+    @Published var alertType: CustomAlertType = .none
+    // モーダルを閉じるかどうか
+    @Published var shouldDismiss = false
+    // キャンセルボタン押下時の確認アラートを表示するかどうか
+    @Published var showCancelConfirmationAlert = false
     
     /// - parameter startDate: カレンダーで選択している日付（開始日）
     /// - parameter endDate: カレンダーで選択している日付（終了日）
@@ -71,20 +71,23 @@ final class EventAddViewModel: ObservableObject {
                                                                     notes: self.memoText)
                 // 予定を追加
                 try await eventRepository.addEvent(event: event)
-                self.isSavedEventSuccessfully = true
+                self.shouldDismiss = true
             } catch let privateTalkAppError as PrivateTalkAppError {
-                self.error = privateTalkAppError
-                self.showErrorDialog = true
+                self.alertType = .init(error: privateTalkAppError)
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
+                self.alertType = .init(error: .unexpected)
             }
         }
     }
     
-    /// エラーをリセットする
-    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
-    func resetError() {
-        self.error = nil
-        self.showErrorDialog = false
+    /// キャンセルボタン押下時の処理
+    func onTapCancelButton() {
+        // 編集中の予定がある場合、キャンセル確認アラートを表示
+        if isEditedEvent {
+            self.showCancelConfirmationAlert = true
+        } else {
+            self.shouldDismiss = true
+        }
     }
 }

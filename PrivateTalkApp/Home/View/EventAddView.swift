@@ -82,26 +82,49 @@ struct EventAddView: View {
                 }
             }
             .navigationBarTitle(Constants.EVENT_SHEET_TITLE_KEY, displayMode: .inline)
-            .navigationBarItems(
-                leading: NavigationBarCancelButton(isEditedEvent: eventAddViewModel.isEditedEvent,
-                                                   onCanceled: {
-                                                       dismiss()
-                                                   }),
-                trailing: NavigationBarSaveButton(isEditedEvent: eventAddViewModel.isEditedEvent,
-                                                  error: eventAddViewModel.error,
-                                                  isSavedEventSuccessfully: $eventAddViewModel.isSavedEventSuccessfully,
-                                                  showErrorDialog: $eventAddViewModel.showErrorDialog,
-                                                  onAction: { actionType in
-                                                      switch actionType {
-                                                      case .saveButtonTapped:
-                                                          eventAddViewModel.addEvent()
-                                                      case .saveCompleted:
-                                                          dismiss()
-                                                      case .alertDismissed:
-                                                          eventAddViewModel.resetError()
-                                                      }
-                                                  })
-            )
+            .toolbar {
+                // キャンセルボタン
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        eventAddViewModel.onTapCancelButton()
+                    } label: {
+                        Text(Constants.EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY)
+                            .foregroundStyle(.symbol)
+                    }
+                }
+                // 保存ボタン
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        eventAddViewModel.addEvent()
+                    } label: {
+                        Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
+                            .foregroundStyle(eventAddViewModel.isEditedEvent ? .symbol : .gray)
+                    }
+                    .disabled(!eventAddViewModel.isEditedEvent)
+                }
+            }
+            .onChange(of: eventAddViewModel.shouldDismiss, { oldValue, newValue in
+                if newValue {
+                    dismiss()
+                }
+            })
+            .customAlertDialog(type: $eventAddViewModel.alertType, onDismiss: {})
+            .confirmationDialog(Constants.CANCEL_DIALOG_TITLE_KEY,
+                                isPresented: $eventAddViewModel.showCancelConfirmationAlert,
+                                titleVisibility: .visible) {
+                Button(role: .destructive) {
+                    dismiss()
+                } label: {
+                    Text(Constants.CANCEL_DIALOG_DESTRUCTION_KEY)
+                        .foregroundStyle(.symbol)
+                }
+                Button(role: .cancel) {
+                    
+                } label: {
+                    Text(Constants.CANCEL_DIALOG_CONTINUE_KEY)
+                        .foregroundStyle(.symbol)
+                }
+            }
             .simultaneousGesture(DragGesture().onChanged({ _ in // Listのスクロールを検知
                 if isKeyboardActive {
                     // キーボードを閉じる
@@ -114,88 +137,6 @@ struct EventAddView: View {
             }))
             .interactiveDismissDisabled(eventAddViewModel.isEditedEvent)
         }
-    }
-}
-
-// MARK: - ナビゲーションバーアイテム（キャンセルボタン）
-private struct NavigationBarCancelButton: View {
-    // シート内の予定の編集が行われたかどうか
-    let isEditedEvent: Bool
-    // ダイアログを表示するかどうか
-    @State var isShowDialog = false
-    // キャンセル実行時のクロージャ
-    let onCanceled: () -> Void
-    
-    var body: some View {
-        Button {
-            if isEditedEvent {
-                // 予定の編集がされているならダイアログを表示
-                isShowDialog = true
-            } else {
-                // 予定の編集がされていないならモーダルを閉じる
-                onCanceled()
-            }
-        } label: {
-            Text(Constants.EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY)
-                .foregroundStyle(.symbol)
-        }
-        .confirmationDialog(Constants.CANCEL_DIALOG_TITLE_KEY,
-                            isPresented: $isShowDialog,
-                            titleVisibility: .visible) {
-            Button(role: .destructive) {
-                onCanceled()
-            } label: {
-                Text(Constants.CANCEL_DIALOG_DESTRUCTION_KEY)
-                    .foregroundStyle(.symbol)
-            }
-            Button(role: .cancel) {
-                
-            } label: {
-                Text(Constants.CANCEL_DIALOG_CONTINUE_KEY)
-                    .foregroundStyle(.symbol)
-            }
-        }
-    }
-}
-
-// MARK: - ナビゲーションバーアイテム（保存ボタン）
-private struct NavigationBarSaveButton: View {
-    // アクションが発生した時に呼ばれるクロージャのタイプ
-    enum ActionType {
-        // 保存ボタン押下時
-        case saveButtonTapped
-        // 保存完了時
-        case saveCompleted
-        // アラートを閉じた時
-        case alertDismissed
-    }
-    // シート内の予定の編集が行われたかどうか（保存ボタンが有効かどうか）
-    let isEditedEvent: Bool
-    // PrivateTalkAppError
-    let error: PrivateTalkAppError?
-    // 予定の保存が成功したかどうか
-    @Binding var isSavedEventSuccessfully: Bool
-    // 予定の保存が失敗したかどうか
-    @Binding var showErrorDialog: Bool
-    // アクションが発生した時に呼ばれるクロージャ
-    let onAction: (ActionType) -> Void
-        
-    var body: some View {
-        Button {
-            onAction(.saveButtonTapped)
-        } label: {
-            Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
-                .foregroundStyle(isEditedEvent ? .symbol : .gray)
-        }
-        .onChange(of: isSavedEventSuccessfully, { oldValue, newValue in
-            if newValue {
-                onAction(.saveCompleted)
-            }
-        })
-        .customAlertDialog(isShowAlert: $showErrorDialog, privateTalkAppError: error) {
-            onAction(.alertDismissed)
-        }
-        .disabled(!isEditedEvent)
     }
 }
 

@@ -25,14 +25,14 @@ final class CalendarViewModel: ObservableObject {
     @MainActor @Published var calendarModel: CalendarModel?
     // 表示している月の予定のリスト
     @Published var eventList = [EKEvent]()
-    // エラーダイアログを表示するかどうか
-    @MainActor @Published var showErrorDialog = false
     // WorlTimeAPIの世界時刻情報を取得するために使用するService
     private let worldTimeService = WorldTimeService()
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
-    // エラーが発生した際に使用する変数
-    @MainActor var error: PrivateTalkAppError?
+    // エラーが発生した際に表示するアラートのタイプ
+    @MainActor @Published var alertType: CustomAlertType = .none
+    // イベント編集画面を表示するかどうか
+    @MainActor @Published var showEventAddView: Bool = false
     // 選択している日付
     @MainActor var selectedDate: Date = Date()
     
@@ -106,13 +106,11 @@ final class CalendarViewModel: ObservableObject {
                     fetchEvent()
                 } else {
                     notifyCalendarView()
-                    self.error = PrivateTalkAppError.eventError(.notAccess)
-                    self.showErrorDialog = true
+                    self.alertType = .init(error: .eventError(.notAccess))
                 }
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
-                self.error = PrivateTalkAppError.unexpected
-                self.showErrorDialog = true
+                self.alertType = .init(error: .unexpected)
             }
         }
     }
@@ -202,12 +200,16 @@ final class CalendarViewModel: ObservableObject {
         }
     }
     
-    /// エラーをリセットする
-    /// "error"と"showErrorDialog"を使う導線がある場合、最終的にこのメソッドを呼ばないといけない
-    func resetError() {
+    /// イベント追加ボタンを押下時の処理
+    func onTapAddEventView() {
         Task { @MainActor in
-            self.error = nil
-            self.showErrorDialog = false
+            // カレンダーイベントへのアクセス権限があるか確認
+            if EventStoreManager.shared.isFullAccessToEvents() {
+                // 権限がある場合は、EventAddViewを表示
+                self.showEventAddView = true
+            } else {
+                self.alertType = .init(error: .eventError(.notAccess))
+            }
         }
     }
 }
