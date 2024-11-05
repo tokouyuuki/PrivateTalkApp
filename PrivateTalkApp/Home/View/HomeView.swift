@@ -11,14 +11,6 @@ import SwiftUI
 private struct Constants {
     static let ADD_SCHEDULE_BUTTON_IMAGE_NAME = "plus.circle.fill"
     static let TODAY_BUTTON_TEXT_KEY = LocalizedStringKey("today_button_text")
-    static let HEADER_AND_CALENDAR_SPACING = 8.0
-    static let ELEMENTS_IN_THE_HEADER_SPACING = 0.0
-    static let HEADER_TITLE_FONT_SIZE = 20.0
-    static let TODAY_BUTTON_AND_ADD_SCHEDULE_BUTTON_SPACING = 20.0
-    static let ADD_SCHEDULE_BUTTON_WIDTH = 30.0
-    static let ADD_SCHEDULE_BUTTON_HEIGHT = 30.0
-    static let HEADER_HORIZONTAL = 10.0
-    static let MAIN_STACK_PADDING = 5.0
 }
 
 // MARK: - ホーム View
@@ -30,7 +22,7 @@ struct HomeView: View {
     @State private var todayButtonEnable: Bool = true
     
     var body: some View {
-        VStack(spacing: Constants.HEADER_AND_CALENDAR_SPACING) {
+        VStack(spacing: 8.0) {
             // ヘッダー
             headerView
             // カレンダー
@@ -39,7 +31,7 @@ struct HomeView: View {
                 calendarViewModel.handleAction(eventAction)
             }
         }
-        .padding(.vertical, Constants.MAIN_STACK_PADDING)
+        .padding(.vertical, 5.0)
         .sheet(isPresented: $calendarViewModel.showEventAddView,
                onDismiss: {
             // 新しくイベントを取得し、カレンダーを更新する
@@ -54,14 +46,14 @@ struct HomeView: View {
     
     // ヘッダー部分
     private var headerView: some View {
-        HStack(spacing: Constants.ELEMENTS_IN_THE_HEADER_SPACING) {
+        HStack(spacing: 0.0) {
             // 年月テキスト
             Text(calendarViewModel.calendarModel?.displayYearMonthString ?? String.empty)
-                .font(.system(size: Constants.HEADER_TITLE_FONT_SIZE, weight: .bold))
+                .font(.system(size: 20.0, weight: .bold))
                 .foregroundStyle(Color.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             // 今日ボタンと予定追加ボタン
-            HStack(spacing: Constants.TODAY_BUTTON_AND_ADD_SCHEDULE_BUTTON_SPACING) {
+            HStack(spacing: 20.0) {
                 TodayButton(todayButtonEnable: todayButtonEnable,
                             onButtonTapped: {
                     // 今日の日付をセットし、カレンダーを更新させる
@@ -73,7 +65,7 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .padding(.horizontal, Constants.HEADER_HORIZONTAL)
+        .padding(.horizontal, 10.0)
     }
 }
 
@@ -88,7 +80,7 @@ private struct TodayButton: View {
             onButtonTapped()
         }) {
             Text(Constants.TODAY_BUTTON_TEXT_KEY)
-                .font(.system(size: Constants.HEADER_TITLE_FONT_SIZE))
+                .font(.system(size: 20.0))
                 .foregroundStyle(Color.primary)
         }
         .disabled(todayButtonEnable)
@@ -109,8 +101,7 @@ private struct AddEventButton: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .foregroundStyle(Color.primary)
-                .frame(width: Constants.ADD_SCHEDULE_BUTTON_WIDTH,
-                       height: Constants.ADD_SCHEDULE_BUTTON_HEIGHT)
+                .frame(width: 30.0, height: 30.0)
         }
     }
 }

@@ -27,11 +27,7 @@ struct CalendarView: UIViewRepresentable {
     
     private struct Constants {
         static let DEFAULT_LANGUAGE = "ja-JP"
-        static let HEADER_HEIGHT = 0.0
-        static let PREVIOUS_AND_NEXT_MONTH_ALPHA = 0.0
-        static let WEEKDAY_FONT_SIZE = 20.0
-        static let TITLE_FONT_SIZE = 16.0
-        static let TODAY_AND_SELECTED_BORDER_RADIUS = 1.0
+        static let CALENDAR_RELOAD_NOTIFICATION = "calendarReload"
     }
     
     // カレンダーのViewModel
@@ -53,25 +49,25 @@ struct CalendarView: UIViewRepresentable {
         // カレンダーの設定
         let fsCalendar = FSCalendar()
             .setLocale(identifier: preferredLanguage)
-            .setHeaderHeight(height: Constants.HEADER_HEIGHT)
-            .setHeaderMinimumDissolvedAlpha(alpha: Constants.PREVIOUS_AND_NEXT_MONTH_ALPHA)
-            .setWeekdayFont(size: Constants.WEEKDAY_FONT_SIZE)
+            .setHeaderHeight(height: 0.0)
+            .setHeaderMinimumDissolvedAlpha(alpha: 0.0)
+            .setWeekdayFont(size: 20.0)
             .setCalendarWeekdayBackgroundColor(color: .symbol)
             .setWeekdayTextColor(color: .label)
-            .setTitleFont(size: Constants.TITLE_FONT_SIZE, weight: .bold)
+            .setTitleFont(size: 16.0, weight: .bold)
             .setTodayColor(color: .clear)
             .setSelectionColor(color: .clear)
             .setBorderSelectionColor(color: .clear)
             .setTitleSelectionColor(color: .label)
             .setTitleDefaultColor(color: .label)
             .setTitleWeekendColor(color: .symbol)
-            .setBorderRadius(radius: Constants.TODAY_AND_SELECTED_BORDER_RADIUS)
+            .setBorderRadius(radius: 1.0)
             .setplaceholderType(placeholderType: .none)
         
         fsCalendar.register(CustomCalendarCell.self, forCellReuseIdentifier: CustomCalendarCell.identifier)
         
         // イベント取得完了の通知を監視してカレンダーを描画
-        NotificationCenter.default.addObserver(forName: Notification.Name("calendarReload"),
+        NotificationCenter.default.addObserver(forName: Notification.Name(Constants.CALENDAR_RELOAD_NOTIFICATION),
                                                object: nil,
                                                queue: .main) { _ in
             fsCalendar.delegate = context.coordinator

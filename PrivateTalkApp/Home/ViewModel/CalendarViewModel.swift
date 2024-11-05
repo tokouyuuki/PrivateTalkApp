@@ -14,11 +14,7 @@ final class CalendarViewModel: ObservableObject {
     private struct Constants {
         static let FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
         static let YEAR_MONTH_DATE_FORMAT_KEY = "year_month_date_format"
-        static let SELECTED_END_DATE_ADD_HOUR = 1
-        static let SELECTED_DATE_MINUTE = 0
-        static let SELECTED_DATE_SECOND = 0
-        static let ADD_MONTH = 2
-        static let SUBTRACT_MONTH = -1
+        static let CALENDAR_RELOAD_NOTIFICATION = "calendarReload"
     }
     
     // カレンダーのModel
@@ -39,7 +35,7 @@ final class CalendarViewModel: ObservableObject {
     // 選択している日付の終了日
     @MainActor var selectedEndDate: Date {
         // １時間プラスした時刻に変換する
-        let newDate = Calendar.current.date(byAdding: DateComponents(hour: Constants.SELECTED_END_DATE_ADD_HOUR),
+        let newDate = Calendar.current.date(byAdding: DateComponents(hour: 1),
                                             to: self.selectedDate)
         return newDate ?? self.selectedDate
     }
@@ -73,7 +69,7 @@ final class CalendarViewModel: ObservableObject {
     /// そのため、イベントを取得したタイミングで通知を送信する。
     private func notifyCalendarView() {
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name("calendarReload"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(Constants.CALENDAR_RELOAD_NOTIFICATION), object: nil)
         }
     }
     
@@ -87,8 +83,8 @@ final class CalendarViewModel: ObservableObject {
         }
         // 分、秒を切り捨て現在の時間にし、キリが良い時刻に変換する
         let newDate = calendar.date(bySettingHour: currentHourComponent,
-                                    minute: Constants.SELECTED_DATE_MINUTE,
-                                    second: Constants.SELECTED_DATE_SECOND,
+                                    minute: 0,
+                                    second: 0,
                                     of: date)
         
         Task { @MainActor in
@@ -182,8 +178,8 @@ final class CalendarViewModel: ObservableObject {
     func fetchEvent() {
         Task { @MainActor in
             do {
-                let subtract = DateComponents(month: Constants.SUBTRACT_MONTH)
-                let addMonth = DateComponents(month: Constants.ADD_MONTH)
+                let subtract = DateComponents(month: -1)
+                let addMonth = DateComponents(month: 2)
                 guard let thisMonth = self.calendarModel?.displayDate,
                       let startDate = Calendar.current.date(byAdding: subtract, to: thisMonth),
                       let endDate = Calendar.current.date(byAdding: addMonth, to: thisMonth) else {

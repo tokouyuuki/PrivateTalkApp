@@ -22,8 +22,6 @@ private struct Constants {
     static let CANCEL_DIALOG_TITLE_KEY = LocalizedStringKey("cancel_dialog_title")
     static let CANCEL_DIALOG_DESTRUCTION_KEY = LocalizedStringKey("cancel_dialog_destruction")
     static let CANCEL_DIALOG_CONTINUE_KEY = LocalizedStringKey("cancel_dialog_continue")
-    static let DATE_PICKER_HEIGHT = 22.0
-    static let MEMO_TEXT_FIELD_HEIGHT = 200.0
 }
 
 // MARK: - 予定追加 View
@@ -160,7 +158,7 @@ private struct TextFieldView: View {
             ZStack(alignment: .topLeading) {
                 // TextFieldの高さを広げる、かつ領域全体をタップ可能にするため透明なViewを配置
                 Color.clear
-                    .frame(height: Constants.MEMO_TEXT_FIELD_HEIGHT)
+                    .frame(height: 200.0)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         isKeyboardActive = true
@@ -194,7 +192,7 @@ private struct DateSettingView: View {
         DatePicker(label,
                    selection: $date,
                    displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
-        .frame(height: Constants.DATE_PICKER_HEIGHT)
+        .frame(height: 22.0)
     }
 }
 
