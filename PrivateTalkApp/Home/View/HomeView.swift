@@ -49,7 +49,7 @@ struct HomeView: View {
             EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
                                                   endDate: calendarViewModel.selectedEndDate))
         })
-        .customAlertDialog(type: $calendarViewModel.alertType, onDismiss: {})
+        .eventErrorAlert(type: $calendarViewModel.eventErrorAlertType, onDismiss: {})
     }
     
     // ヘッダー部分

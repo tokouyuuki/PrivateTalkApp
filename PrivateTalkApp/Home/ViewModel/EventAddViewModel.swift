@@ -32,8 +32,8 @@ final class EventAddViewModel: ObservableObject {
     @Published var startDate: Date
     // 終了日
     @Published var endDate: Date
-    // エラーが発生した際に表示するアラートのタイプ
-    @Published var alertType: CustomAlertType = .none
+    // イベントエラーが発生した際に表示するアラートのタイプ
+    @Published var eventErrorAlertType: EventErrorAlertType = .none
     // モーダルを閉じるかどうか
     @Published var shouldDismiss = false
     // キャンセルボタン押下時の確認アラートを表示するかどうか
@@ -70,13 +70,13 @@ final class EventAddViewModel: ObservableObject {
                                                                     isAllDay: self.isAllDay,
                                                                     notes: self.memoText)
                 // 予定を追加
-                try await eventRepository.addEvent(event: event)
+                try eventRepository.addEvent(event: event)
                 self.shouldDismiss = true
-            } catch let privateTalkAppError as PrivateTalkAppError {
-                self.alertType = .init(error: privateTalkAppError)
+            } catch let eventError as EventError {
+                self.eventErrorAlertType = .init(error: eventError)
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
-                self.alertType = .init(error: .unexpected)
+                self.eventErrorAlertType = .init(error: .unexpected)
             }
         }
     }

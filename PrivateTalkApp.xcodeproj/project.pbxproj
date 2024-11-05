@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224E1B62C75DC2B0099C855 /* StringExtension.swift */; };
 		2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAEB2CBE138B0087C314 /* EventRepository.swift */; };
-		2227BAEF2CBE8E900087C314 /* CustomAlertDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAEE2CBE8E900087C314 /* CustomAlertDialog.swift */; };
-		2227BAF12CBF4F600087C314 /* PrivateTalkAppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */; };
+		2227BAEF2CBE8E900087C314 /* EventErrorAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAEE2CBE8E900087C314 /* EventErrorAlert.swift */; };
+		2227BAF12CBF4F600087C314 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAF02CBF4F600087C314 /* NetworkError.swift */; };
 		222BDF962C6DE92200638D4A /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222BDF952C6DE92100638D4A /* NewsView.swift */; };
 		2235C7642CB027F100C701A3 /* EventDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2235C7632CB027F000C701A3 /* EventDataSource.swift */; };
 		223909802C6E3BF600B4DCFE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2239097F2C6E3BF600B4DCFE /* LICENSE.txt */; };
@@ -32,6 +32,7 @@
 		22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BE002C667D80006AD6D8 /* SettingView.swift */; };
 		22D1BE042C667DFF006AD6D8 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BE032C667DFF006AD6D8 /* Colors.xcassets */; };
 		22E19FF02C6F517700C4051F /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E19FEF2C6F517700C4051F /* CalendarView.swift */; };
+		22EB59F42CD9F96700BDD8B6 /* EventError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB59F32CD9F96700BDD8B6 /* EventError.swift */; };
 		22EBB41B2C76DC8500AB7019 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EBB41A2C76DC8500AB7019 /* CalendarViewModel.swift */; };
 		22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */; };
 		22EDDC812C7D942400750F2A /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC802C7D942400750F2A /* NetworkService.swift */; };
@@ -44,8 +45,8 @@
 /* Begin PBXFileReference section */
 		2224E1B62C75DC2B0099C855 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		2227BAEB2CBE138B0087C314 /* EventRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRepository.swift; sourceTree = "<group>"; };
-		2227BAEE2CBE8E900087C314 /* CustomAlertDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertDialog.swift; sourceTree = "<group>"; };
-		2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppError.swift; sourceTree = "<group>"; };
+		2227BAEE2CBE8E900087C314 /* EventErrorAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventErrorAlert.swift; sourceTree = "<group>"; };
+		2227BAF02CBF4F600087C314 /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		222BDF952C6DE92100638D4A /* NewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsView.swift; sourceTree = "<group>"; };
 		2235C7632CB027F000C701A3 /* EventDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataSource.swift; sourceTree = "<group>"; };
 		2239097F2C6E3BF600B4DCFE /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -71,6 +72,7 @@
 		22D1BE032C667DFF006AD6D8 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		22E19FED2C6F44D600C4051F /* Entitlements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		22E19FEF2C6F517700C4051F /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		22EB59F32CD9F96700BDD8B6 /* EventError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventError.swift; sourceTree = "<group>"; };
 		22EBB41A2C76DC8500AB7019 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 		22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtilities.swift; sourceTree = "<group>"; };
 		22EDDC802C7D942400750F2A /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
@@ -120,7 +122,7 @@
 		2227BAED2CBE8E540087C314 /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
-				2227BAEE2CBE8E900087C314 /* CustomAlertDialog.swift */,
+				2227BAEE2CBE8E900087C314 /* EventErrorAlert.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -154,7 +156,8 @@
 			children = (
 				22EBB41C2C772B2D00AB7019 /* DateUtilities.swift */,
 				2251FD752C9E8A6B0005714E /* Logger.swift */,
-				2227BAF02CBF4F600087C314 /* PrivateTalkAppError.swift */,
+				2227BAF02CBF4F600087C314 /* NetworkError.swift */,
+				22EB59F32CD9F96700BDD8B6 /* EventError.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -491,7 +494,7 @@
 			files = (
 				22EDDC812C7D942400750F2A /* NetworkService.swift in Sources */,
 				22D1BDF52C667BA3006AD6D8 /* Tab.swift in Sources */,
-				2227BAEF2CBE8E900087C314 /* CustomAlertDialog.swift in Sources */,
+				2227BAEF2CBE8E900087C314 /* EventErrorAlert.swift in Sources */,
 				2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */,
 				22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */,
 				2235C7642CB027F100C701A3 /* EventDataSource.swift in Sources */,
@@ -503,6 +506,7 @@
 				22E19FF02C6F517700C4051F /* CalendarView.swift in Sources */,
 				22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */,
 				2251FD762C9E8A6B0005714E /* Logger.swift in Sources */,
+				22EB59F42CD9F96700BDD8B6 /* EventError.swift in Sources */,
 				22EBB41B2C76DC8500AB7019 /* CalendarViewModel.swift in Sources */,
 				22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */,
 				222BDF962C6DE92200638D4A /* NewsView.swift in Sources */,
@@ -512,7 +516,7 @@
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
 				228828FE2CCA3FE100BB1527 /* CustomCalendarCell.swift in Sources */,
 				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
-				2227BAF12CBF4F600087C314 /* PrivateTalkAppError.swift in Sources */,
+				2227BAF12CBF4F600087C314 /* NetworkError.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,
 				22B1DCA22C9FEEC100E1019F /* EventAddView.swift in Sources */,
 			);

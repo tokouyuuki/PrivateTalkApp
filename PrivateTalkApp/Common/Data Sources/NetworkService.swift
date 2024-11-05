@@ -10,9 +10,9 @@ import Foundation
 // MARK: - ネットワーク通信
 struct NetworkService {
     
-    func fetch<T: Decodable>(urlString: String, decodeTo type: T.Type) async throws(PrivateTalkAppError) -> T {
+    func fetch<T: Decodable>(urlString: String, decodeTo type: T.Type) async throws(NetworkError) -> T {
         guard let url = URL(string: urlString) else {
-            throw PrivateTalkAppError.networkError(.badUrlError)
+            throw NetworkError.badUrlError
         }
         
         do {
@@ -20,15 +20,15 @@ struct NetworkService {
             
             // レスポンスが返ってきているかのチェック
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw PrivateTalkAppError.networkError(.noResponse)
+                throw NetworkError.noResponse
             }
             
             // レスポンスステータスコードが200番台以外の場合
             if httpResponse.statusCode != 200 {
                 if [400, 404, 500, 502, 503, 504].contains(httpResponse.statusCode) {
-                    throw PrivateTalkAppError.networkError(.httpResponseError(statusCode: httpResponse.statusCode))
+                    throw NetworkError.httpResponseError(statusCode: httpResponse.statusCode)
                 } else {
-                    throw PrivateTalkAppError.networkError(.httpResponseError(statusCode: nil))
+                    throw NetworkError.httpResponseError(statusCode: nil)
                 }
             }
             
@@ -36,11 +36,11 @@ struct NetworkService {
             return decodeData
             
         } catch let urlError as URLError {
-            throw PrivateTalkAppError.networkError(.urlError(urlError.code))
+            throw NetworkError.urlError(errorCode: urlError.code)
         } catch is DecodingError {
-            throw PrivateTalkAppError.networkError(.decodingError)
+            throw NetworkError.decodingError
         } catch {
-            throw PrivateTalkAppError.unexpected
+            throw NetworkError.unexpected
         }
     }
 }

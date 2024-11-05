@@ -1,5 +1,5 @@
 //
-//  CustomAlertDialog.swift
+//  EventErrorAlert.swift
 //  PrivateTalkApp
 //
 //  Created by 都甲裕希 on 2024/10/15.
@@ -15,21 +15,20 @@ private struct Constants {
     static let DEFAULT_ALERT_BUTTON_TEXT_KEY = NSLocalizedString("default_alert_button_text", comment: String.empty)
 }
 
-// MARK: - アラートのタイプ
-enum CustomAlertType {
-    case networkError(NetworkError)
-    case eventError(EventError)
-    case otherError
+// MARK: - EventErrorアラートのタイプ
+enum EventErrorAlertType {
+    case noCalendarPermission(EventError)
+    case otherEventError(EventError)
     case none
     
-    init(error: PrivateTalkAppError) {
+    init(error: EventError) {
         switch error {
-        case .networkError(let networkError):
-            self = .networkError(networkError)
-        case .eventError(let eventError):
-            self = .eventError(eventError)
+        case .notAccess:
+            self = .noCalendarPermission(error)
+        case .saveFailed:
+            self = .otherEventError(error)
         case .unexpected:
-            self = .otherError
+            self = .otherEventError(error)
         }
     }
     
@@ -48,13 +47,9 @@ enum CustomAlertType {
         switch self {
         case .none:
             return String.empty
-        case .eventError(let eventError):
-            if eventError.isNotAccess {
-                return eventError.errorDescription ?? String.empty
-            } else {
-                return Constants.DEFAULT_ALERT_TITLE_KEY
-            }
-        default:
+        case .noCalendarPermission(let eventError):
+            return eventError.errorDescription ?? String.empty
+        case .otherEventError(_):
             return Constants.DEFAULT_ALERT_TITLE_KEY
         }
     }
@@ -64,25 +59,19 @@ enum CustomAlertType {
         switch self {
         case .none:
             return String.empty
-        case .eventError(let eventError):
-            if eventError.isNotAccess {
-                return Constants.EVENT_ACCESS_DENIED_ALERT_MESSAGE
-            } else {
-                return eventError.errorDescription ?? String.empty
-            }
-        case .networkError(let networkError):
-            return networkError.errorDescription ?? String.empty
-        case .otherError:
-            return PrivateTalkAppError.unexpected.errorDescription ?? String.empty
+        case .noCalendarPermission(_):
+            return Constants.EVENT_ACCESS_DENIED_ALERT_MESSAGE
+        case .otherEventError(let eventError):
+            return eventError.errorDescription ?? String.empty
         }
     }
 }
 
-// MARK: - カスタムアラート
-struct CustomAlertDialog: ViewModifier {
+// MARK: - EventErrorアラート
+struct EventErrorAlert: ViewModifier {
     
     // アラートのタイプ
-    let type: Binding<CustomAlertType>
+    let type: Binding<EventErrorAlertType>
     // アラートを閉じた時に呼ばれるクロージャ
     let onDismiss: () -> Void
     
@@ -94,8 +83,7 @@ struct CustomAlertDialog: ViewModifier {
                 switch type.wrappedValue {
                 case .none:
                     EmptyView()
-                case .eventError(let eventError):
-                    if eventError.isNotAccess {
+                case .noCalendarPermission(_):
                         Button(Constants.EVENT_ACCESS_DENIED_ALERT_BUTTON_TEXT_KEY) {
                             // 設定アプリのカレンダーアクセス画面を開く
                             if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
@@ -103,15 +91,10 @@ struct CustomAlertDialog: ViewModifier {
                             }
                             onDismiss()
                         }
-                    } else {
+                case .otherEventError(_):
                         Button(Constants.DEFAULT_ALERT_BUTTON_TEXT_KEY) {
                             onDismiss()
                         }
-                    }
-                default:
-                    Button(Constants.DEFAULT_ALERT_BUTTON_TEXT_KEY) {
-                        onDismiss()
-                    }
                 }
             } message: {
                 Text(type.wrappedValue.message)
@@ -122,11 +105,11 @@ struct CustomAlertDialog: ViewModifier {
 // MARK: - extension
 extension View {
     
-    /// エラーの内容によってカスタムアラートを生成するモディファイア
+    /// イベントエラーの内容によってアラートを生成するモディファイア
     /// - parameter type: アラートのタイプ
     /// - parameter onDismiss: アラートを閉じた時に呼ばれるクロージャ
-    func customAlertDialog(type: Binding<CustomAlertType>,
+    func eventErrorAlert(type: Binding<EventErrorAlertType>,
                            onDismiss: @escaping () -> Void) -> some View {
-        self.modifier(CustomAlertDialog(type: type, onDismiss: onDismiss))
+        self.modifier(EventErrorAlert(type: type, onDismiss: onDismiss))
     }
 }

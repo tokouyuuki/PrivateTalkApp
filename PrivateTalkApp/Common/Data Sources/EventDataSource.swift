@@ -13,17 +13,13 @@ struct EventDataSource {
     
     /// カレンダーにイベントを保存する
     /// - parameter event: イベント
-    func saveEvent(_ event: EKEvent) async throws {
-        try await Task {
-            try EventStoreManager.shared.eventStore.save(event, span: .thisEvent, commit: true)
-        }.value
+    func saveEvent(_ event: EKEvent) throws {
+        try EventStoreManager.shared.eventStore.save(event, span: .thisEvent, commit: true)
     }
     
     /// イベントを取得する
     /// - parameter predicate: フィルタリングする条件
-    func fetchEvent(predicate: NSPredicate) async -> [EKEvent] {
-        await Task {
-            return EventStoreManager.shared.eventStore.events(matching: predicate)
-        }.value
+    func fetchEvent(predicate: NSPredicate) -> [EKEvent] {
+        return EventStoreManager.shared.eventStore.events(matching: predicate)
     }
 }

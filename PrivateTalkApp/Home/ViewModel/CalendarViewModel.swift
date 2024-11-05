@@ -29,8 +29,8 @@ final class CalendarViewModel: ObservableObject {
     private let worldTimeService = WorldTimeService()
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
-    // エラーが発生した際に表示するアラートのタイプ
-    @MainActor @Published var alertType: CustomAlertType = .none
+    // イベントエラーが発生した際に表示するアラートのタイプ
+    @MainActor @Published var eventErrorAlertType: EventErrorAlertType = .none
     // イベント編集画面を表示するかどうか
     @MainActor @Published var showEventAddView: Bool = false
     // 選択している日付
@@ -106,11 +106,11 @@ final class CalendarViewModel: ObservableObject {
                     fetchEvent()
                 } else {
                     notifyCalendarView()
-                    self.alertType = .init(error: .eventError(.notAccess))
+                    self.eventErrorAlertType = .init(error: .notAccess)
                 }
             } catch {
                 Logger().log(error.localizedDescription, level: .error)
-                self.alertType = .init(error: .unexpected)
+                self.eventErrorAlertType = .init(error: .unexpected)
             }
         }
     }
@@ -129,10 +129,10 @@ final class CalendarViewModel: ObservableObject {
             } catch {
                 // UTCかつ端末に依存する今日の日付をセットする
                 self.setDisplayDate(Date())
-                guard let privateTalkAppError = error as? PrivateTalkAppError else {
+                guard let networkError = error as? NetworkError else {
                     return
                 }
-                Logger().log(privateTalkAppError.errorDescription ?? String.empty, level: .error)
+                Logger().log(networkError.errorDescription ?? String.empty, level: .error)
             }
         }
     }
@@ -189,13 +189,11 @@ final class CalendarViewModel: ObservableObject {
                       let endDate = Calendar.current.date(byAdding: addMonth, to: thisMonth) else {
                     return
                 }
-                self.eventList = try await eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
+                self.eventList = try eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
                 notifyCalendarView()
-            } catch {
-                guard let privateTalkAppError = error as? PrivateTalkAppError else {
-                    return
-                }
-                Logger().log(privateTalkAppError.errorDescription ?? String.empty, level: .error)
+            } catch let eventError as EventError {
+                Logger().log(eventError.errorDescription ?? String.empty, level: .error)
+                self.eventErrorAlertType = .init(error: eventError)
             }
         }
     }
@@ -208,7 +206,7 @@ final class CalendarViewModel: ObservableObject {
                 // 権限がある場合は、EventAddViewを表示
                 self.showEventAddView = true
             } else {
-                self.alertType = .init(error: .eventError(.notAccess))
+                self.eventErrorAlertType = .init(error: .notAccess)
             }
         }
     }

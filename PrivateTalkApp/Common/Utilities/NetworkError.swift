@@ -1,37 +1,11 @@
 //
-//  PrivateTalkAppError.swift
+//  NetworkError.swift
 //  PrivateTalkApp
 //
 //  Created by 都甲裕希 on 2024/10/16.
 //
 
 import Foundation
-
-// MARK: - アプリ全体で扱う汎用エラー
-enum PrivateTalkAppError: LocalizedError {
-    
-    private struct Constants {
-        static let UNEXPECTED_ERROR_MESSAGE = NSLocalizedString("unexpected_error", comment: String.empty)
-    }
-    
-    // ネットワーク通信エラー
-    case networkError(NetworkError)
-    // カレンダーイベントのエラー
-    case eventError(EventError)
-    // 予期せぬエラー
-    case unexpected
-    
-    var errorDescription: String? {
-        switch self {
-        case .networkError(let networkError):
-            return networkError.errorDescription
-        case .eventError(let eventError):
-            return eventError.errorDescription
-        case .unexpected:
-            return Constants.UNEXPECTED_ERROR_MESSAGE
-        }
-    }
-}
 
 // MARK: - ネットワーク通信エラー
 enum NetworkError: LocalizedError {
@@ -56,9 +30,11 @@ enum NetworkError: LocalizedError {
     // レスポンスエラー
     case httpResponseError(statusCode: Int?)
     // URL読み込みエラー
-    case urlError(URLError.Code)
+    case urlError(errorCode: URLError.Code)
     // デコードエラー
     case decodingError
+    // 予期せぬエラー
+    case unexpected
     
     var errorDescription: String? {
         switch self {
@@ -96,34 +72,8 @@ enum NetworkError: LocalizedError {
             }
         case .decodingError:
             return Constants.UNEXPECTED_ERROR_MESSAGE
+        case .unexpected:
+            return Constants.UNEXPECTED_ERROR_MESSAGE
         }
-    }
-}
-
-// MARK: - カレンダーイベントのエラー
-enum EventError: LocalizedError {
-    
-    private struct Constants {
-        static let EVENT_ACCESS_DENIED_ERROR_MESSAGE = NSLocalizedString("event_access_denied_error", comment: String.empty)
-        static let EVENT_SAVE_FAILED_ERROR_MESSAGE = NSLocalizedString("event_save_failed_error", comment: String.empty)
-    }
-    
-    // カレンダーへのフルアクセス権限がない
-    case notAccess
-    // イベントの保存失敗
-    case saveFailed
-    
-    var errorDescription: String? {
-        switch self {
-        case .notAccess:
-            return Constants.EVENT_ACCESS_DENIED_ERROR_MESSAGE
-        case .saveFailed:
-            return Constants.EVENT_SAVE_FAILED_ERROR_MESSAGE
-        }
-    }
-    
-    // アクセス権限があるかどうか
-    var isNotAccess: Bool {
-        return self == .notAccess
     }
 }

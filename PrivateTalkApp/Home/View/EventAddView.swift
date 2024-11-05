@@ -108,7 +108,7 @@ struct EventAddView: View {
                     dismiss()
                 }
             })
-            .customAlertDialog(type: $eventAddViewModel.alertType, onDismiss: {})
+            .eventErrorAlert(type: $eventAddViewModel.eventErrorAlertType, onDismiss: {})
             .confirmationDialog(Constants.CANCEL_DIALOG_TITLE_KEY,
                                 isPresented: $eventAddViewModel.showCancelConfirmationAlert,
                                 titleVisibility: .visible) {
