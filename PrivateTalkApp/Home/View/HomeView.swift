@@ -26,10 +26,7 @@ struct HomeView: View {
             // ヘッダー
             headerView
             // カレンダー
-            CalendarView(calendarViewModel: calendarViewModel,
-                         todayButtonEnable: $todayButtonEnable) { eventAction in
-                calendarViewModel.handleAction(eventAction)
-            }
+            CalendarView(calendarViewModel: calendarViewModel)
         }
         .padding(.vertical, 5.0)
         .sheet(isPresented: $calendarViewModel.showEventAddView,
@@ -46,12 +43,7 @@ struct HomeView: View {
     
     // ヘッダー部分
     private var headerView: some View {
-        HStack(spacing: 0.0) {
-            // 年月テキスト
-            Text(calendarViewModel.calendarModel?.displayYearMonthString ?? String.empty)
-                .font(.system(size: 20.0, weight: .bold))
-                .foregroundStyle(Color.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0.0) {
             // 今日ボタンと予定追加ボタン
             HStack(spacing: 20.0) {
                 TodayButton(todayButtonEnable: todayButtonEnable,
@@ -64,6 +56,11 @@ struct HomeView: View {
                 })
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
+            // 年月テキスト
+            Text(calendarViewModel.yearMonthString)
+                .font(.system(size: 30.0, weight: .bold))
+                .foregroundStyle(Color.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 10.0)
     }
@@ -81,7 +78,7 @@ private struct TodayButton: View {
         }) {
             Text(Constants.TODAY_BUTTON_TEXT_KEY)
                 .font(.system(size: 20.0))
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(.symbol)
         }
         .disabled(todayButtonEnable)
     }
@@ -100,7 +97,7 @@ private struct AddEventButton: View {
             Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(.symbol)
                 .frame(width: 30.0, height: 30.0)
         }
     }

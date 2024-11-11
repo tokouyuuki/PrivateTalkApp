@@ -15,6 +15,13 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+"sunday_text" = "日";
+"monday_text" = "月";
+"tuesday_text" = "火";
+"wednesday_text" = "水";
+"thursday_text" = "木";
+"friday_text" = "金";
+"saturday_text" = "土";
 // カスタムアラートの文言
 "default_alert_title" = "エラー";
 "default_alert_button_text" = "了解";

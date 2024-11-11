@@ -14,13 +14,14 @@
 		222BDF962C6DE92200638D4A /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222BDF952C6DE92100638D4A /* NewsView.swift */; };
 		2235C7642CB027F100C701A3 /* EventDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2235C7632CB027F000C701A3 /* EventDataSource.swift */; };
 		223909802C6E3BF600B4DCFE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2239097F2C6E3BF600B4DCFE /* LICENSE.txt */; };
+		2243D1DC2CDC9AE1005D7FA0 /* CalendarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2243D1DB2CDC9AE1005D7FA0 /* CalendarExtension.swift */; };
 		2251FD762C9E8A6B0005714E /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2251FD752C9E8A6B0005714E /* Logger.swift */; };
 		226D18ED2C7351D80066495A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 226D18EB2C7351D80066495A /* Localizable.strings */; };
 		228828FE2CCA3FE100BB1527 /* CustomCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228828FD2CCA3FE100BB1527 /* CustomCalendarCell.swift */; };
 		228829002CCB462500BB1527 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228828FF2CCB462500BB1527 /* UIColor.swift */; };
 		22AB1ADB2CB93E4000A7B8D7 /* EventStoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AB1ADA2CB93E4000A7B8D7 /* EventStoreManager.swift */; };
 		22B1DCA22C9FEEC100E1019F /* EventAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B1DCA12C9FEEC100E1019F /* EventAddView.swift */; };
-		22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B817832C7F5A200085D27B /* CalendarModel.swift */; };
+		22B817842C7F5A200085D27B /* WeekModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B817832C7F5A200085D27B /* WeekModel.swift */; };
 		22CB73762CB9068C00BBB3D9 /* EventAddViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CB73752CB9068C00BBB3D9 /* EventAddViewModel.swift */; };
 		22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */; };
 		22D1BDE72C667A34006AD6D8 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDE62C667A34006AD6D8 /* TabBarView.swift */; };
@@ -50,6 +51,7 @@
 		222BDF952C6DE92100638D4A /* NewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsView.swift; sourceTree = "<group>"; };
 		2235C7632CB027F000C701A3 /* EventDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataSource.swift; sourceTree = "<group>"; };
 		2239097F2C6E3BF600B4DCFE /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		2243D1DB2CDC9AE1005D7FA0 /* CalendarExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarExtension.swift; sourceTree = "<group>"; };
 		2251FD752C9E8A6B0005714E /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		226D18EC2C7351D80066495A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		226D18EE2C7351DE0066495A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -58,7 +60,7 @@
 		22AB1ADA2CB93E4000A7B8D7 /* EventStoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStoreManager.swift; sourceTree = "<group>"; };
 		22AB1ADC2CB93EBD00A7B8D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		22B1DCA12C9FEEC100E1019F /* EventAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAddView.swift; sourceTree = "<group>"; };
-		22B817832C7F5A200085D27B /* CalendarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModel.swift; sourceTree = "<group>"; };
+		22B817832C7F5A200085D27B /* WeekModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekModel.swift; sourceTree = "<group>"; };
 		22CB73752CB9068C00BBB3D9 /* EventAddViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAddViewModel.swift; sourceTree = "<group>"; };
 		22D1BDE12C667A34006AD6D8 /* PrivateTalkApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrivateTalkApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D1BDE42C667A34006AD6D8 /* PrivateTalkAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateTalkAppApp.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 			children = (
 				2224E1B62C75DC2B0099C855 /* StringExtension.swift */,
 				228828FF2CCB462500BB1527 /* UIColor.swift */,
+				2243D1DB2CDC9AE1005D7FA0 /* CalendarExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -324,7 +327,7 @@
 		22EDDC832C7DD37900750F2A /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				22B817832C7F5A200085D27B /* CalendarModel.swift */,
+				22B817832C7F5A200085D27B /* WeekModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -493,6 +496,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22EDDC812C7D942400750F2A /* NetworkService.swift in Sources */,
+				2243D1DC2CDC9AE1005D7FA0 /* CalendarExtension.swift in Sources */,
 				22D1BDF52C667BA3006AD6D8 /* Tab.swift in Sources */,
 				2227BAEF2CBE8E900087C314 /* EventErrorAlert.swift in Sources */,
 				2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */,
@@ -508,7 +512,7 @@
 				2251FD762C9E8A6B0005714E /* Logger.swift in Sources */,
 				22EB59F42CD9F96700BDD8B6 /* EventError.swift in Sources */,
 				22EBB41B2C76DC8500AB7019 /* CalendarViewModel.swift in Sources */,
-				22B817842C7F5A200085D27B /* CalendarModel.swift in Sources */,
+				22B817842C7F5A200085D27B /* WeekModel.swift in Sources */,
 				222BDF962C6DE92200638D4A /* NewsView.swift in Sources */,
 				22CB73762CB9068C00BBB3D9 /* EventAddViewModel.swift in Sources */,
 				2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */,
