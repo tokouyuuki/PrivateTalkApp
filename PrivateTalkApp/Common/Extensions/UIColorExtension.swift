@@ -1,5 +1,5 @@
 //
-//  UIColor.swift
+//  UIColorExtension.swift
 //  PrivateTalkApp
 //
 //  Created by 都甲裕希 on 2024/10/25.

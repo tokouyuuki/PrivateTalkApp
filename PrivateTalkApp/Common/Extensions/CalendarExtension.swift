@@ -9,11 +9,13 @@ import Foundation
 
 extension Calendar {
     
-    /// 月の開始日を取得する
+    /// 指定した日付にしたものを取得する
     /// - parameter date: 対象日
-    /// - returns: 開始日
-    func startOfMonth(for date: Date) -> Date? {
-        let components = dateComponents([.year, .month], from: date)
+    /// - parameter day: 変換したい日
+    /// - returns: 指定した日付
+    func specifiedDay(for date: Date, at day: Int) -> Date? {
+        var components = dateComponents([.year, .month], from: date)
+        components.day = day
         return self.date(from: components)
     }
     
@@ -31,10 +33,28 @@ extension Calendar {
         return range(of: .weekOfMonth, in: .month, for: date)?.count
     }
     
-    /// 月の開始日の曜日を取得する
+    /// 日付の曜日を取得する
     /// - parameter date: 対象日
     /// - returns: 日曜日→１、、、土曜日→７
-    func firstWeekOfMonth(for date: Date) -> Int? {
+    func dayOfWeek(for date: Date) -> Int? {
         return dateComponents([.weekday], from: date).weekday
+    }
+    
+    /// 週の始まり日にちを取得する
+    /// - parameter date: 対象月の日付
+    /// - parameter weekOfMonth: 何週目かを数字で指定
+    /// - returns; 指定した週の始まりの日にち
+    func dayOfStartOfWeekInMonth(for date: Date, weekOfMonth: Int) -> Int? {
+        // 月初の週だと前月の日付が抽出されてしまう場合があるので、1を返却
+        if weekOfMonth == 1 {
+            return 1
+        }
+        var components = dateComponents([.year, .month], from: date)
+        components.weekOfMonth = weekOfMonth
+        components.weekday = self.firstWeekday
+        guard let weekStartDate = self.date(from: components) else {
+            return nil
+        }
+        return self.component(.day, from: weekStartDate)
     }
 }
