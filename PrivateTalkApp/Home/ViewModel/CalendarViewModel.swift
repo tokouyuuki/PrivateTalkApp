@@ -6,43 +6,70 @@
 //
 
 import Foundation
+import EventKit
 
 // MARK: - Calendar ViewModel
-@MainActor
 final class CalendarViewModel: ObservableObject {
     
     private struct Constants {
         static let FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
         static let YEAR_MONTH_DATE_FORMAT_KEY = "year_month_date_format"
-        static let SELECTED_END_DATE_ADD_HOUR = 1
-        static let SELECTED_DATE_MINUTE = 0
-        static let SELECTED_DATE_SECOND = 0
+        static let CALENDAR_RELOAD_NOTIFICATION = "calendarReload"
     }
     
     // カレンダーのModel
-    @Published var calendarModel: CalendarModel?
+    @MainActor @Published var calendarModel: CalendarModel?
+    // 表示している月の予定のリスト
+    @Published var eventList = [EKEvent]()
     // WorlTimeAPIの世界時刻情報を取得するために使用するService
     private let worldTimeService = WorldTimeService()
+    // カレンダーイベントRepository
+    private let eventRepository = EventRepository()
+    // イベントエラーが発生した際に表示するアラートのタイプ
+    @MainActor @Published var eventErrorAlertType: EventErrorAlertType = .none
+    // イベント編集画面を表示するかどうか
+    @MainActor @Published var showEventAddView: Bool = false
     // 選択している日付
-    var selectedDate: Date = Date()
+    @MainActor var selectedDate: Date = Date()
     
     // 選択している日付の終了日
-    var selectedEndDate: Date {
+    @MainActor var selectedEndDate: Date {
         // １時間プラスした時刻に変換する
-        let newDate = Calendar.current.date(byAdding: DateComponents(hour: Constants.SELECTED_END_DATE_ADD_HOUR),
+        let newDate = Calendar.current.date(byAdding: DateComponents(hour: 1),
                                             to: self.selectedDate)
         return newDate ?? self.selectedDate
+    }
+    
+    init() {
+        // イベント変更通知を監視
+        NotificationCenter.default.addObserver(forName: .EKEventStoreChanged,
+                                               object: nil,
+                                               queue: .main) { [weak self] _ in
+            guard let self = self else {
+                return
+            }
+            self.fetchEvent()
+        }
     }
     
     // MARK: - Privateメソッド
     /// 年月文字列をセット
     /// - parameter date: セットしたいDate
     private func setDisplayDate(_ date: Date?) {
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else {
                 return
             }
             self.calendarModel = CalendarModel(date: date)
+        }
+    }
+    
+    /// CalendarViewに再描画を行うよう通知
+    /// UIViewRepresentableを使用すると、カレンダーセル構築とイベント取得のタイミングがコントロールできない。
+    /// そのため、イベントを取得したタイミングで通知を送信する。
+    private func notifyCalendarView() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name(Constants.CALENDAR_RELOAD_NOTIFICATION), object: nil)
         }
     }
     
@@ -56,14 +83,34 @@ final class CalendarViewModel: ObservableObject {
         }
         // 分、秒を切り捨て現在の時間にし、キリが良い時刻に変換する
         let newDate = calendar.date(bySettingHour: currentHourComponent,
-                                    minute: Constants.SELECTED_DATE_MINUTE,
-                                    second: Constants.SELECTED_DATE_SECOND,
+                                    minute: 0,
+                                    second: 0,
                                     of: date)
         
-        self.selectedDate = newDate ?? Date()
+        Task { @MainActor in
+            self.selectedDate = newDate ?? Date()
+        }
     }
     
     // MARK: - Publicメソッド
+    /// カレンダーイベントへのフルアクセスを要求
+    func requestFullAccessToEvents() {
+        Task { @MainActor in
+            do {
+                let isFullAccess = try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
+                if isFullAccess {
+                    fetchEvent()
+                } else {
+                    notifyCalendarView()
+                    self.eventErrorAlertType = .init(error: .notAccess)
+                }
+            } catch {
+                Logger().log(error.localizedDescription, level: .error)
+                self.eventErrorAlertType = .init(error: .unexpected)
+            }
+        }
+    }
+    
     /// 今日ボタンを押下された際の処理
     func tapTodayButton() {
         Task {
@@ -81,7 +128,7 @@ final class CalendarViewModel: ObservableObject {
                 guard let networkError = error as? NetworkError else {
                     return
                 }
-                Logger().log(networkError.errorDescription, level: .error)
+                Logger().log(networkError.errorDescription ?? String.empty, level: .error)
             }
         }
     }
@@ -89,21 +136,74 @@ final class CalendarViewModel: ObservableObject {
     /// 年月がCalendarModelと一致しているかどうか
     /// - parameter dateToCompare: 比較したいDate
     /// - returns: 一致すればtrue / 一致しなければfalse
+    @MainActor
     func isMatchedDate(dateToCompare: Date) -> Bool {
         // 比較したい年月
-        let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare, format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+        let dateToCompareString = DateUtilities.convertDateToString(date: dateToCompare,
+                                                                    format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         
         return dateToCompareString == self.calendarModel?.displayYearMonthString
     }
     
-    /// 日付の更新をする
-    /// - parameter eventAction: 更新する値を決めるenum
-    func updateDate(_ eventAction: EventAction) {
+    /// アクションによって処理を行う
+    /// - parameter eventAction: アクション
+    func handleAction(_ eventAction: EventAction) {
         switch eventAction {
         case .updateDisplayDate(let date):
             self.setDisplayDate(date)
         case .updateSelectedDate(let date):
             self.setSelectedDate(date)
+        case .requestFullAccessToEvents:
+            self.requestFullAccessToEvents()
+        case .fetchEvent:
+            self.fetchEvent()
+        }
+    }
+    
+    /// 日付に対するイベントのリストを取得
+    /// - parameter date: 取得したいタイトルの日付
+    /// - returns: イベントのリスト
+    func getEventList(date: Date) -> [EKEvent] {
+        let calendar = Calendar.current
+        let eventList = eventList.filter {
+            calendar.isDate($0.startDate, inSameDayAs: date)
+        }.sorted(by: { (a, b) -> Bool in
+            return a.startDate < b.startDate
+        })
+        
+        return eventList
+    }
+    
+    /// イベントを取得
+    func fetchEvent() {
+        Task { @MainActor in
+            do {
+                let subtract = DateComponents(month: -1)
+                let addMonth = DateComponents(month: 2)
+                guard let thisMonth = self.calendarModel?.displayDate,
+                      let startDate = Calendar.current.date(byAdding: subtract, to: thisMonth),
+                      let endDate = Calendar.current.date(byAdding: addMonth, to: thisMonth) else {
+                    return
+                }
+                self.eventList = try eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
+                notifyCalendarView()
+            } catch let eventError as EventError {
+                Logger().log(eventError.errorDescription ?? String.empty, level: .error)
+                self.eventErrorAlertType = .init(error: eventError)
+            }
+        }
+    }
+    
+    /// イベント追加ボタンを押下時の処理
+    func onTapAddEventView() {
+        Task { @MainActor in
+            // カレンダーイベントへのアクセス権限があるか確認
+            if EventStoreManager.shared.isFullAccessToEvents() {
+                // 権限がある場合は、EventAddViewを表示
+                self.showEventAddView = true
+            } else {
+                self.eventErrorAlertType = .init(error: .notAccess)
+            }
         }
     }
 }

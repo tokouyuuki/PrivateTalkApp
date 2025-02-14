@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Constants
-private struct Constants {
-    static let TAB_BAR_VIEW_SPACING = 8.0
-    static let ITEM_IN_TAB_SPACING = 5.0
-    static let IMAGE_IN_TAB_WIDTH = 25.0
-    static let IMAGE_IN_TAB_HEIGHT = 25.0
-    static let TAB_HEIGHT = 30.0
-    static let TAB_BOTTOM = 8.0
-}
-
 // MARK: - TabBarView
 struct TabBarView: View {
     
@@ -28,7 +18,7 @@ struct TabBarView: View {
     @State var currentTab: Tab = .home
     
     var body: some View {
-        VStack(spacing: Constants.TAB_BAR_VIEW_SPACING) {
+        VStack(spacing: 8.0) {
             TabView(selection: $currentTab) {
                 HomeView().tag(Tab.home)
                 TalkView().tag(Tab.talk)
@@ -47,18 +37,17 @@ private struct CustomTabBar: View {
     @Binding var currentTab: Tab
     
     var body: some View {
-        HStack(spacing: Constants.TAB_BAR_VIEW_SPACING) {
+        HStack(spacing: 8.0) {
             ForEach(Tab.allCases, id: \.hashValue) { tab in
                 Button {
                     // 選択されたタブをデフォルトのタブに設定する
                     currentTab = tab
                 } label: {
-                    VStack(spacing: Constants.ITEM_IN_TAB_SPACING) {
+                    VStack(spacing: 5.0) {
                         Image(systemName: tab.imageName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: Constants.IMAGE_IN_TAB_WIDTH,
-                                   height: Constants.IMAGE_IN_TAB_HEIGHT)
+                            .frame(width: 25.0, height: 25.0)
                             .foregroundStyle(currentTab == tab ? Color.primary : .gray)
                         Text(tab.tabText)
                             .font(.caption)

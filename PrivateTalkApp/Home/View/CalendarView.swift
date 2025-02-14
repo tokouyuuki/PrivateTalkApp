@@ -8,12 +8,16 @@
 import SwiftUI
 import FSCalendar
 
-// MARK: - クロージャの更新先を決めるenum
+// MARK: - 行うアクション
 enum EventAction {
     // 表示する年月の更新
     case updateDisplayDate(Date)
     // 選択日の更新
     case updateSelectedDate(Date)
+    // カレンダーイベントへのアクセス要求
+    case requestFullAccessToEvents
+    // カレンダーイベント取得
+    case fetchEvent
 }
 
 // MARK: - FSCalendarView
@@ -23,11 +27,7 @@ struct CalendarView: UIViewRepresentable {
     
     private struct Constants {
         static let DEFAULT_LANGUAGE = "ja-JP"
-        static let HEADER_HEIGHT = 0.0
-        static let PREVIOUS_AND_NEXT_MONTH_ALPHA = 0.0
-        static let WEEKDAY_FONT_SIZE = 20.0
-        static let TITLE_FONT_SIZE = 16.0
-        static let TODAY_AND_SELECTED_BORDER_RADIUS = 1.0
+        static let CALENDAR_RELOAD_NOTIFICATION = "calendarReload"
     }
     
     // カレンダーのViewModel
@@ -49,26 +49,37 @@ struct CalendarView: UIViewRepresentable {
         // カレンダーの設定
         let fsCalendar = FSCalendar()
             .setLocale(identifier: preferredLanguage)
-            .setHeaderHeight(height: Constants.HEADER_HEIGHT)
-            .setHeaderMinimumDissolvedAlpha(alpha: Constants.PREVIOUS_AND_NEXT_MONTH_ALPHA)
-            .setWeekdayFont(size: Constants.WEEKDAY_FONT_SIZE)
+            .setHeaderHeight(height: 0.0)
+            .setHeaderMinimumDissolvedAlpha(alpha: 0.0)
+            .setWeekdayFont(size: 20.0)
             .setCalendarWeekdayBackgroundColor(color: .symbol)
             .setWeekdayTextColor(color: .label)
-            .setTitleFont(size: Constants.TITLE_FONT_SIZE, weight: .bold)
-            .setTodayColor(color: .symbol)
+            .setTitleFont(size: 16.0, weight: .bold)
+            .setTodayColor(color: .clear)
             .setSelectionColor(color: .clear)
-            .setBorderSelectionColor(color: .symbol)
+            .setBorderSelectionColor(color: .clear)
             .setTitleSelectionColor(color: .label)
             .setTitleDefaultColor(color: .label)
             .setTitleWeekendColor(color: .symbol)
-            .setBorderRadius(radius: Constants.TODAY_AND_SELECTED_BORDER_RADIUS)
+            .setBorderRadius(radius: 1.0)
+            .setplaceholderType(placeholderType: .none)
         
-        fsCalendar.delegate = context.coordinator
-        fsCalendar.dataSource = context.coordinator
+        fsCalendar.register(CustomCalendarCell.self, forCellReuseIdentifier: CustomCalendarCell.identifier)
+        
+        // イベント取得完了の通知を監視してカレンダーを描画
+        NotificationCenter.default.addObserver(forName: Notification.Name(Constants.CALENDAR_RELOAD_NOTIFICATION),
+                                               object: nil,
+                                               queue: .main) { _ in
+            fsCalendar.delegate = context.coordinator
+            fsCalendar.dataSource = context.coordinator
+            fsCalendar.reloadData()
+        }
         
         // 月初と今日の日付を親Viewに渡す
         self.onCurrentDateChanged(.updateDisplayDate(fsCalendar.currentPage))
         self.onCurrentDateChanged(.updateSelectedDate(fsCalendar.today ?? Date()))
+        // カレンダーイベントへのフルアクセスを要求
+        self.onCurrentDateChanged(.requestFullAccessToEvents)
         
         return fsCalendar
     }
@@ -100,6 +111,8 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         // 月初の日付を親Viewに渡す
         self.parent.onCurrentDateChanged(.updateDisplayDate(calendar.currentPage))
+        // 新しいイベントを取得する
+        self.parent.onCurrentDateChanged(.fetchEvent)
         Task { @MainActor in
             if let today = calendar.today {
                 if self.parent.calendarViewModel.isMatchedDate(dateToCompare: today) {
@@ -113,10 +126,36 @@ final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataS
         }
     }
     
-    // 日付を選択した際の処理
+    /// 日付を選択した際の処理
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        // 前回選択した日付の丸印を非表示にし、今日の丸印を表示させる
+        if let cellList = calendar.visibleCells() as? [CustomCalendarCell] {
+            cellList.forEach {
+                $0.resetCircleLayer()
+            }
+        }
+        // 選択した日付に丸印を表示する
+        if let cell = calendar.cell(for: date, at: monthPosition) as? CustomCalendarCell {
+            cell.setSelectedCircleLayer()
+        }
         // 選択された日付を親Viewに渡す
         self.parent.onCurrentDateChanged(.updateSelectedDate(date))
+    }
+    
+    /// カレンダーのセルを生成
+    func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
+        guard let cell = calendar.dequeueReusableCell(withIdentifier: CustomCalendarCell.identifier,
+                                                      for: date,
+                                                      at: position) as? CustomCalendarCell else {
+            return FSCalendarCell()
+        }
+        let eventList = self.parent.calendarViewModel.getEventList(date: date)
+        cell.setEventTitleLabels(eventList)
+        if calendar.today == date {
+            // 今日の日付に丸印を表示する
+            cell.setTodayCircleLayer()
+        }
+        return cell
     }
 }
 
@@ -233,6 +272,16 @@ extension FSCalendar {
     @discardableResult
     func setBorderRadius(radius: CGFloat) -> Self {
         self.appearance.borderRadius = radius
+        return self
+    }
+    
+    /// カレンダー内のプレースホルダー（日付がない部分）の表示方法をセット
+    /// - parameter placeholderType: none: プレースホルダーを表示せず、当月の日付のみを表示
+    /// 　　　　　　　　　　　　　　　　　　fillHeadTail: 前月および翌月の日付をプレースホルダーとして表示し、行の空きを埋める
+    /// 　　　　　　　　　　　　　　　　　　fillSixRows: 常に6行のレイアウトを維持するために、月の日数に関係なくプレースホルダーを追加
+    @discardableResult
+    func setplaceholderType(placeholderType: FSCalendarPlaceholderType) -> Self {
+        self.placeholderType = placeholderType
         return self
     }
 }

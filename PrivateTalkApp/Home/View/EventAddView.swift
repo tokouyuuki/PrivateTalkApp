@@ -22,8 +22,6 @@ private struct Constants {
     static let CANCEL_DIALOG_TITLE_KEY = LocalizedStringKey("cancel_dialog_title")
     static let CANCEL_DIALOG_DESTRUCTION_KEY = LocalizedStringKey("cancel_dialog_destruction")
     static let CANCEL_DIALOG_CONTINUE_KEY = LocalizedStringKey("cancel_dialog_continue")
-    static let DATE_PICKER_HEIGHT = 22.0
-    static let MEMO_TEXT_FIELD_HEIGHT = 200.0
 }
 
 // MARK: - 予定追加 View
@@ -82,16 +80,49 @@ struct EventAddView: View {
                 }
             }
             .navigationBarTitle(Constants.EVENT_SHEET_TITLE_KEY, displayMode: .inline)
-            .navigationBarItems(
-                leading: NavigationBarCancelButton(isEditedEvent: eventAddViewModel.isEditedEvent,
-                                                   onCanceled: {
-                                                       dismiss()
-                                                   }),
-                trailing: NavigationBarSaveButton(isEditedEvent: eventAddViewModel.isEditedEvent,
-                                                  onTapped: {
-                                                      dismiss()
-                                                  })
-            )
+            .toolbar {
+                // キャンセルボタン
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        eventAddViewModel.onTapCancelButton()
+                    } label: {
+                        Text(Constants.EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY)
+                            .foregroundStyle(.symbol)
+                    }
+                }
+                // 保存ボタン
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        eventAddViewModel.addEvent()
+                    } label: {
+                        Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
+                            .foregroundStyle(eventAddViewModel.isEditedEvent ? .symbol : .gray)
+                    }
+                    .disabled(!eventAddViewModel.isEditedEvent)
+                }
+            }
+            .onChange(of: eventAddViewModel.shouldDismiss, { oldValue, newValue in
+                if newValue {
+                    dismiss()
+                }
+            })
+            .eventErrorAlert(type: $eventAddViewModel.eventErrorAlertType, onDismiss: {})
+            .confirmationDialog(Constants.CANCEL_DIALOG_TITLE_KEY,
+                                isPresented: $eventAddViewModel.showCancelConfirmationAlert,
+                                titleVisibility: .visible) {
+                Button(role: .destructive) {
+                    dismiss()
+                } label: {
+                    Text(Constants.CANCEL_DIALOG_DESTRUCTION_KEY)
+                        .foregroundStyle(.symbol)
+                }
+                Button(role: .cancel) {
+                    
+                } label: {
+                    Text(Constants.CANCEL_DIALOG_CONTINUE_KEY)
+                        .foregroundStyle(.symbol)
+                }
+            }
             .simultaneousGesture(DragGesture().onChanged({ _ in // Listのスクロールを検知
                 if isKeyboardActive {
                     // キーボードを閉じる
@@ -104,65 +135,6 @@ struct EventAddView: View {
             }))
             .interactiveDismissDisabled(eventAddViewModel.isEditedEvent)
         }
-    }
-}
-
-// MARK: - ナビゲーションバーアイテム（キャンセルボタン）
-private struct NavigationBarCancelButton: View {
-    // シート内の予定の編集が行われたかどうか
-    let isEditedEvent: Bool
-    // ダイアログを表示するかどうか
-    @State var isShowDialog = false
-    // キャンセル実行時のクロージャ
-    let onCanceled: () -> Void
-    
-    var body: some View {
-        Button {
-            if isEditedEvent {
-                // 予定の編集がされているならダイアログを表示
-                isShowDialog = true
-            } else {
-                // 予定の編集がされていないならモーダルを閉じる
-                onCanceled()
-            }
-        } label: {
-            Text(Constants.EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY)
-                .foregroundStyle(.symbol)
-        }
-        .confirmationDialog(Constants.CANCEL_DIALOG_TITLE_KEY,
-                            isPresented: $isShowDialog,
-                            titleVisibility: .visible) {
-            Button(role: .destructive) {
-                onCanceled()
-            } label: {
-                Text(Constants.CANCEL_DIALOG_DESTRUCTION_KEY)
-                    .foregroundStyle(.symbol)
-            }
-            Button(role: .cancel) {
-                
-            } label: {
-                Text(Constants.CANCEL_DIALOG_CONTINUE_KEY)
-                    .foregroundStyle(.symbol)
-            }
-        }
-    }
-}
-
-// MARK: - ナビゲーションバーアイテム（保存ボタン）
-private struct NavigationBarSaveButton: View {
-    // シート内の予定の編集が行われたかどうか（保存ボタンが有効かどうか）
-    let isEditedEvent: Bool
-    // 保存ボタン押下時のクロージャ
-    let onTapped: () -> Void
-    
-    var body: some View {
-        Button {
-            onTapped()
-        } label: {
-            Text(Constants.EVENT_SHEET_ADD_BUTTON_TEXT_KEY)
-                .foregroundStyle(isEditedEvent ? .symbol : .gray)
-        }
-        .disabled(!isEditedEvent)
     }
 }
 
@@ -186,7 +158,7 @@ private struct TextFieldView: View {
             ZStack(alignment: .topLeading) {
                 // TextFieldの高さを広げる、かつ領域全体をタップ可能にするため透明なViewを配置
                 Color.clear
-                    .frame(height: Constants.MEMO_TEXT_FIELD_HEIGHT)
+                    .frame(height: 200.0)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         isKeyboardActive = true
@@ -220,7 +192,7 @@ private struct DateSettingView: View {
         DatePicker(label,
                    selection: $date,
                    displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
-        .frame(height: Constants.DATE_PICKER_HEIGHT)
+        .frame(height: 22.0)
     }
 }
 
