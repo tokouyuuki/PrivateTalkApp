@@ -27,6 +27,9 @@ struct CalendarView: View {
     // カレンダーのViewModel
     @ObservedObject var calendarViewModel: CalendarViewModel
     
+    // ライト/ダークモードの状態を取得
+    @Environment(\.colorScheme) var colorScheme
+    
     // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
     @State private var todayButtonEnable: Bool = true
     
@@ -60,8 +63,9 @@ struct CalendarView: View {
     // カレンダー
     private var calendar: some View {
         GeometryReader { geometry in
+            let deviceWidth = geometry.size.width
             // 存在する週の数だけセルを生成する
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: geometry.size.width))], spacing: 0.0) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: deviceWidth))], spacing: 0.0) {
                 ForEach(calendarViewModel.weekModelList) { weekModel in
                     Divider()
                     // 週単位のセル
@@ -72,53 +76,59 @@ struct CalendarView: View {
                                 // 日単位のセル
                                 Text(day)
                                     .fontWeight(.semibold)
-                                    .padding(.top, 13)
-                                    .frame(width: geometry.size.width / 7,
+                                    .padding(.top, 13.0)
+                                    .frame(width: deviceWidth / 7,
                                            height: geometry.size.height / CGFloat(calendarViewModel.weekModelList.count),
                                            alignment: .top)
                             }
                         }
-                        // イベント表示
+                        // イベント表示セルを生成する
                         VStack(alignment: .leading, spacing: 3.0) {
-                            // TODO: 後ほど
-                            HStack(spacing: 0.0) {
-                                Button {
-                                    
-                                } label: {
-                                    Text("予定1")
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                            .font(.system(size: 11.0, weight: .bold))
-                                            .background(.green)
-                                            .padding(.horizontal, 2)
-                                }
-                                .frame(width: geometry.size.width / 7 * 1, height: 15.0, alignment: .leading)
-                                Button {
-                                    
-                                } label: {
-                                    Text("予定1")
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                            .font(.system(size: 11.0, weight: .bold))
-                                            .background(.green)
-                                            .padding(.horizontal, 2)
-                                }
-                                .frame(width: geometry.size.width / 7 * 1, height: 15.0, alignment: .leading)
-                                Spacer()
-                                    .frame(width: geometry.size.width / 7)
-                                    Button {
-                                        
-                                    } label: {
-                                        Text("予定8")
-                                            .frame(width: geometry.size.width / 7 * 3 - 4, alignment: .leading)
-                                            .font(.system(size: 10.0, weight: .bold))
-                                            .background(.green)
-                                            .padding(.horizontal, 2)
+                            // イベントは１週間分✖︎３段で表示
+                            ForEach(0..<weekModel.eventLabelModels.count, id: \.self) { labelIndex in
+                                // １週間分のイベント
+                                HStack(spacing: 0.0) {
+                                    ForEach(weekModel.eventLabelModels[labelIndex]) { (event: EventLabelModel) in
+                                        eventLabel(event: event, deviceWidth: deviceWidth)
                                     }
-                                .frame(width: geometry.size.width / 7 * 3, height: 14.0, alignment: .leading)
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+    
+    /// イベントラベル
+    /// - parameter event: 表示するイベントモデル
+    /// - parameter deviceWidth: デバイス幅
+    /// - returns: イベントならイベントが表示されたボタン、省略なら予定数が表示されたテキスト、イベント無しなら空白
+    @ViewBuilder
+    private func eventLabel(event: EventLabelModel, deviceWidth: CGFloat) -> some View {
+        switch event.eventDisplayType {
+        case .full:
+            Button {
+                // ボタンアクション
+            } label: {
+                Text(event.title)
+                    .font(.system(size: 10.0, weight: .bold))
+                    .padding(EdgeInsets(top: 0.0, leading: 2.0, bottom: 0.0, trailing: 0.0))
+                    .frame(maxHeight: .infinity)
+                    .frame(width: (deviceWidth / 7) * CGFloat(event.length) - 4, alignment: .leading)
+                    .foregroundStyle(calendarViewModel.adjustedEventColor(for: colorScheme,
+                                                                          color: event.color))
+                    .background(event.color.opacity(0.3))
+                    .cornerRadius(4.0)
+            }
+            .frame(width: (deviceWidth / 7) * CGFloat(event.length), height: 15.0, alignment: .center)
+        case .overflow:
+            Text(event.title)
+                .font(.system(size: 10.0, weight: .light))
+                .frame(width: (deviceWidth / 7) * CGFloat(event.length))
+        case .none:
+            Spacer()
+                .frame(width: (deviceWidth / 7) * CGFloat(event.length))
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 struct WeekModel: Identifiable {
     let id = UUID()
@@ -30,6 +31,8 @@ struct EventLabelModel: Identifiable {
     let length: Int
     // 表示するイベントのタイトル
     let title: String
+    // イベントの色
+    let color: Color
 }
 
 enum EventDisplayType {

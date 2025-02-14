@@ -7,6 +7,8 @@
 
 import Foundation
 import EventKit
+import UIKit
+import SwiftUICore
 
 // MARK: - Calendar ViewModel
 final class CalendarViewModel: ObservableObject {
@@ -187,7 +189,8 @@ final class CalendarViewModel: ObservableObject {
                 eventLabelModels.append(EventLabelModel(eventDisplayType: .none,
                                                         eventIdList: [],
                                                         length: startDayOfWeek - 1,
-                                                        title: String.empty))
+                                                        title: String.empty,
+                                                        color: Color.clear))
             }
             // １週間分For文を回す
             for day in dayOfStartOfWeek...dayOfEndOfWeek {
@@ -213,7 +216,8 @@ final class CalendarViewModel: ObservableObject {
                     eventLabelModels.append(EventLabelModel(eventDisplayType: .none,
                                                             eventIdList: [],
                                                             length: 1,
-                                                            title: String.empty))
+                                                            title: String.empty,
+                                                            color: Color.clear))
                     continue
                 }
                 
@@ -230,7 +234,8 @@ final class CalendarViewModel: ObservableObject {
                         let element = EventLabelModel(eventDisplayType: .overflow,
                                                       eventIdList: [highestPriorityEvent.eventIdentifier],
                                                       length: 1,
-                                                      title: Constants.PLUS + "1")
+                                                      title: Constants.PLUS + "1",
+                                                      color: Color.clear)
                         // イベントの開始日から対象日の日数
                         let hiddenCount = calendar.dateComponents([.day], from: lastEvent.startDate, to: targetDate).day ?? 0
                         eventLabelModels.append(contentsOf: repeatElement(element, count: hiddenCount))
@@ -242,7 +247,8 @@ final class CalendarViewModel: ObservableObject {
                     eventLabelModels.append(EventLabelModel(eventDisplayType: .overflow,
                                                             eventIdList: overEventId,
                                                             length: 1,
-                                                            title: title))
+                                                            title: title,
+                                                            color: Color.clear))
                     continue
                 }
                 
@@ -257,7 +263,8 @@ final class CalendarViewModel: ObservableObject {
                     eventLabelModels.append(EventLabelModel(eventDisplayType: .full,
                                                             eventIdList: [highestPriorityEvent.eventIdentifier],
                                                             length: 1,
-                                                            title: highestPriorityEvent.title))
+                                                            title: highestPriorityEvent.title,
+                                                            color: Color(cgColor: highestPriorityEvent.calendar.cgColor)))
                     continue
                 }
                 
@@ -276,7 +283,8 @@ final class CalendarViewModel: ObservableObject {
                         eventLabelModels.append(EventLabelModel(eventDisplayType: .full,
                                                                 eventIdList: [highestPriorityEvent.eventIdentifier],
                                                                 length: 1,
-                                                                title: highestPriorityEvent.title))
+                                                                title: highestPriorityEvent.title,
+                                                                color: Color(cgColor: highestPriorityEvent.calendar.cgColor)))
                         continue
                     }
                     
@@ -309,12 +317,14 @@ final class CalendarViewModel: ObservableObject {
                                         eventLabelModels.append(EventLabelModel(eventDisplayType: .full,
                                                                                 eventIdList: [newDisplayEvent.eventIdentifier],
                                                                                 length: newDaysBetween + 1,
-                                                                                title: newDisplayEvent.title))
+                                                                                title: newDisplayEvent.title,
+                                                                                color: Color(cgColor: newDisplayEvent.calendar.cgColor)))
                                     } else {
                                         eventLabelModels.append(EventLabelModel(eventDisplayType: .none,
                                                                                 eventIdList: [],
                                                                                 length: 1,
-                                                                                title: String.empty))
+                                                                                title: String.empty,
+                                                                                color: Color.clear))
                                     }
                                     break
                                 }
@@ -326,7 +336,8 @@ final class CalendarViewModel: ObservableObject {
                             eventLabelModels.append(EventLabelModel(eventDisplayType: .full,
                                                                     eventIdList: [highestPriorityEvent.eventIdentifier],
                                                                     length: minEventDaysBetween + 1,
-                                                                    title: highestPriorityEvent.title))
+                                                                    title: highestPriorityEvent.title,
+                                                                    color: Color(highestPriorityEvent.calendar.cgColor)))
                             break
                         }
                     }
@@ -441,6 +452,21 @@ final class CalendarViewModel: ObservableObject {
             } else {
                 self.eventErrorAlertType = .init(error: .notAccess)
             }
+        }
+    }
+    
+    /// ライト/ダークモード対応したイベントの色を取得
+    /// - parameter colorScheme: 現在の状態（ライトかダークか）
+    /// - parameter color: イベントの色
+    /// - returns: ライト/ダークモードに対応したイベントの色
+    func adjustedEventColor(for colorScheme: ColorScheme, color: Color) -> Color {
+        switch colorScheme {
+        case .light:
+            return Color(UIColor(color).adjustedBrightness(by: 0.5))
+        case .dark:
+            return Color(UIColor(color).adjustedBrightness(by: 1.7))
+        @unknown default:
+            return Color(UIColor(color))
         }
     }
 }
