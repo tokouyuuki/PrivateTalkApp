@@ -7,10 +7,10 @@
 
 import Foundation
 import EventKit
-import UIKit
 import SwiftUICore
 
 // MARK: - Calendar ViewModel
+@MainActor
 final class CalendarViewModel: ObservableObject {
     
     private struct Constants {
@@ -20,7 +20,7 @@ final class CalendarViewModel: ObservableObject {
     }
     
     // カレンダーのModel
-    @MainActor @Published var weekModelList: [WeekModel] = []
+    @Published var monthModels: [MonthModel] = []
     // 表示している月の予定のリスト
     @Published var eventList = [EKEvent]()
     // WorlTimeAPIの世界時刻情報を取得するために使用するService
@@ -28,16 +28,16 @@ final class CalendarViewModel: ObservableObject {
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
     // イベントエラーが発生した際に表示するアラートのタイプ
-    @MainActor @Published var eventErrorAlertType: EventErrorAlertType = .none
+    @Published var eventErrorAlertType: EventErrorAlertType = .none
     // イベント編集画面を表示するかどうか
-    @MainActor @Published var showEventAddView: Bool = false
+    @Published var showEventAddView: Bool = false
     // カレンダーに表示する年月文字列
-    @MainActor @Published var yearMonthString: String = String.empty
+    @Published var yearMonthString: String = String.empty
     // 選択している日付
-    @MainActor var selectedDate: Date = Date()
+    var selectedDate: Date = Date()
     
     // 選択している日付の終了日
-    @MainActor var selectedEndDate: Date {
+    var selectedEndDate: Date {
         // １時間プラスした時刻に変換する
         let newDate = Calendar.current.date(byAdding: DateComponents(hour: 1),
                                             to: self.selectedDate)
@@ -52,23 +52,14 @@ final class CalendarViewModel: ObservableObject {
             registerObserver()
             
             let currentDate = Date()
-            // WeekModelListをセット
-            self.setWeekModelList(date: currentDate)
+            // MonthModelsをセット
+            self.setMonthModels(date: currentDate)
             // 年月文字列をセット
             self.setYearMonthString(currentDate)
         }
     }
     
     // MARK: - Privateメソッド
-    /// 年月文字列をセット
-    /// - parameter date: セットしたいDate
-    private func setYearMonthString(_ date: Date?) {
-        Task { @MainActor in
-            let yearMonthString = DateUtilities.convertDateToString(date: date,
-                                                                    format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
-            self.yearMonthString = yearMonthString ?? String.empty
-        }
-    }
     
     /// カレンダーイベントへのフルアクセスを要求
     private func requestFullAccessToEvents() async {
@@ -77,15 +68,11 @@ final class CalendarViewModel: ObservableObject {
             if isFullAccess {
                 fetchEvent()
             } else {
-                Task { @MainActor in
-                    self.eventErrorAlertType = .init(error: .notAccess)
-                }
+                self.eventErrorAlertType = .init(error: .notAccess)
             }
         } catch {
             Logger().log(error.localizedDescription, level: .error)
-            Task { @MainActor in
-                self.eventErrorAlertType = .init(error: .unexpected)
-            }
+            self.eventErrorAlertType = .init(error: .unexpected)
         }
     }
     
@@ -98,7 +85,9 @@ final class CalendarViewModel: ObservableObject {
             guard let self = self else {
                 return
             }
-            self.fetchEvent()
+            Task { @MainActor in
+                self.fetchEvent()
+            }
         }
     }
     
@@ -116,49 +105,54 @@ final class CalendarViewModel: ObservableObject {
                                     second: 0,
                                     of: date)
         
-        Task { @MainActor in
-            self.selectedDate = newDate ?? Date()
+        self.selectedDate = newDate ?? Date()
+    }
+    
+    /// MonthModelをセット
+    /// - parameter date: 指定したい日付
+    private func setMonthModels(date: Date) {
+        Task {
+            let weekModels = await self.getWeekModels(date: date)
+            self.monthModels.append(MonthModel(id: date, weekModels: weekModels))
         }
     }
     
-    /// WeekModelListをセット
+    /// １ヶ月分のイベントを取得
     /// - parameter date: 指定したい日付
-    private func setWeekModelList(date: Date) {
-        Task { @MainActor in
-            let calendar = Calendar.current
-            // 開始日、月の日数、月の週数、月の開始日の曜日を取得
-            guard let startMonth = calendar.specifiedDay(for: date, at: 1),
-                  let numberOfDaysInMonth = calendar.daysInMonth(for: date),
-                  let weeksInMonth = calendar.weeksInMonth(for: date),
-                  let firstWeekOfMonth = calendar.dayOfWeek(for: startMonth) else {
-                return
-            }
-            // 最終的にWeekModelListに格納する変数
-            var weekModelList: [WeekModel] = []
-            // WeekModelに格納する日数
-            var dayCount:Int = 1
-            // 存在する週の数だけ回す
-            for week in 1...weeksInMonth {
-                // WeekModelに格納する変数
-                var dateStringList: [String] = []
-                // １週間分の日数を回す
-                for dayOfWeekIndex in 1...7 {
-                    // １週目の日付が存在しない曜日と、最終週の日付が存在しない曜日には空文字を追加
-                    if (dayOfWeekIndex >= firstWeekOfMonth || week != 1) && dayCount <= numberOfDaysInMonth {
-                        dateStringList.append("\(dayCount)")
-                    } else {
-                        dateStringList.append(String.empty)
-                        dayCount -= 1
-                    }
-                    dayCount += 1
-                }
-                let eventLabelModels = getEventLabelModels(startMonth: startMonth,
-                                                           weekOfMonth: week,
-                                                           numberOfDaysInMonth: numberOfDaysInMonth)
-                weekModelList.append(WeekModel(dateStringList: dateStringList, eventLabelModels: eventLabelModels))
-            }
-            self.weekModelList = weekModelList
+    private func getWeekModels(date: Date) async -> [WeekModel] {
+        let calendar = Calendar.current
+        // 開始日、月の日数、月の週数、月の開始日の曜日を取得
+        guard let startMonth = calendar.specifiedDay(for: date, at: 1),
+              let numberOfDaysInMonth = calendar.daysInMonth(for: date),
+              let weeksInMonth = calendar.weeksInMonth(for: date),
+              let firstWeekOfMonth = calendar.dayOfWeek(for: startMonth) else {
+            return []
         }
+        // 最終的にWeekModelsに格納する変数
+        var weekModels: [WeekModel] = []
+        // WeekModelに格納する日数
+        var dayCount:Int = 1
+        // 存在する週の数だけ回す
+        for week in 1...weeksInMonth {
+            // WeekModelに格納する変数
+            var dateStrings: [String] = []
+            // １週間分の日数を回す
+            for dayOfWeekIndex in 1...7 {
+                // １週目の日付が存在しない曜日と、最終週の日付が存在しない曜日には空文字を追加
+                if (dayOfWeekIndex >= firstWeekOfMonth || week != 1) && dayCount <= numberOfDaysInMonth {
+                    dateStrings.append("\(dayCount)")
+                } else {
+                    dateStrings.append(String.empty)
+                    dayCount -= 1
+                }
+                dayCount += 1
+            }
+            let eventLabelModels = getEventLabelModels(startMonth: startMonth,
+                                                       weekOfMonth: week,
+                                                       numberOfDaysInMonth: numberOfDaysInMonth)
+            weekModels.append(WeekModel(dateStrings: dateStrings, eventLabelModels: eventLabelModels))
+        }
+        return weekModels
     }
     
     /// １週間分のイベントを取得
@@ -402,6 +396,14 @@ final class CalendarViewModel: ObservableObject {
     }
     
     // MARK: - Publicメソッド
+    /// 年月文字列をセット
+    /// - parameter date: セットしたいDate
+    func setYearMonthString(_ date: Date?) {
+        let yearMonthString = DateUtilities.convertDateToString(date: date,
+                                                                format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+        self.yearMonthString = yearMonthString ?? String.empty
+    }
+    
     /// 今日ボタンを押下された際の処理
     func tapTodayButton() {
         Task {
@@ -426,47 +428,28 @@ final class CalendarViewModel: ObservableObject {
     
     /// イベントを取得
     func fetchEvent() {
-        Task { @MainActor in
-            do {
-                let addMonth = DateComponents(month: 1, day: -1)
-                // 月の開始日と終了日を取得
-                guard let firstDay = Calendar.current.specifiedDay(for: self.selectedDate, at: 1),
-                      let lastDay = Calendar.current.date(byAdding: addMonth, to: firstDay) else {
-                    return
-                }
-                self.eventList = try eventRepository.fetchEvent(startDate: firstDay, endDate: lastDay)
-            } catch let eventError as EventError {
-                Logger().log(eventError.errorDescription ?? String.empty, level: .error)
-                self.eventErrorAlertType = .init(error: eventError)
+        do {
+            let addMonth = DateComponents(month: 1, day: -1)
+            // 月の開始日と終了日を取得
+            guard let firstDay = Calendar.current.specifiedDay(for: self.selectedDate, at: 1),
+                  let lastDay = Calendar.current.date(byAdding: addMonth, to: firstDay) else {
+                return
             }
+            self.eventList = try eventRepository.fetchEvent(startDate: firstDay, endDate: lastDay)
+        } catch let eventError {
+            Logger().log(eventError.errorDescription ?? String.empty, level: .error)
+            self.eventErrorAlertType = .init(error: eventError)
         }
     }
     
     /// イベント追加ボタンを押下時の処理
     func onTapAddEventView() {
-        Task { @MainActor in
-            // カレンダーイベントへのアクセス権限があるか確認
-            if EventStoreManager.shared.isFullAccessToEvents() {
-                // 権限がある場合は、EventAddViewを表示
-                self.showEventAddView = true
-            } else {
-                self.eventErrorAlertType = .init(error: .notAccess)
-            }
-        }
-    }
-    
-    /// ライト/ダークモード対応したイベントの色を取得
-    /// - parameter colorScheme: 現在の状態（ライトかダークか）
-    /// - parameter color: イベントの色
-    /// - returns: ライト/ダークモードに対応したイベントの色
-    func adjustedEventColor(for colorScheme: ColorScheme, color: Color) -> Color {
-        switch colorScheme {
-        case .light:
-            return Color(UIColor(color).adjustedBrightness(by: 0.5))
-        case .dark:
-            return Color(UIColor(color).adjustedBrightness(by: 1.7))
-        @unknown default:
-            return Color(UIColor(color))
+        // カレンダーイベントへのアクセス権限があるか確認
+        if EventStoreManager.shared.isFullAccessToEvents() {
+            // 権限がある場合は、EventAddViewを表示
+            self.showEventAddView = true
+        } else {
+            self.eventErrorAlertType = .init(error: .notAccess)
         }
     }
 }

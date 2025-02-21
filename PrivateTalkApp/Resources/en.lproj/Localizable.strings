@@ -15,13 +15,6 @@
 "setting_tab_text" = "Setting";
 // Calendar
 "today_button_text" = "Today";
-"sunday_text" = "Sun";
-"monday_text" = "Mon";
-"tuesday_text" = "Tue";
-"wednesday_text" = "Wed";
-"thursday_text" = "Thu";
-"friday_text" = "Fri";
-"saturday_text" = "Sat";
 // カスタムアラートの文言
 "default_alert_title" = "error";
 "default_alert_button_text" = "OK";

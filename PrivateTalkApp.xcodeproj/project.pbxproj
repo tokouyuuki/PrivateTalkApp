@@ -28,7 +28,6 @@
 		22D1BDE92C667A36006AD6D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BDE82C667A36006AD6D8 /* Assets.xcassets */; };
 		22D1BDEC2C667A36006AD6D8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BDEB2C667A36006AD6D8 /* Preview Assets.xcassets */; };
 		22D1BDF52C667BA3006AD6D8 /* Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDF42C667BA3006AD6D8 /* Tab.swift */; };
-		22D1BDF92C667D08006AD6D8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDF82C667D08006AD6D8 /* HomeView.swift */; };
 		22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BDFC2C667D5B006AD6D8 /* TalkView.swift */; };
 		22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D1BE002C667D80006AD6D8 /* SettingView.swift */; };
 		22D1BE042C667DFF006AD6D8 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22D1BE032C667DFF006AD6D8 /* Colors.xcassets */; };
@@ -68,7 +67,6 @@
 		22D1BDE82C667A36006AD6D8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		22D1BDEB2C667A36006AD6D8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		22D1BDF42C667BA3006AD6D8 /* Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tab.swift; sourceTree = "<group>"; };
-		22D1BDF82C667D08006AD6D8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		22D1BDFC2C667D5B006AD6D8 /* TalkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TalkView.swift; sourceTree = "<group>"; };
 		22D1BE002C667D80006AD6D8 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		22D1BE032C667DFF006AD6D8 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
@@ -248,7 +246,6 @@
 		22D1BDF72C667CB4006AD6D8 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				22D1BDF82C667D08006AD6D8 /* HomeView.swift */,
 				22E19FEF2C6F517700C4051F /* CalendarView.swift */,
 				22B1DCA12C9FEEC100E1019F /* EventAddView.swift */,
 				228828FD2CCA3FE100BB1527 /* CustomCalendarCell.swift */,
@@ -502,7 +499,6 @@
 				2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */,
 				22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */,
 				2235C7642CB027F100C701A3 /* EventDataSource.swift in Sources */,
-				22D1BDF92C667D08006AD6D8 /* HomeView.swift in Sources */,
 				22AB1ADB2CB93E4000A7B8D7 /* EventStoreManager.swift in Sources */,
 				22EDDC8F2C7DFDE300750F2A /* WorldTimeService.swift in Sources */,
 				228829002CCB462500BB1527 /* UIColorExtension.swift in Sources */,

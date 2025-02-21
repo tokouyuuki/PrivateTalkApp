@@ -8,15 +8,22 @@
 import Foundation
 import SwiftUICore
 
+struct MonthModel: Identifiable {
+    // ID（年月文字列）
+    let id: Date
+    // WeekModels
+    let weekModels: [WeekModel]
+}
+
 struct WeekModel: Identifiable {
     let id = UUID()
     // 表示する日付のリスト
-    let displayDateList: [String]
+    let displayDates: [String]
     // １週間分のイベント
     let eventLabelModels: [[EventLabelModel]]
     
-    init(dateStringList: [String], eventLabelModels: [[EventLabelModel]]) {
-        self.displayDateList = dateStringList
+    init(dateStrings: [String], eventLabelModels: [[EventLabelModel]]) {
+        self.displayDates = dateStrings
         self.eventLabelModels = eventLabelModels
     }
 }

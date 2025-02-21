@@ -33,7 +33,9 @@ struct EventRepository {
         if !EventStoreManager.shared.isFullAccessToEvents() {
             throw EventError.notAccess
         }
-        let predicate = EventStoreManager.shared.eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: nil)
+        let predicate = EventStoreManager.shared.eventStore.predicateForEvents(withStart: startDate,
+                                                                               end: endDate,
+                                                                               calendars: nil)
         return eventDataSource.fetchEvent(predicate: predicate)
     }
 }

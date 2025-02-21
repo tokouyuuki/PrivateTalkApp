@@ -14,7 +14,9 @@ struct EventDataSource {
     /// カレンダーにイベントを保存する
     /// - parameter event: イベント
     func saveEvent(_ event: EKEvent) throws {
-        try EventStoreManager.shared.eventStore.save(event, span: .thisEvent, commit: true)
+        try EventStoreManager.shared.eventStore.save(event,
+                                                     span: .thisEvent,
+                                                     commit: true)
     }
     
     /// イベントを取得する
