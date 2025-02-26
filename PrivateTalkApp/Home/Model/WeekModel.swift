@@ -8,13 +8,20 @@
 import Foundation
 import SwiftUICore
 
+// MARK: - 月のモデル
 struct MonthModel: Identifiable {
-    // ID（年月文字列）
+    // ID（月の開始日付）
     let id: Date
     // WeekModels
     let weekModels: [WeekModel]
+    
+    init(id: Date, weekModels: [WeekModel]) {
+        self.id = Calendar.current.specifiedDay(for: id, at: 1) ?? id
+        self.weekModels = weekModels
+    }
 }
 
+// MARK: - 週のモデル
 struct WeekModel: Identifiable {
     let id = UUID()
     // 表示する日付のリスト
@@ -28,6 +35,7 @@ struct WeekModel: Identifiable {
     }
 }
 
+// MARK: - イベントのモデル
 struct EventLabelModel: Identifiable {
     let id = UUID()
     // 表示するイベントのタイプ

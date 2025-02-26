@@ -21,18 +21,20 @@ final class CalendarViewModel: ObservableObject {
     
     // カレンダーのModel
     @Published var monthModels: [MonthModel] = []
-    // 表示している月の予定のリスト
-    @Published var eventList = [EKEvent]()
-    // WorlTimeAPIの世界時刻情報を取得するために使用するService
-    private let worldTimeService = WorldTimeService()
-    // カレンダーイベントRepository
-    private let eventRepository = EventRepository()
     // イベントエラーが発生した際に表示するアラートのタイプ
     @Published var eventErrorAlertType: EventErrorAlertType = .none
     // イベント編集画面を表示するかどうか
     @Published var showEventAddView: Bool = false
     // カレンダーに表示する年月文字列
     @Published var yearMonthString: String = String.empty
+    // カレンダーイベントRepository
+    private let eventRepository = EventRepository()
+    // 表示している月の予定のリスト
+    private var eventList = [EKEvent]()
+    // 何ヶ月前のイベントを取得するか（デフォルト: 0ヶ月前）
+    private var numberOfMonthsAgo = 0
+    // 何ヶ月後のイベントを取得するか（デフォルト: 12ヶ月後）
+    private var monthsToAdd = 12
     // 選択している日付
     var selectedDate: Date = Date()
     
@@ -66,7 +68,9 @@ final class CalendarViewModel: ObservableObject {
         do {
             let isFullAccess = try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
             if isFullAccess {
-                fetchEvent()
+                fetchEvent(referenceMonthForEvents: Date(),
+                           numberOfMonthsAgo: self.numberOfMonthsAgo,
+                           monthsToAdd: self.monthsToAdd)
             } else {
                 self.eventErrorAlertType = .init(error: .notAccess)
             }
@@ -86,7 +90,9 @@ final class CalendarViewModel: ObservableObject {
                 return
             }
             Task { @MainActor in
-                self.fetchEvent()
+                self.fetchEvent(referenceMonthForEvents: Date(),
+                                numberOfMonthsAgo: self.numberOfMonthsAgo,
+                                monthsToAdd: self.monthsToAdd)
             }
         }
     }
@@ -112,8 +118,23 @@ final class CalendarViewModel: ObservableObject {
     /// - parameter date: 指定したい日付
     private func setMonthModels(date: Date) {
         Task {
-            let weekModels = await self.getWeekModels(date: date)
-            self.monthModels.append(MonthModel(id: date, weekModels: weekModels))
+            // 基準値からの数ヶ月前（または後）の範囲分For文を回す
+            for offsetMonth in self.numberOfMonthsAgo..<self.monthsToAdd {
+                var targetMonth = date
+                if offsetMonth != 0 {
+                    if let date = Calendar.current.date(byAdding: DateComponents(month: offsetMonth), to: date) {
+                        targetMonth = date
+                    }
+                }
+                let weekModels = await self.getWeekModels(date: targetMonth)
+                // 基準月から数ヶ月後をなら追加、数ヶ月前なら挿入し、正しい配列の順番にする
+                if offsetMonth >= 0 {
+                    self.monthModels.append(MonthModel(id: targetMonth, weekModels: weekModels))
+                } else {
+                    self.monthModels.insert(MonthModel(id: targetMonth, weekModels: weekModels),
+                                            at: offsetMonth - self.numberOfMonthsAgo)
+                }
+            }
         }
     }
     
@@ -404,38 +425,24 @@ final class CalendarViewModel: ObservableObject {
         self.yearMonthString = yearMonthString ?? String.empty
     }
     
-    /// 今日ボタンを押下された際の処理
-    func tapTodayButton() {
-        Task {
-            do {
-                // 現在の時刻をUTC文字列で取得
-                let datetime = try await self.worldTimeService.fetchWorldTime()
-                // UTC文字列をUTCのDateに変換
-                let currentUtcDate = DateUtilities.convertStringToUtcDate(dateString: datetime,
-                                                                          format: Constants.FULL_DATE_FORMAT)
-                // UTCのDateからローカルタイムゾーンの年月文字列をセットする
-                self.setYearMonthString(currentUtcDate)
-            } catch {
-                // UTCかつ端末に依存する今日の日付をセットする
-                self.setYearMonthString(Date())
-                guard let networkError = error as? NetworkError else {
-                    return
-                }
-                Logger().log(networkError.errorDescription ?? String.empty, level: .error)
-            }
-        }
-    }
-    
     /// イベントを取得
-    func fetchEvent() {
+    /// - parameter referenceMonthForEvents: イベントを取得するための基準となる月
+    /// - parameter numberOfMonthsAgo: 基準月から何ヶ月前のイベントを取得するか
+    /// - parameter monthsToAdd: 基準月から何ヶ月後のイベントを取得するか
+    func fetchEvent(referenceMonthForEvents: Date,
+                    numberOfMonthsAgo: Int,
+                    monthsToAdd: Int) {
         do {
-            let addMonth = DateComponents(month: 1, day: -1)
-            // 月の開始日と終了日を取得
-            guard let firstDay = Calendar.current.specifiedDay(for: self.selectedDate, at: 1),
-                  let lastDay = Calendar.current.date(byAdding: addMonth, to: firstDay) else {
+            // 追加でイベントを取得する範囲
+            let monthsAgo = DateComponents(month: numberOfMonthsAgo)
+            let monthsAhead = DateComponents(month: monthsToAdd, day: -1)
+            // 取得するイベントの期間
+            guard let thisMonth = Calendar.current.specifiedDay(for: referenceMonthForEvents, at: 1),
+                  let startDate = Calendar.current.date(byAdding: monthsAgo, to: thisMonth),
+                  let endDate = Calendar.current.date(byAdding: monthsAhead, to: thisMonth) else {
                 return
             }
-            self.eventList = try eventRepository.fetchEvent(startDate: firstDay, endDate: lastDay)
+            self.eventList = try eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
         } catch let eventError {
             Logger().log(eventError.errorDescription ?? String.empty, level: .error)
             self.eventErrorAlertType = .init(error: eventError)
@@ -451,5 +458,37 @@ final class CalendarViewModel: ObservableObject {
         } else {
             self.eventErrorAlertType = .init(error: .notAccess)
         }
+    }
+    
+    /// 必要であれば追加でイベントを取得
+    /// - parameter id: 表示しているイベントのID（日付）
+    func loadMoreMonthsIfNeeded(id: Date) {
+        if self.monthModels.last?.id == id {
+            // 保持しているイベントの中で１番最新の月と、表示しているイベントが一致する場合
+            self.numberOfMonthsAgo = 1
+            self.monthsToAdd = 12
+            // 追加で未来1年分イベントを取得
+            self.fetchEvent(referenceMonthForEvents: id,
+                            numberOfMonthsAgo: self.numberOfMonthsAgo,
+                            monthsToAdd: self.monthsToAdd)
+            self.setMonthModels(date: id)
+        } else if self.monthModels.first?.id == id {
+            // 保持しているイベントの中で１番目に古い月と、表示しているイベントが一致する場合
+            self.numberOfMonthsAgo = -11
+            self.monthsToAdd = 0
+            // 追加で過去1年分イベントを取得
+            self.fetchEvent(referenceMonthForEvents: id,
+                            numberOfMonthsAgo: self.numberOfMonthsAgo,
+                            monthsToAdd: self.monthsToAdd)
+            self.setMonthModels(date: id)
+        }
+    }
+    
+    /// 今月を取得
+    /// - returns: 今月の開始日
+    func getThisMonth() -> Date {
+        let thisMonth = Calendar.current.specifiedDay(for: Date(), at: 1)
+        let thisMonthModel = self.monthModels.first { $0.id == thisMonth }?.id
+        return thisMonthModel ?? Date()
     }
 }
