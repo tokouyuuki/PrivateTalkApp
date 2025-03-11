@@ -14,27 +14,26 @@ import SwiftUICore
 final class CalendarViewModel: ObservableObject {
     
     private struct Constants {
-        static let FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
         static let YEAR_MONTH_DATE_FORMAT_KEY = "year_month_date_format"
         static let PLUS = "+"
     }
     
-    // カレンダーのModel
+    // 月のModel
     @Published var monthModels: [MonthModel] = []
+    // １週間分のイベント✖︎３を保持するモデル
+    @Published var eventLabelModels: [[EventLabelModel]] = []
+    // 現在表示中の月のID
+    @Published var selectedCalendarID: String = String.empty
+    // ボタンが無効かどうか（有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる）
+    @Published var isTodayButtonDisabled: Bool = false
     // イベントエラーが発生した際に表示するアラートのタイプ
     @Published var eventErrorAlertType: EventErrorAlertType = .none
     // イベント編集画面を表示するかどうか
     @Published var showEventAddView: Bool = false
-    // カレンダーに表示する年月文字列
-    @Published var yearMonthString: String = String.empty
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
     // 表示している月の予定のリスト
     private var eventList = [EKEvent]()
-    // 何ヶ月前のイベントを取得するか（デフォルト: 0ヶ月前）
-    private var numberOfMonthsAgo = 0
-    // 何ヶ月後のイベントを取得するか（デフォルト: 12ヶ月後）
-    private var monthsToAdd = 12
     // 選択している日付
     var selectedDate: Date = Date()
     
@@ -47,21 +46,21 @@ final class CalendarViewModel: ObservableObject {
     }
     
     init() {
+        self.setup()
+    }
+    
+    // MARK: - Privateメソッド
+    /// 初期設定
+    private func setup() {
         Task {
             // カレンダーイベントへのアクセス権限があるか確認
             await self.requestFullAccessToEvents()
             // イベント変更通知の設定
             registerObserver()
-            
-            let currentDate = Date()
-            // MonthModelsをセット
-            self.setMonthModels(date: currentDate)
-            // 年月文字列をセット
-            self.setYearMonthString(currentDate)
+            // MonthModelsを生成
+            await self.createMonthModel(date: Date(), monthOffset: 0)
         }
     }
-    
-    // MARK: - Privateメソッド
     
     /// カレンダーイベントへのフルアクセスを要求
     private func requestFullAccessToEvents() async {
@@ -69,8 +68,7 @@ final class CalendarViewModel: ObservableObject {
             let isFullAccess = try await EventStoreManager.shared.eventStore.requestFullAccessToEvents()
             if isFullAccess {
                 fetchEvent(referenceMonthForEvents: Date(),
-                           numberOfMonthsAgo: self.numberOfMonthsAgo,
-                           monthsToAdd: self.monthsToAdd)
+                           monthOffset: 0)
             } else {
                 self.eventErrorAlertType = .init(error: .notAccess)
             }
@@ -91,8 +89,7 @@ final class CalendarViewModel: ObservableObject {
             }
             Task { @MainActor in
                 self.fetchEvent(referenceMonthForEvents: Date(),
-                                numberOfMonthsAgo: self.numberOfMonthsAgo,
-                                monthsToAdd: self.monthsToAdd)
+                                monthOffset: 0)
             }
         }
     }
@@ -114,66 +111,66 @@ final class CalendarViewModel: ObservableObject {
         self.selectedDate = newDate ?? Date()
     }
     
-    /// MonthModelをセット
-    /// - parameter date: 指定したい日付
-    private func setMonthModels(date: Date) {
-        Task {
-            // 基準値からの数ヶ月前（または後）の範囲分For文を回す
-            for offsetMonth in self.numberOfMonthsAgo..<self.monthsToAdd {
-                var targetMonth = date
-                if offsetMonth != 0 {
-                    if let date = Calendar.current.date(byAdding: DateComponents(month: offsetMonth), to: date) {
-                        targetMonth = date
-                    }
-                }
-                let weekModels = await self.getWeekModels(date: targetMonth)
-                // 基準月から数ヶ月後をなら追加、数ヶ月前なら挿入し、正しい配列の順番にする
-                if offsetMonth >= 0 {
-                    self.monthModels.append(MonthModel(id: targetMonth, weekModels: weekModels))
-                } else {
-                    self.monthModels.insert(MonthModel(id: targetMonth, weekModels: weekModels),
-                                            at: offsetMonth - self.numberOfMonthsAgo)
-                }
-            }
+    /// １ヶ月分の月モデルを生成
+    /// - parameter date: 基準となる月
+    /// - parameter monthOffset: 基準月からのオフセット（基準値からの数ヶ月前（または後））
+    private func createMonthModel(date: Date, monthOffset: Int) async {
+        // 生成するモデルの月
+        guard let targetMonth = Calendar.current.date(byAdding: DateComponents(month: monthOffset), to: date) else {
+            return
+        }
+        let yearMonthString = DateUtilities.convertDateToString(date: targetMonth,
+                                                                format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) ?? String.empty
+        // 今月のデータを生成している場合は、カレンダーのIDをセット（初回のみこの処理は実行される）
+        if monthOffset == 0 {
+            self.selectedCalendarID = yearMonthString
+        }
+        let weekModels = self.createWeekModels(date: targetMonth)
+        // 過去の月を生成した場合は、配列の先頭に挿入
+        if monthOffset >= 0 {
+            self.monthModels.append(MonthModel(yearMonthString: yearMonthString,
+                                               weekModels: weekModels))
+        } else {
+            self.monthModels.insert(MonthModel(yearMonthString: yearMonthString,
+                                               weekModels: weekModels),
+                                    at: 0)
         }
     }
     
-    /// １ヶ月分のイベントを取得
-    /// - parameter date: 指定したい日付
-    private func getWeekModels(date: Date) async -> [WeekModel] {
+    /// １ヶ月分の週モデルを生成
+    /// - parameter date: 対象の月
+    private func createWeekModels(date: Date) -> [WeekModel] {
         let calendar = Calendar.current
-        // 開始日、月の日数、月の週数、月の開始日の曜日を取得
+        // 開始日、月の日数、月の開始日の曜日を取得
         guard let startMonth = calendar.specifiedDay(for: date, at: 1),
               let numberOfDaysInMonth = calendar.daysInMonth(for: date),
-              let weeksInMonth = calendar.weeksInMonth(for: date),
               let firstWeekOfMonth = calendar.dayOfWeek(for: startMonth) else {
             return []
         }
-        // 最終的にWeekModelsに格納する変数
-        var weekModels: [WeekModel] = []
-        // WeekModelに格納する日数
-        var dayCount:Int = 1
-        // 存在する週の数だけ回す
-        for week in 1...weeksInMonth {
-            // WeekModelに格納する変数
-            var dateStrings: [String] = []
-            // １週間分の日数を回す
-            for dayOfWeekIndex in 1...7 {
-                // １週目の日付が存在しない曜日と、最終週の日付が存在しない曜日には空文字を追加
-                if (dayOfWeekIndex >= firstWeekOfMonth || week != 1) && dayCount <= numberOfDaysInMonth {
-                    dateStrings.append("\(dayCount)")
-                } else {
-                    dateStrings.append(String.empty)
-                    dayCount -= 1
-                }
-                dayCount += 1
+        
+        var dateStrings: [String] = []
+        // １ヶ月分の日数
+        return (1...numberOfDaysInMonth).compactMap { dayOffset in
+            // 月の開始日が日曜日から始まらない場合
+            if firstWeekOfMonth != 1 && dayOffset == 1 {
+                // １週目の日付が存在しない曜日には空文字を追加
+                let emptyStrings = Array(repeating: String.empty,
+                                         count: firstWeekOfMonth - 1)
+                dateStrings.append(contentsOf: emptyStrings)
             }
-            let eventLabelModels = getEventLabelModels(startMonth: startMonth,
-                                                       weekOfMonth: week,
-                                                       numberOfDaysInMonth: numberOfDaysInMonth)
-            weekModels.append(WeekModel(dateStrings: dateStrings, eventLabelModels: eventLabelModels))
+            
+            dateStrings.append(String(dayOffset))
+            // １週間ごとにリターン
+            if dateStrings.count % 7 == 0 {
+                return WeekModel(displaydays: dateStrings.suffix(7))
+            }
+            // 最終週（最終日は日数を計算してリターン）
+            if dayOffset == numberOfDaysInMonth {
+                let index = dayOffset - (Int(dateStrings[dateStrings.count - 7]) ?? 7)
+                return WeekModel(displaydays: dateStrings.suffix(index))
+            }
+            return nil
         }
-        return weekModels
     }
     
     /// １週間分のイベントを取得
@@ -417,29 +414,19 @@ final class CalendarViewModel: ObservableObject {
     }
     
     // MARK: - Publicメソッド
-    /// 年月文字列をセット
-    /// - parameter date: セットしたいDate
-    func setYearMonthString(_ date: Date?) {
-        let yearMonthString = DateUtilities.convertDateToString(date: date,
-                                                                format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
-        self.yearMonthString = yearMonthString ?? String.empty
-    }
-    
     /// イベントを取得
     /// - parameter referenceMonthForEvents: イベントを取得するための基準となる月
-    /// - parameter numberOfMonthsAgo: 基準月から何ヶ月前のイベントを取得するか
-    /// - parameter monthsToAdd: 基準月から何ヶ月後のイベントを取得するか
+    /// - parameter monthOffset: 基準月からのオフセット（基準値からの数ヶ月前（または後））
     func fetchEvent(referenceMonthForEvents: Date,
-                    numberOfMonthsAgo: Int,
-                    monthsToAdd: Int) {
+                    monthOffset: Int) {
         do {
             // 追加でイベントを取得する範囲
-            let monthsAgo = DateComponents(month: numberOfMonthsAgo)
-            let monthsAhead = DateComponents(month: monthsToAdd, day: -1)
+            let monthsAgo = DateComponents(month:  monthOffset)
+            let monthsAdd = DateComponents(month: monthOffset < 0 ? 0 : monthOffset + 1)
             // 取得するイベントの期間
             guard let thisMonth = Calendar.current.specifiedDay(for: referenceMonthForEvents, at: 1),
                   let startDate = Calendar.current.date(byAdding: monthsAgo, to: thisMonth),
-                  let endDate = Calendar.current.date(byAdding: monthsAhead, to: thisMonth) else {
+                  let endDate = Calendar.current.date(byAdding: monthsAdd, to: thisMonth) else {
                 return
             }
             self.eventList = try eventRepository.fetchEvent(startDate: startDate, endDate: endDate)
@@ -462,33 +449,42 @@ final class CalendarViewModel: ObservableObject {
     
     /// 必要であれば追加でイベントを取得
     /// - parameter id: 表示しているイベントのID（日付）
-    func loadMoreMonthsIfNeeded(id: Date) {
-        if self.monthModels.last?.id == id {
-            // 保持しているイベントの中で１番最新の月と、表示しているイベントが一致する場合
-            self.numberOfMonthsAgo = 1
-            self.monthsToAdd = 12
-            // 追加で未来1年分イベントを取得
-            self.fetchEvent(referenceMonthForEvents: id,
-                            numberOfMonthsAgo: self.numberOfMonthsAgo,
-                            monthsToAdd: self.monthsToAdd)
-            self.setMonthModels(date: id)
-        } else if self.monthModels.first?.id == id {
-            // 保持しているイベントの中で１番目に古い月と、表示しているイベントが一致する場合
-            self.numberOfMonthsAgo = -11
-            self.monthsToAdd = 0
-            // 追加で過去1年分イベントを取得
-            self.fetchEvent(referenceMonthForEvents: id,
-                            numberOfMonthsAgo: self.numberOfMonthsAgo,
-                            monthsToAdd: self.monthsToAdd)
-            self.setMonthModels(date: id)
+    func loadMoreMonthsIfNeeded(yearMonthString: String) {
+        Task {
+            if self.monthModels.last?.yearMonthString == yearMonthString {
+                // 保持しているイベントの中で１番最新の月と、表示しているイベントが一致する場合
+                // 追加で未来１ヶ月分イベントを取得
+                if let date = DateUtilities.convertStringToUtcDate(dateString: yearMonthString,
+                                                                   format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) {
+                    self.fetchEvent(referenceMonthForEvents: date, monthOffset: 1)
+                    await self.createMonthModel(date: date, monthOffset: 1)
+                }
+            }
+            if self.monthModels.first?.yearMonthString == yearMonthString {
+                // 保持しているイベントの中で１番目に古い月と、表示しているイベントが一致する場合
+                // 追加で過去1年分イベントを取得
+                if let date = DateUtilities.convertStringToUtcDate(dateString: yearMonthString,
+                                                                   format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) {
+                    self.fetchEvent(referenceMonthForEvents: date, monthOffset: -1)
+                    await self.createMonthModel(date: date, monthOffset: -1)
+                }
+            }
         }
     }
     
-    /// 今月を取得
-    /// - returns: 今月の開始日
-    func getThisMonth() -> Date {
-        let thisMonth = Calendar.current.specifiedDay(for: Date(), at: 1)
-        let thisMonthModel = self.monthModels.first { $0.id == thisMonth }?.id
-        return thisMonthModel ?? Date()
+    /// カレンダーの表示されている月が非表示になった時の処理
+    func calendarOnDisappear() {
+        // 表示月が今月であれば今日ボタンは押下できない
+        let thisMonthString = DateUtilities.convertDateToString(date: Date(),
+                                                                format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+        self.isTodayButtonDisabled = self.selectedCalendarID == thisMonthString
+    }
+    
+    /// 今日ボタンを押下時の処理
+    func onTapTodayButton() {
+        // IDを今日にセット
+        let thisMonthString = DateUtilities.convertDateToString(date: Date(),
+                                                                format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+        self.selectedCalendarID = thisMonthString ?? String.empty
     }
 }

@@ -20,20 +20,14 @@ struct CalendarView: View {
     // カレンダーのViewModel
     @StateObject private var calendarViewModel = CalendarViewModel()
     
-    // 現在表示中の月のID
-    @State private var calendarCellID: Date?
-    
-    // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
-    @State private var todayButtonEnable: Bool = true
-    
     var body: some View {
         VStack(spacing: 0.0) {
             // ヘッダー
-            HeaderView(todayButtonEnable: todayButtonEnable,
-                       yearMonthString: calendarViewModel.yearMonthString,
+            HeaderView(isTodayButtonDisabled: calendarViewModel.isTodayButtonDisabled,
+                       yearMonthString: calendarViewModel.selectedCalendarID,
                        onTodayButtonTapped: {
                 // 今日の日付にカレンダーを更新させる
-                calendarCellID = calendarViewModel.getThisMonth()
+                calendarViewModel.onTapTodayButton()
             },
                        onAddEventButtonTapped: {
                 // イベント追加Viewを表示
@@ -43,27 +37,22 @@ struct CalendarView: View {
             CalendarWeekdayHeaderView()
             // カレンダー
             GeometryReader { geometry in
-                ScrollView {
-                    LazyVStack {
-                        // 月のセルを生成
-                        ForEach(calendarViewModel.monthModels, id: \.id) { monthModel in
-                            CalendarMonthCell(monthModel: monthModel,
-                                              yearMonthString: calendarViewModel.yearMonthString,
-                                              deviceWidth: geometry.size.width,
-                                              deviceHeight: geometry.size.height,
-                                              onAppear: {
-                                calendarViewModel.setYearMonthString(monthModel.id)
-                                calendarViewModel.loadMoreMonthsIfNeeded(id: monthModel.id)
-                                todayButtonEnable = calendarCellID == calendarViewModel.getThisMonth()
-                            })
-                        }
+                TabView(selection: $calendarViewModel.selectedCalendarID) {
+                    // 月ごとのカレンダーを生成
+                    ForEach(calendarViewModel.monthModels) { monthModel in
+                        CalendarMonthView(weekModels: monthModel.weekModels,
+                                          eventLabelModels: calendarViewModel.eventLabelModels,
+                                          deviceWidth: geometry.size.width)
+                        .tag(monthModel.id)
                         .onAppear {
-                            calendarCellID = calendarViewModel.getThisMonth()
+                            calendarViewModel.loadMoreMonthsIfNeeded(yearMonthString: monthModel.yearMonthString)
+                        }
+                        .onDisappear {
+                            calendarViewModel.calendarOnDisappear()
                         }
                     }
-                    .scrollTargetLayout()
                 }
-                .scrollPosition(id: $calendarCellID)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
         }
         .padding(.vertical, 5.0)
@@ -81,7 +70,7 @@ struct CalendarView: View {
 private struct HeaderView: View {
     
     // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
-    let todayButtonEnable: Bool
+    let isTodayButtonDisabled: Bool
     
     // 年月文字列
     let yearMonthString: String
@@ -96,7 +85,7 @@ private struct HeaderView: View {
         VStack(spacing: 0.0) {
             // 今日ボタンと予定追加ボタン
             HStack(spacing: 20.0) {
-                TodayButton(todayButtonEnable: todayButtonEnable,
+                TodayButton(isTodayButtonDisabled: isTodayButtonDisabled,
                             onTapped: {
                     onTodayButtonTapped()
                 })
@@ -120,7 +109,7 @@ private struct HeaderView: View {
 private struct TodayButton: View {
     
     // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
-    let todayButtonEnable: Bool
+    let isTodayButtonDisabled: Bool
     
     // ボタンタップ時に呼ばれるクロージャ
     let onTapped: () -> Void
@@ -133,7 +122,7 @@ private struct TodayButton: View {
                 .font(.system(size: 20.0))
                 .foregroundStyle(.symbol)
         }
-        .disabled(todayButtonEnable)
+        .disabled(isTodayButtonDisabled)
     }
 }
 
@@ -175,73 +164,63 @@ private struct CalendarWeekdayHeaderView: View {
     }
 }
 
-// MARK: - １月分のカレンダーセル
-private struct CalendarMonthCell: View {
+// MARK: - １月分のカレンダーView
+private struct CalendarMonthView: View {
     
-    // 表示するイベント
-    let monthModel: MonthModel
+    // １ヶ月分の日数
+    let weekModels: [WeekModel]
     
-    // 年月文字列
-    let yearMonthString: String
+    // １ヶ月分のイベント
+    let eventLabelModels: [[EventLabelModel]]
     
     // デバイス幅
     let deviceWidth: CGFloat
     
-    // デバイス縦幅
-    let deviceHeight: CGFloat
-    
-    // Viewが非表示になる時に呼ばれるクロージャ
-    let onAppear: () -> Void
-    
     var body: some View {
         // 存在する週の数だけセルを生成する
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: deviceWidth))], spacing: 0.0) {
-            ForEach(monthModel.weekModels) { weekModel in
-                Divider()
+        VStack(spacing: 0.0) {
+            ForEach(weekModels) { weekModel in
                 // 週単位のセル
-                WeekCell(weekModel: weekModel,
-                         deviceWidth: deviceWidth,
-                         weekCellHeight: deviceHeight / 5.0)
+                WeekView(weekModel: weekModel,
+                         eventLabelModels: eventLabelModels,
+                         deviceWidth: deviceWidth)
             }
-        }
-        .onAppear() {
-            onAppear()
         }
     }
 }
 
-// MARK: - １週間分のセル
-private struct WeekCell: View {
+// MARK: - １週間分のView
+private struct WeekView: View {
     
-    // 表示するイベント
+    // １週間分の日付
     let weekModel: WeekModel
+    
+    // １週間分のイベント
+    let eventLabelModels: [[EventLabelModel]]
     
     // デバイス幅
     let deviceWidth: CGFloat
     
-    // セルの縦幅
-    let weekCellHeight: CGFloat
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 13.0) {
-            // １週間の日数分（７日）セルを生成する
+        VStack(alignment: .leading) {
+            Divider()
+            // １週間の日数分セルを生成する
             HStack(spacing: 0.0) {
-                ForEach(Array(weekModel.displayDates.enumerated()), id: \.offset) { _, day in
+                ForEach(Array(weekModel.displaydays.enumerated()), id: \.offset) { _, day in
                     // 日単位のセル
                     Text(day)
                         .fontWeight(.semibold)
                         .padding(.top, 13.0)
-                        .frame(width: deviceWidth / 7,
-                               alignment: .top)
+                        .frame(maxWidth: .infinity)
                 }
             }
             // イベント表示セルを生成する
             VStack(alignment: .leading, spacing: 3.0) {
                 // イベントは１週間分✖︎３段で表示
-                ForEach(0..<weekModel.eventLabelModels.count, id: \.self) { labelIndex in
+                ForEach(0..<eventLabelModels.count, id: \.self) { labelIndex in
                     // １週間分のイベント
                     HStack(spacing: 0.0) {
-                        ForEach(weekModel.eventLabelModels[labelIndex]) { (event: EventLabelModel) in
+                        ForEach(eventLabelModels[labelIndex]) { (event: EventLabelModel) in
                             EventLabel(event: event,
                                        deviceWidth: deviceWidth)
                         }
@@ -249,7 +228,8 @@ private struct WeekCell: View {
                 }
             }
         }
-        .frame(height: weekCellHeight, alignment: .top)
+        .frame(maxHeight: .infinity, alignment: .top
+        )
     }
 }
 

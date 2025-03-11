@@ -10,13 +10,14 @@ import SwiftUICore
 
 // MARK: - 月のモデル
 struct MonthModel: Identifiable {
-    // ID（月の開始日付）
-    let id: Date
-    // WeekModels
+    var id: String { yearMonthString }
+    // 年月文字列
+    let yearMonthString: String
+    // １週間ごとの週モデル
     let weekModels: [WeekModel]
     
-    init(id: Date, weekModels: [WeekModel]) {
-        self.id = Calendar.current.specifiedDay(for: id, at: 1) ?? id
+    init(yearMonthString: String?, weekModels: [WeekModel]) {
+        self.yearMonthString = yearMonthString ?? String.empty
         self.weekModels = weekModels
     }
 }
@@ -25,14 +26,7 @@ struct MonthModel: Identifiable {
 struct WeekModel: Identifiable {
     let id = UUID()
     // 表示する日付のリスト
-    let displayDates: [String]
-    // １週間分のイベント
-    let eventLabelModels: [[EventLabelModel]]
-    
-    init(dateStrings: [String], eventLabelModels: [[EventLabelModel]]) {
-        self.displayDates = dateStrings
-        self.eventLabelModels = eventLabelModels
-    }
+    let displaydays: [String]
 }
 
 // MARK: - イベントのモデル

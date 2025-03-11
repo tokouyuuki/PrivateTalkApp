@@ -38,7 +38,7 @@ struct DateUtilities {
         }
         let formatter = DateFormatter()
         formatter.locale = Locale.current
-        formatter.dateFormat = format
+        formatter.dateFormat = NSLocalizedString(format, comment: String.empty)
         
         return formatter.date(from: dateString)
     }
