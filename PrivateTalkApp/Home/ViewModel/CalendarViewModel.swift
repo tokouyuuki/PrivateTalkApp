@@ -20,8 +20,6 @@ final class CalendarViewModel: ObservableObject {
     
     // 月のModel
     @Published var monthModels: [MonthModel] = []
-    // １週間分のイベント✖︎３を保持するモデル
-    @Published var eventLabelModels: [[EventLabelModel]] = []
     // 現在表示中の月のID
     @Published var selectedCalendarID: String = String.empty
     // ボタンが無効かどうか（有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる）
@@ -162,12 +160,19 @@ final class CalendarViewModel: ObservableObject {
             dateStrings.append(String(dayOffset))
             // １週間ごとにリターン
             if dateStrings.count % 7 == 0 {
-                return WeekModel(displaydays: dateStrings.suffix(7))
+                let eventLabelModel = createEventLabelModel(startMonth: startMonth,
+                                                            weekOfMonth: dateStrings.count / 7,
+                                                            numberOfDaysInMonth: numberOfDaysInMonth)
+                return WeekModel(displaydays: dateStrings.suffix(7), eventLabelModel: eventLabelModel)
             }
-            // 最終週（最終日は日数を計算してリターン）
+            // 最終週が日曜日で終わらない時は、日数を計算してリターン
             if dayOffset == numberOfDaysInMonth {
-                let index = dayOffset - (Int(dateStrings[dateStrings.count - 7]) ?? 7)
-                return WeekModel(displaydays: dateStrings.suffix(index))
+                let daysInFinalWeek = Int(dateStrings.count % 7)
+                let weekOfMonth = (dateStrings.count + 7 - daysInFinalWeek) / 7
+                let eventLabelModel = createEventLabelModel(startMonth: startMonth,
+                                                            weekOfMonth: weekOfMonth,
+                                                            numberOfDaysInMonth: numberOfDaysInMonth)
+                return WeekModel(displaydays: dateStrings.suffix(daysInFinalWeek), eventLabelModel: eventLabelModel)
             }
             return nil
         }
@@ -178,7 +183,7 @@ final class CalendarViewModel: ObservableObject {
     /// - parameter weekOfMonth: 月の第何週目
     /// - parameter numberOfDaysInMonth: 月の日数
     /// - returns: [[EventLabelModel]]
-    private func getEventLabelModels(startMonth: Date, weekOfMonth: Int, numberOfDaysInMonth: Int) -> [[EventLabelModel]] {
+    private func createEventLabelModel(startMonth: Date, weekOfMonth: Int, numberOfDaysInMonth: Int) -> [[EventLabelModel]] {
         let calendar = Calendar.current
         // １週間分のイベント✖︎３を格納する変数
         var weeklyLabels: [[EventLabelModel]] = []

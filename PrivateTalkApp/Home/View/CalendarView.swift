@@ -41,7 +41,6 @@ struct CalendarView: View {
                     // 月ごとのカレンダーを生成
                     ForEach(calendarViewModel.monthModels) { monthModel in
                         CalendarMonthView(weekModels: monthModel.weekModels,
-                                          eventLabelModels: calendarViewModel.eventLabelModels,
                                           deviceWidth: geometry.size.width)
                         .tag(monthModel.id)
                         .onAppear {
@@ -167,11 +166,8 @@ private struct CalendarWeekdayHeaderView: View {
 // MARK: - １月分のカレンダーView
 private struct CalendarMonthView: View {
     
-    // １ヶ月分の日数
+    // カレンダーに必要な１ヶ月分のモデル
     let weekModels: [WeekModel]
-    
-    // １ヶ月分のイベント
-    let eventLabelModels: [[EventLabelModel]]
     
     // デバイス幅
     let deviceWidth: CGFloat
@@ -182,7 +178,6 @@ private struct CalendarMonthView: View {
             ForEach(weekModels) { weekModel in
                 // 週単位のセル
                 WeekView(weekModel: weekModel,
-                         eventLabelModels: eventLabelModels,
                          deviceWidth: deviceWidth)
             }
         }
@@ -192,11 +187,8 @@ private struct CalendarMonthView: View {
 // MARK: - １週間分のView
 private struct WeekView: View {
     
-    // １週間分の日付
+    // カレンダーに必要な１週間分のモデル
     let weekModel: WeekModel
-    
-    // １週間分のイベント
-    let eventLabelModels: [[EventLabelModel]]
     
     // デバイス幅
     let deviceWidth: CGFloat
@@ -211,16 +203,16 @@ private struct WeekView: View {
                     Text(day)
                         .fontWeight(.semibold)
                         .padding(.top, 13.0)
-                        .frame(maxWidth: .infinity)
+                        .frame(width: deviceWidth / 7)
                 }
             }
             // イベント表示セルを生成する
             VStack(alignment: .leading, spacing: 3.0) {
                 // イベントは１週間分✖︎３段で表示
-                ForEach(0..<eventLabelModels.count, id: \.self) { labelIndex in
+                ForEach(0..<weekModel.eventLabelModel.count, id: \.self) { labelIndex in
                     // １週間分のイベント
                     HStack(spacing: 0.0) {
-                        ForEach(eventLabelModels[labelIndex]) { (event: EventLabelModel) in
+                        ForEach(weekModel.eventLabelModel[labelIndex]) { (event: EventLabelModel) in
                             EventLabel(event: event,
                                        deviceWidth: deviceWidth)
                         }
@@ -228,8 +220,7 @@ private struct WeekView: View {
                 }
             }
         }
-        .frame(maxHeight: .infinity, alignment: .top
-        )
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 }
 
@@ -260,7 +251,7 @@ private struct EventLabel: View {
                     .foregroundStyle(adjustedEventColor(for: colorScheme,
                                                         color: event.color))
                     .background(event.color.opacity(0.3))
-                    .cornerRadius(4.0)
+                    .clipShape(RoundedRectangle(cornerRadius: 4.0))
             }
             .frame(width: (deviceWidth / 7) * CGFloat(event.length), height: 15.0, alignment: .center)
         case .overflow:
