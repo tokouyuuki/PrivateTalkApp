@@ -39,6 +39,8 @@
 		22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC852C7DD6C400750F2A /* WorldTimeRepository.swift */; };
 		22EDDC882C7DEE3800750F2A /* WorldTimeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC872C7DEE3800750F2A /* WorldTimeResponse.swift */; };
 		22EDDC8F2C7DFDE300750F2A /* WorldTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */; };
+		41F7571E2D81600300165B7F /* EventSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F7571D2D81600300165B7F /* EventSearchView.swift */; };
+		41F757202D81637500165B7F /* EventSearchResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F7571F2D81637500165B7F /* EventSearchResultCell.swift */; };
 		8EF16EB3B4B8B382C18D95F4 /* Pods_PrivateTalkApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFCA3F4449B6E8A53D87804 /* Pods_PrivateTalkApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +81,8 @@
 		22EDDC852C7DD6C400750F2A /* WorldTimeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeRepository.swift; sourceTree = "<group>"; };
 		22EDDC872C7DEE3800750F2A /* WorldTimeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeResponse.swift; sourceTree = "<group>"; };
 		22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTimeService.swift; sourceTree = "<group>"; };
+		41F7571D2D81600300165B7F /* EventSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSearchView.swift; sourceTree = "<group>"; };
+		41F7571F2D81637500165B7F /* EventSearchResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSearchResultCell.swift; sourceTree = "<group>"; };
 		68DA4C6266FB7A8600959865 /* Pods-PrivateTalkApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrivateTalkApp.debug.xcconfig"; path = "Target Support Files/Pods-PrivateTalkApp/Pods-PrivateTalkApp.debug.xcconfig"; sourceTree = "<group>"; };
 		760FEC05D04C75F691B1D513 /* Pods-PrivateTalkApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrivateTalkApp.release.xcconfig"; path = "Target Support Files/Pods-PrivateTalkApp/Pods-PrivateTalkApp.release.xcconfig"; sourceTree = "<group>"; };
 		9AFCA3F4449B6E8A53D87804 /* Pods_PrivateTalkApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PrivateTalkApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -246,6 +250,7 @@
 		22D1BDF72C667CB4006AD6D8 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				41F7571A2D815FF200165B7F /* Search */,
 				22E19FEF2C6F517700C4051F /* CalendarView.swift */,
 				22B1DCA12C9FEEC100E1019F /* EventAddView.swift */,
 				228828FD2CCA3FE100BB1527 /* CustomCalendarCell.swift */,
@@ -353,6 +358,15 @@
 				22EDDC8E2C7DFDE300750F2A /* WorldTimeService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		41F7571A2D815FF200165B7F /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				41F7571D2D81600300165B7F /* EventSearchView.swift */,
+				41F7571F2D81637500165B7F /* EventSearchResultCell.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		94783472EB47F1D3F80B0830 /* Pods */ = {
@@ -498,6 +512,7 @@
 				2227BAEF2CBE8E900087C314 /* EventErrorAlert.swift in Sources */,
 				2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */,
 				22EDDC862C7DD6C400750F2A /* WorldTimeRepository.swift in Sources */,
+				41F7571E2D81600300165B7F /* EventSearchView.swift in Sources */,
 				2235C7642CB027F100C701A3 /* EventDataSource.swift in Sources */,
 				22AB1ADB2CB93E4000A7B8D7 /* EventStoreManager.swift in Sources */,
 				22EDDC8F2C7DFDE300750F2A /* WorldTimeService.swift in Sources */,
@@ -514,6 +529,7 @@
 				2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */,
 				22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */,
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
+				41F757202D81637500165B7F /* EventSearchResultCell.swift in Sources */,
 				228828FE2CCA3FE100BB1527 /* CustomCalendarCell.swift in Sources */,
 				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
 				2227BAF12CBF4F600087C314 /* NetworkError.swift in Sources */,
@@ -668,7 +684,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PrivateTalkApp/Preview Content\"";
-				DEVELOPMENT_TEAM = Z898T9VB4G;
+				DEVELOPMENT_TEAM = X8Q47A3L5C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -684,7 +700,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tokoko.PrivateTalkApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokoko.PrivateTalkApp.masashi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -702,7 +718,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PrivateTalkApp/Preview Content\"";
-				DEVELOPMENT_TEAM = Z898T9VB4G;
+				DEVELOPMENT_TEAM = X8Q47A3L5C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -718,7 +734,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tokoko.PrivateTalkApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokoko.PrivateTalkApp.masashi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

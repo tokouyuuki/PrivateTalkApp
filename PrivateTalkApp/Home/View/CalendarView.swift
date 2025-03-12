@@ -21,48 +21,56 @@ struct CalendarView: View {
     @StateObject private var calendarViewModel = CalendarViewModel()
     
     var body: some View {
-        VStack(spacing: 0.0) {
-            // ヘッダー
-            HeaderView(isTodayButtonDisabled: calendarViewModel.isTodayButtonDisabled,
-                       yearMonthString: calendarViewModel.selectedCalendarID,
-                       onTodayButtonTapped: {
-                // 今日の日付にカレンダーを更新させる
-                calendarViewModel.onTapTodayButton()
-            },
-                       onAddEventButtonTapped: {
-                // イベント追加Viewを表示
-                calendarViewModel.onTapAddEventView()
-            })
-            // カレンダーの曜日ヘッダー
-            CalendarWeekdayHeaderView()
-            // カレンダー
-            GeometryReader { geometry in
-                TabView(selection: $calendarViewModel.selectedCalendarID) {
-                    // 月ごとのカレンダーを生成
-                    ForEach(calendarViewModel.monthModels) { monthModel in
-                        CalendarMonthView(weekModels: monthModel.weekModels,
-                                          eventLabelModels: calendarViewModel.eventLabelModels,
-                                          deviceWidth: geometry.size.width)
-                        .tag(monthModel.id)
-                        .onAppear {
-                            calendarViewModel.loadMoreMonthsIfNeeded(yearMonthString: monthModel.yearMonthString)
-                        }
-                        .onDisappear {
-                            calendarViewModel.calendarOnDisappear()
+        NavigationStack {
+            VStack(spacing: 0.0) {
+                // ヘッダー
+                HeaderView(isTodayButtonDisabled: calendarViewModel.isTodayButtonDisabled,
+                           yearMonthString: calendarViewModel.selectedCalendarID,
+                           onTodayButtonTapped: {
+                    // 今日の日付にカレンダーを更新させる
+                    calendarViewModel.onTapTodayButton()
+                },
+                           onAddEventButtonTapped: {
+                    // イベント追加Viewを表示
+                    calendarViewModel.onTapAddEventView()
+                },
+                           onTapSearchButton: {
+                    calendarViewModel.onTapSearchButton()
+                })
+                // カレンダーの曜日ヘッダー
+                CalendarWeekdayHeaderView()
+                // カレンダー
+                GeometryReader { geometry in
+                    TabView(selection: $calendarViewModel.selectedCalendarID) {
+                        // 月ごとのカレンダーを生成
+                        ForEach(calendarViewModel.monthModels) { monthModel in
+                            CalendarMonthView(weekModels: monthModel.weekModels,
+                                              eventLabelModels: calendarViewModel.eventLabelModels,
+                                              deviceWidth: geometry.size.width)
+                            .tag(monthModel.id)
+                            .onAppear {
+                                calendarViewModel.loadMoreMonthsIfNeeded(yearMonthString: monthModel.yearMonthString)
+                            }
+                            .onDisappear {
+                                calendarViewModel.calendarOnDisappear()
+                            }
                         }
                     }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            }
+            .padding(.vertical, 5.0)
+            .sheet(isPresented: $calendarViewModel.showEventAddView,
+                   content: {
+                // イベント追加View
+                EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
+                                                      endDate: calendarViewModel.selectedEndDate))
+            })
+            .eventErrorAlert(type: $calendarViewModel.eventErrorAlertType, onDismiss: {})
+            .navigationDestination(isPresented: $calendarViewModel.showSearchView) {
+                EventSearchView()
             }
         }
-        .padding(.vertical, 5.0)
-        .sheet(isPresented: $calendarViewModel.showEventAddView,
-               content: {
-            // イベント追加View
-            EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
-                                                  endDate: calendarViewModel.selectedEndDate))
-        })
-        .eventErrorAlert(type: $calendarViewModel.eventErrorAlertType, onDismiss: {})
     }
 }
 
@@ -80,7 +88,9 @@ private struct HeaderView: View {
     
     // イベント追加ボタンをタップ時に呼ばれるクロージャ
     let onAddEventButtonTapped: () -> Void
-    
+
+    let onTapSearchButton: () -> Void
+
     var body: some View {
         VStack(spacing: 0.0) {
             // 今日ボタンと予定追加ボタン
@@ -89,6 +99,16 @@ private struct HeaderView: View {
                             onTapped: {
                     onTodayButtonTapped()
                 })
+
+                Button {
+                    onTapSearchButton()
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.symbol)
+                        .frame(width: 20.0, height: 20.0)
+                }
+
+
                 AddEventButton(onTapped: {
                     onAddEventButtonTapped()
                 })

@@ -28,6 +28,7 @@ struct TabBarView: View {
             Divider()
             CustomTabBar(currentTab: $currentTab)
         }
+        .ignoresSafeArea(.keyboard)
     }
 }
 

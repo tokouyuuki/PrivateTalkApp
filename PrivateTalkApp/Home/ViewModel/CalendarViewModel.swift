@@ -30,6 +30,7 @@ final class CalendarViewModel: ObservableObject {
     @Published var eventErrorAlertType: EventErrorAlertType = .none
     // イベント編集画面を表示するかどうか
     @Published var showEventAddView: Bool = false
+    @Published var showSearchView: Bool = false
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
     // 表示している月の予定のリスト
@@ -446,7 +447,11 @@ final class CalendarViewModel: ObservableObject {
             self.eventErrorAlertType = .init(error: .notAccess)
         }
     }
-    
+
+    func onTapSearchButton() {
+        showSearchView = true
+    }
+
     /// 必要であれば追加でイベントを取得
     /// - parameter id: 表示しているイベントのID（日付）
     func loadMoreMonthsIfNeeded(yearMonthString: String) {
