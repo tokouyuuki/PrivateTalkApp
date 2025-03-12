@@ -20,7 +20,7 @@ struct TabBarView: View {
     var body: some View {
         VStack(spacing: 8.0) {
             TabView(selection: $currentTab) {
-                HomeView().tag(Tab.home)
+                CalendarView().tag(Tab.home)
                 TalkView().tag(Tab.talk)
                 NewsView().tag(Tab.news)
                 SettingView().tag(Tab.setting)

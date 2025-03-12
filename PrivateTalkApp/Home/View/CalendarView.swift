@@ -6,286 +6,282 @@
 //
 
 import SwiftUI
-import FSCalendar
 
-// MARK: - 行うアクション
-enum EventAction {
-    // 表示する年月の更新
-    case updateDisplayDate(Date)
-    // 選択日の更新
-    case updateSelectedDate(Date)
-    // カレンダーイベントへのアクセス要求
-    case requestFullAccessToEvents
-    // カレンダーイベント取得
-    case fetchEvent
+// MARK: - Constants
+private struct Constants {
+    static let DEFAULT_LANGUAGE = "ja-JP"
+    static let ADD_SCHEDULE_BUTTON_IMAGE_NAME = "plus.circle.fill"
+    static let TODAY_BUTTON_TEXT_KEY = LocalizedStringKey("today_button_text")
 }
 
-// MARK: - FSCalendarView
-struct CalendarView: UIViewRepresentable {
-    
-    typealias UIViewType = FSCalendar
-    
-    private struct Constants {
-        static let DEFAULT_LANGUAGE = "ja-JP"
-        static let CALENDAR_RELOAD_NOTIFICATION = "calendarReload"
-    }
+// MARK: - カレンダー View
+struct CalendarView: View {
     
     // カレンダーのViewModel
-    let calendarViewModel: CalendarViewModel
+    @StateObject private var calendarViewModel = CalendarViewModel()
     
-    // 今日ボタンの有効／無効を制御
-    @Binding var todayButtonEnable: Bool
-    
-    // 親Viewにカレンダーの現在日付を渡すためのクロージャ
-    let onCurrentDateChanged: (EventAction) -> Void
-    
-    func makeCoordinator() -> FSCalendarCoordinator {
-        return FSCalendarCoordinator(parent: self)
-    }
-    
-    func makeUIView(context: Context) -> FSCalendar {
-        // 設定されている優先言語を取得
-        let preferredLanguage = Locale.preferredLanguages.first ?? Constants.DEFAULT_LANGUAGE
-        // カレンダーの設定
-        let fsCalendar = FSCalendar()
-            .setLocale(identifier: preferredLanguage)
-            .setHeaderHeight(height: 0.0)
-            .setHeaderMinimumDissolvedAlpha(alpha: 0.0)
-            .setWeekdayFont(size: 20.0)
-            .setCalendarWeekdayBackgroundColor(color: .symbol)
-            .setWeekdayTextColor(color: .label)
-            .setTitleFont(size: 16.0, weight: .bold)
-            .setTodayColor(color: .clear)
-            .setSelectionColor(color: .clear)
-            .setBorderSelectionColor(color: .clear)
-            .setTitleSelectionColor(color: .label)
-            .setTitleDefaultColor(color: .label)
-            .setTitleWeekendColor(color: .symbol)
-            .setBorderRadius(radius: 1.0)
-            .setplaceholderType(placeholderType: .none)
-        
-        fsCalendar.register(CustomCalendarCell.self, forCellReuseIdentifier: CustomCalendarCell.identifier)
-        
-        // イベント取得完了の通知を監視してカレンダーを描画
-        NotificationCenter.default.addObserver(forName: Notification.Name(Constants.CALENDAR_RELOAD_NOTIFICATION),
-                                               object: nil,
-                                               queue: .main) { _ in
-            fsCalendar.delegate = context.coordinator
-            fsCalendar.dataSource = context.coordinator
-            fsCalendar.reloadData()
+    var body: some View {
+        VStack(spacing: 0.0) {
+            // ヘッダー
+            HeaderView(isTodayButtonDisabled: calendarViewModel.isTodayButtonDisabled,
+                       yearMonthString: calendarViewModel.selectedCalendarID,
+                       onTodayButtonTapped: {
+                // 今日の日付にカレンダーを更新させる
+                calendarViewModel.onTapTodayButton()
+            },
+                       onAddEventButtonTapped: {
+                // イベント追加Viewを表示
+                calendarViewModel.onTapAddEventView()
+            })
+            // カレンダーの曜日ヘッダー
+            CalendarWeekdayHeaderView()
+            // カレンダー
+            GeometryReader { geometry in
+                TabView(selection: $calendarViewModel.selectedCalendarID) {
+                    // 月ごとのカレンダーを生成
+                    ForEach(calendarViewModel.monthModels) { monthModel in
+                        CalendarMonthView(weekModels: monthModel.weekModels,
+                                          deviceWidth: geometry.size.width)
+                        .tag(monthModel.id)
+                        .onAppear {
+                            calendarViewModel.loadMoreMonthsIfNeeded(yearMonthString: monthModel.yearMonthString)
+                        }
+                        .onDisappear {
+                            calendarViewModel.calendarOnDisappear()
+                        }
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            }
         }
-        
-        // 月初と今日の日付を親Viewに渡す
-        self.onCurrentDateChanged(.updateDisplayDate(fsCalendar.currentPage))
-        self.onCurrentDateChanged(.updateSelectedDate(fsCalendar.today ?? Date()))
-        // カレンダーイベントへのフルアクセスを要求
-        self.onCurrentDateChanged(.requestFullAccessToEvents)
-        
-        return fsCalendar
+        .padding(.vertical, 5.0)
+        .sheet(isPresented: $calendarViewModel.showEventAddView,
+               content: {
+            // イベント追加View
+            EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
+                                                  endDate: calendarViewModel.selectedEndDate))
+        })
+        .eventErrorAlert(type: $calendarViewModel.eventErrorAlertType, onDismiss: {})
     }
+}
+
+// MARK: - ヘッダー
+private struct HeaderView: View {
     
-    func updateUIView(_ uiView: UIViewType, context: Context) {
-        // カレンダーで表示している月とCalendarModelの月が異なるかどうか
-        if !self.calendarViewModel.isMatchedDate(dateToCompare: uiView.currentPage) {
-            if let displayDate = self.calendarViewModel.calendarModel?.displayDate {
-                // カレンダーの表示を今月にし、選択日を今日にする
-                uiView.select(displayDate, scrollToDate: true)
-                self.onCurrentDateChanged(.updateSelectedDate(displayDate))
-                self.todayButtonEnable = true
+    // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
+    let isTodayButtonDisabled: Bool
+    
+    // 年月文字列
+    let yearMonthString: String
+    
+    // 今日ボタンをタップ時に呼ばれるクロージャ
+    let onTodayButtonTapped: () -> Void
+    
+    // イベント追加ボタンをタップ時に呼ばれるクロージャ
+    let onAddEventButtonTapped: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0.0) {
+            // 今日ボタンと予定追加ボタン
+            HStack(spacing: 20.0) {
+                TodayButton(isTodayButtonDisabled: isTodayButtonDisabled,
+                            onTapped: {
+                    onTodayButtonTapped()
+                })
+                AddEventButton(onTapped: {
+                    onAddEventButtonTapped()
+                })
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            // 年月テキスト
+            Text(yearMonthString)
+                .font(.system(size: 30.0, weight: .bold))
+                .foregroundStyle(Color.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 10.0)
+        .padding(.bottom, 8.0)
+    }
+}
+
+// MARK: - 今日を表示するボタン
+private struct TodayButton: View {
+    
+    // 有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる
+    let isTodayButtonDisabled: Bool
+    
+    // ボタンタップ時に呼ばれるクロージャ
+    let onTapped: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            onTapped()
+        }) {
+            Text(Constants.TODAY_BUTTON_TEXT_KEY)
+                .font(.system(size: 20.0))
+                .foregroundStyle(.symbol)
+        }
+        .disabled(isTodayButtonDisabled)
+    }
+}
+
+// MARK: - 予定を追加するボタン
+private struct AddEventButton: View {
+    
+    // ボタンタップ時に呼ばれるクロージャ
+    let onTapped: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            onTapped()
+        }) {
+            Image(systemName: Constants.ADD_SCHEDULE_BUTTON_IMAGE_NAME)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .foregroundStyle(.symbol)
+                .frame(width: 30.0, height: 30.0)
+        }
+    }
+}
+
+// MARK: - 日曜から土曜までの曜日が表示されたヘッダー
+private struct CalendarWeekdayHeaderView: View {
+    
+    // 曜日
+    let weeks = Calendar.current.shortWeekdaySymbols
+    
+    var body: some View {
+        HStack(spacing: 0.0) {
+            ForEach(weeks, id: \.self) { week in
+                Text(LocalizedStringKey(week))
+                    .frame(maxWidth: .infinity)
+                    .font(.system(size: 11.0))
+                    .padding(.vertical, 2.0)
+                    .background(.symbol)
             }
         }
     }
 }
 
-// MARK: - Coordinator
-final class FSCalendarCoordinator: NSObject, FSCalendarDelegate, FSCalendarDataSource {
+// MARK: - １月分のカレンダーView
+private struct CalendarMonthView: View {
     
-    private var parent: CalendarView
+    // カレンダーに必要な１ヶ月分のモデル
+    let weekModels: [WeekModel]
     
-    init(parent: CalendarView) {
-        self.parent = parent
+    // デバイス幅
+    let deviceWidth: CGFloat
+    
+    var body: some View {
+        // 存在する週の数だけセルを生成する
+        VStack(spacing: 0.0) {
+            ForEach(weekModels) { weekModel in
+                // 週単位のセル
+                WeekView(weekModel: weekModel,
+                         deviceWidth: deviceWidth)
+            }
+        }
     }
+}
+
+// MARK: - １週間分のView
+private struct WeekView: View {
     
-    /// 年月を変更した際の処理
-    /// - parameter calendar: FSCalendar
-    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-        // 月初の日付を親Viewに渡す
-        self.parent.onCurrentDateChanged(.updateDisplayDate(calendar.currentPage))
-        // 新しいイベントを取得する
-        self.parent.onCurrentDateChanged(.fetchEvent)
-        Task { @MainActor in
-            if let today = calendar.today {
-                if self.parent.calendarViewModel.isMatchedDate(dateToCompare: today) {
-                    // カレンダーが今日の月だったら、今日ボタンを押せなくする
-                    self.parent.todayButtonEnable = true
-                } else {
-                    // カレンダーが今日の月でなければ、今日ボタンを押せるようにする
-                    self.parent.todayButtonEnable = false
+    // カレンダーに必要な１週間分のモデル
+    let weekModel: WeekModel
+    
+    // デバイス幅
+    let deviceWidth: CGFloat
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Divider()
+            // １週間の日数分セルを生成する
+            HStack(spacing: 0.0) {
+                ForEach(Array(weekModel.displaydays.enumerated()), id: \.offset) { _, day in
+                    // 日単位のセル
+                    Text(day)
+                        .fontWeight(.semibold)
+                        .padding(.top, 13.0)
+                        .frame(width: deviceWidth / 7)
+                }
+            }
+            // イベント表示セルを生成する
+            VStack(alignment: .leading, spacing: 3.0) {
+                // イベントは１週間分✖︎３段で表示
+                ForEach(0..<weekModel.eventLabelModel.count, id: \.self) { labelIndex in
+                    // １週間分のイベント
+                    HStack(spacing: 0.0) {
+                        ForEach(weekModel.eventLabelModel[labelIndex]) { (event: EventLabelModel) in
+                            EventLabel(event: event,
+                                       deviceWidth: deviceWidth)
+                        }
+                    }
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
+}
+
+// MARK: - イベントラベル
+private struct EventLabel: View {
     
-    /// 日付を選択した際の処理
-    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        // 前回選択した日付の丸印を非表示にし、今日の丸印を表示させる
-        if let cellList = calendar.visibleCells() as? [CustomCalendarCell] {
-            cellList.forEach {
-                $0.resetCircleLayer()
+    // 表示するイベント
+    let event: EventLabelModel
+    
+    // デバイス幅
+    let deviceWidth: CGFloat
+    
+    // ライト/ダークモードの状態を取得
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    
+    var body: some View {
+        switch event.eventDisplayType {
+        case .full:
+            // イベントが表示されたボタン
+            Button {
+                // ボタンアクション
+            } label: {
+                Text(event.title)
+                    .font(.system(size: 10.0, weight: .bold))
+                    .padding(EdgeInsets(top: 0.0, leading: 2.0, bottom: 0.0, trailing: 0.0))
+                    .frame(maxHeight: .infinity)
+                    .frame(width: (deviceWidth / 7) * CGFloat(event.length) - 4, alignment: .leading)
+                    .foregroundStyle(adjustedEventColor(for: colorScheme,
+                                                        color: event.color))
+                    .background(event.color.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 4.0))
             }
+            .frame(width: (deviceWidth / 7) * CGFloat(event.length), height: 15.0, alignment: .center)
+        case .overflow:
+            // 予定数が表示されたテキスト
+            Text(event.title)
+                .font(.system(size: 10.0, weight: .light))
+                .frame(width: (deviceWidth / 7) * CGFloat(event.length))
+        case .none:
+            // 空白
+            Spacer()
+                .frame(width: (deviceWidth / 7) * CGFloat(event.length))
         }
-        // 選択した日付に丸印を表示する
-        if let cell = calendar.cell(for: date, at: monthPosition) as? CustomCalendarCell {
-            cell.setSelectedCircleLayer()
-        }
-        // 選択された日付を親Viewに渡す
-        self.parent.onCurrentDateChanged(.updateSelectedDate(date))
     }
     
-    /// カレンダーのセルを生成
-    func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
-        guard let cell = calendar.dequeueReusableCell(withIdentifier: CustomCalendarCell.identifier,
-                                                      for: date,
-                                                      at: position) as? CustomCalendarCell else {
-            return FSCalendarCell()
+    /// ライト/ダークモード対応したイベントの色を取得
+    /// - parameter colorScheme: 現在の状態（ライトかダークか）
+    /// - parameter color: イベントの色
+    /// - returns: ライト/ダークモードに対応したイベントの色
+    private func adjustedEventColor(for colorScheme: ColorScheme, color: Color) -> Color {
+        switch colorScheme {
+        case .light:
+            return Color(UIColor(color).adjustedBrightness(by: 0.5))
+        case .dark:
+            return Color(UIColor(color).adjustedBrightness(by: 1.7))
+        @unknown default:
+            return Color(UIColor(color))
         }
-        let eventList = self.parent.calendarViewModel.getEventList(date: date)
-        cell.setEventTitleLabels(eventList)
-        if calendar.today == date {
-            // 今日の日付に丸印を表示する
-            cell.setTodayCircleLayer()
-        }
-        return cell
     }
 }
 
-// MARK: - extension
-extension FSCalendar {
-    
-    /// 言語設定
-    /// - parameter identifier: ロケールの識別子（日本語表示の場合は"ja-JP"）
-    @discardableResult
-    func setLocale(identifier: String) -> Self {
-        self.locale = Locale(identifier: identifier)
-        return self
-    }
-    
-    /// ヘッダーの高さをセット
-    /// - parameter height: ヘッダーの高さ（0.0で非表示）
-    @discardableResult
-    func setHeaderHeight(height: CGFloat) -> Self {
-        self.headerHeight = height
-        return self
-    }
-    
-    /// 前月、翌月表示のアルファ量をセット
-    /// - parameter alpha: アルファ量（0で非表示）
-    @discardableResult
-    func setHeaderMinimumDissolvedAlpha(alpha: CGFloat) -> Self {
-        self.appearance.headerMinimumDissolvedAlpha = alpha
-        return self
-    }
-    
-    /// 曜日表示のテキストサイズをセット
-    /// - parameter size: テキストサイズ
-    @discardableResult
-    func setWeekdayFont(size: CGFloat) -> Self {
-        self.appearance.weekdayFont = UIFont.systemFont(ofSize: size)
-        return self
-    }
-    
-    /// 曜日表示の背景色をセット
-    /// - parameter color: 背景色
-    @discardableResult
-    func setCalendarWeekdayBackgroundColor(color: UIColor) -> Self {
-        self.calendarWeekdayView.backgroundColor = color
-        return self
-    }
-    
-    /// 曜日表示のテキストカラーをセット
-    /// - parameter color: テキストカラー
-    @discardableResult
-    func setWeekdayTextColor(color: UIColor) -> Self {
-        self.appearance.weekdayTextColor = color
-        return self
-    }
-    
-    /// 日付のテキスト、ウェイトサイズをセット
-    /// - parameter size: テキストサイズ
-    /// - parameter weight: ウェイトサイズ
-    @discardableResult
-    func setTitleFont(size: CGFloat, weight: UIFont.Weight) -> Self {
-        self.appearance.titleFont = UIFont.systemFont(ofSize: size, weight: weight)
-        return self
-    }
-    
-    /// 本日の背景色をセット
-    /// - parameter color: 背景色
-    @discardableResult
-    func setTodayColor(color: UIColor) -> Self {
-        self.appearance.todayColor = color
-        return self
-    }
-    
-    /// 選択した日付の背景色をセット
-    /// - parameter color: 背景色
-    @discardableResult
-    func setSelectionColor(color: UIColor) -> Self {
-        self.appearance.selectionColor = color
-        return self
-    }
-    
-    /// 選択した日付のボーダーカラーをセット
-    /// - parameter color: ボーダーカラー
-    @discardableResult
-    func setBorderSelectionColor(color: UIColor) -> Self {
-        self.appearance.borderSelectionColor = color
-        return self
-    }
-    
-    /// 選択した日付のテキストカラーをセット
-    /// - parameter color: テキストカラー
-    @discardableResult
-    func setTitleSelectionColor(color: UIColor) -> Self {
-        self.appearance.titleSelectionColor = color
-        return self
-    }
-    
-    /// 平日の日付のテキストカラーをセット
-    /// - parameter color: テキストカラー
-    @discardableResult
-    func setTitleDefaultColor(color: UIColor) -> Self {
-        self.appearance.titleDefaultColor = color
-        return self
-    }
-    
-    /// 週末（土、日曜の）日付のテキストカラーをセット
-    /// - parameter color: テキストカラー
-    @discardableResult
-    func setTitleWeekendColor(color: UIColor) -> Self {
-        self.appearance.titleWeekendColor = color
-        return self
-    }
-    
-    /// 本日・選択日の塗りつぶし角丸量
-    /// - parameter radius: 角丸量
-    @discardableResult
-    func setBorderRadius(radius: CGFloat) -> Self {
-        self.appearance.borderRadius = radius
-        return self
-    }
-    
-    /// カレンダー内のプレースホルダー（日付がない部分）の表示方法をセット
-    /// - parameter placeholderType: none: プレースホルダーを表示せず、当月の日付のみを表示
-    /// 　　　　　　　　　　　　　　　　　　fillHeadTail: 前月および翌月の日付をプレースホルダーとして表示し、行の空きを埋める
-    /// 　　　　　　　　　　　　　　　　　　fillSixRows: 常に6行のレイアウトを維持するために、月の日数に関係なくプレースホルダーを追加
-    @discardableResult
-    func setplaceholderType(placeholderType: FSCalendarPlaceholderType) -> Self {
-        self.placeholderType = placeholderType
-        return self
-    }
+#Preview {
+    CalendarView()
 }
-
-//#Preview {
-//    CalendarView()
-//}
