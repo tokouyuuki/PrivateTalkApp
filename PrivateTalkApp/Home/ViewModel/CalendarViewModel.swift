@@ -92,9 +92,7 @@ final class CalendarViewModel: ObservableObject {
                 return
             }
             Task { @MainActor in
-                // TODO: 後ほど修正
-//                self.fetchEvent(referenceMonthForEvents: Date(),
-//                                monthOffset: 0)
+                await self.updateMonthModel()
             }
         }
     }
@@ -173,6 +171,57 @@ final class CalendarViewModel: ObservableObject {
                                  eventLabelModel: eventLabelModel)
             }
             return nil
+        }
+    }
+    
+    /// １ヶ月分の月モデルを更新
+    private func updateMonthModel() async {
+        guard let date = DateUtilities.convertStringToUtcDate(dateString: self.monthModels.first?.yearMonthString,
+                                                              format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) else {
+            return
+        }
+        // 生成済み月モデルの月数分イベントを取得する
+        self.events = self.fetchEvent(referenceMonthForEvents: date,
+                                      monthOffset: self.monthModels.count - 1)
+        // 追加されたイベントの月と一致する月モデルを更新する
+        if let event = self.getAddedEvent(self.events, for: self.monthModels) {
+            // 追加されたイベントの開始月
+            let targetStartDateString = DateUtilities.convertDateToString(date: event.startDate,
+                                                                          format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+            // 追加されたイベントの終了月
+            let targetEndDateString = DateUtilities.convertDateToString(date: event.endDate,
+                                                                        format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
+            // 追加されたイベントと一致する月モデルのindexを特定
+            let replaceMonthModelFirstIndex = self.monthModels.firstIndex(where: { monthModel in
+                monthModel.yearMonthString == targetStartDateString}) ?? 0
+            let replaceMonthModelLastIndex = self.monthModels.lastIndex(where: { monthModel in
+                monthModel.yearMonthString == targetEndDateString}) ?? self.monthModels.count - 1
+            // 月モデルを更新
+            for index in replaceMonthModelFirstIndex...replaceMonthModelLastIndex {
+                let oldMonthModel = self.monthModels[index]
+                let newWeekModels = self.updateWeekModels(yearMonthString: oldMonthModel.yearMonthString,
+                                                          oldWeekModels: oldMonthModel.weekModels)
+                self.monthModels[index] = MonthModel(yearMonthString: oldMonthModel.yearMonthString,
+                                                     weekModels: newWeekModels)
+            }
+        }
+    }
+    
+    /// １ヶ月分の週モデルを更新
+    /// - parameter yearMonthString: 更新する年月文字列
+    /// - parameter oldWeekModels: 更新前の週モデル
+    /// - returns: 更新後の週モデル
+    private func updateWeekModels(yearMonthString: String,
+                                  oldWeekModels: [WeekModel]) -> [WeekModel] {
+        guard let targetDate = DateUtilities.convertStringToUtcDate(dateString: yearMonthString,
+                                                                    format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) else {
+            return oldWeekModels
+        }
+        return (oldWeekModels).map { weekModel in
+            let eventLabelModel = self.createEventLabelModel(startMonth: targetDate,
+                                                             displaydays: weekModel.displaydays)
+            return WeekModel(displaydays: weekModel.displaydays,
+                             eventLabelModel: eventLabelModel)
         }
     }
     
