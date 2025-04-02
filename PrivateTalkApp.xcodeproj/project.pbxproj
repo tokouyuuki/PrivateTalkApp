@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		220410F02D9CFF0900C1651D /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220410EF2D9CFF0900C1651D /* DateExtension.swift */; };
 		2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224E1B62C75DC2B0099C855 /* StringExtension.swift */; };
 		2227BAEC2CBE138B0087C314 /* EventRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAEB2CBE138B0087C314 /* EventRepository.swift */; };
 		2227BAEF2CBE8E900087C314 /* EventErrorAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2227BAEE2CBE8E900087C314 /* EventErrorAlert.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		220410EF2D9CFF0900C1651D /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		2224E1B62C75DC2B0099C855 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		2227BAEB2CBE138B0087C314 /* EventRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRepository.swift; sourceTree = "<group>"; };
 		2227BAEE2CBE8E900087C314 /* EventErrorAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventErrorAlert.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				2224E1B62C75DC2B0099C855 /* StringExtension.swift */,
 				228828FF2CCB462500BB1527 /* UIColorExtension.swift */,
 				2243D1DB2CDC9AE1005D7FA0 /* CalendarExtension.swift */,
+				220410EF2D9CFF0900C1651D /* DateExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -429,6 +432,7 @@
 				2224E1B72C75DC2B0099C855 /* StringExtension.swift in Sources */,
 				22D1BE012C667D80006AD6D8 /* SettingView.swift in Sources */,
 				22D1BDFD2C667D5B006AD6D8 /* TalkView.swift in Sources */,
+				220410F02D9CFF0900C1651D /* DateExtension.swift in Sources */,
 				22EBB41D2C772B2D00AB7019 /* DateUtilities.swift in Sources */,
 				2227BAF12CBF4F600087C314 /* NetworkError.swift in Sources */,
 				22D1BDE52C667A34006AD6D8 /* PrivateTalkAppApp.swift in Sources */,

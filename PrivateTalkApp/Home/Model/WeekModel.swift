@@ -24,7 +24,9 @@ struct MonthModel: Identifiable {
 
 // MARK: - 週のモデル
 struct WeekModel: Identifiable {
-    var id: String { displaydays.last ?? String.empty }
+    var id: String {
+        displaydays.first { !$0.isEmpty } ?? String.empty
+    }
     // 表示する日付のリスト
     let displaydays: [String]
     // 表示するイベント
