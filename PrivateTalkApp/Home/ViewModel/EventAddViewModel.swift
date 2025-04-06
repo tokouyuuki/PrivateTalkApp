@@ -32,6 +32,8 @@ final class EventAddViewModel: ObservableObject {
     @Published var startDate: Date
     // 終了日
     @Published var endDate: Date
+    // 取り消し線を終了日に表示するかどうか
+    @Published var isStrikethrough: Bool = false
     // イベントエラーが発生した際に表示するアラートのタイプ
     @Published var eventErrorAlertType: EventErrorAlertType = .none
     // モーダルを閉じるかどうか
@@ -39,13 +41,12 @@ final class EventAddViewModel: ObservableObject {
     // キャンセルボタン押下時の確認アラートを表示するかどうか
     @Published var showCancelConfirmationAlert = false
     
-    /// - parameter startDate: カレンダーで選択している日付（開始日）
-    /// - parameter endDate: カレンダーで選択している日付（終了日）
-    init(startDate: Date, endDate: Date) {
-        self.initialStartDate = startDate
-        self.initialEndDate = endDate
-        self.startDate = startDate
-        self.endDate = endDate
+    /// - parameter selectedDate: カレンダーで選択している日付
+    init(selectedDate: Date) {
+        self.initialStartDate = selectedDate
+        self.initialEndDate = selectedDate.addHours(1) ?? selectedDate
+        self.startDate = selectedDate
+        self.endDate = selectedDate.addHours(1) ?? selectedDate
     }
     
     // 予定の編集が行われたかどうか
@@ -88,6 +89,32 @@ final class EventAddViewModel: ObservableObject {
             self.showCancelConfirmationAlert = true
         } else {
             self.shouldDismiss = true
+        }
+    }
+    
+    /// Datepickerで開始日が変更された時に行う処理
+    /// - parameter newStartDate: 新しい開始日
+    func handleStartDateChange(_ newStartDate: Date) {
+        self.startDate = newStartDate
+        self.endDate = newStartDate.addHours(1) ?? newStartDate
+    }
+    
+    /// Datepickerで開始日が変更された時に行う処理
+    /// - parameter newEndDate: 新しい開始日
+    func handleEndDateChange(_ newEndDate: Date) {
+        self.endDate = newEndDate
+        self.isStrikethrough = self.startDate > newEndDate
+    }
+    
+    /// 終日トグルが変更された時に行う処理
+    /// - parameter newValue: 終日かどうかの新しい判定
+    func handleIsAllDayChange(_ newValue: Bool) {
+        self.isAllDay = newValue
+        if newValue {
+            self.isStrikethrough = !Calendar.current.isDate(self.startDate,
+                                                            inSameDayAs: self.endDate)
+        } else {
+            self.isStrikethrough = self.startDate > self.endDate
         }
     }
 }

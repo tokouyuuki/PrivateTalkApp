@@ -49,13 +49,22 @@ struct EventAddView: View {
                 }
                 // 日付設定欄
                 Section {
-                    Toggle(Constants.ALL_DAY_LABEL_TEXT_KEY, isOn: $eventAddViewModel.isAllDay)
-                    DateSettingView(date: $eventAddViewModel.startDate,
+                    Toggle(Constants.ALL_DAY_LABEL_TEXT_KEY,
+                           isOn: .init(get: { eventAddViewModel.isAllDay },
+                                       set: eventAddViewModel.handleIsAllDayChange))
+                    DateSettingView(date: .init(get: { eventAddViewModel.startDate },
+                                                set: eventAddViewModel.handleStartDateChange),
                                     isAllDay: $eventAddViewModel.isAllDay,
                                     label: Constants.START_LABEL_TEXT_KEY)
-                    DateSettingView(date: $eventAddViewModel.endDate,
-                                    isAllDay: $eventAddViewModel.isAllDay,
-                                    label: Constants.END_LABEL_TEXT_KEY)
+                    ZStack {
+                        if eventAddViewModel.isStrikethrough {
+                            StrikethroughOverlay()
+                        }
+                        DateSettingView(date: .init(get: { eventAddViewModel.endDate },
+                                                    set: eventAddViewModel.handleEndDateChange),
+                                        isAllDay: $eventAddViewModel.isAllDay,
+                                        label: Constants.END_LABEL_TEXT_KEY)
+                    }
                 }
                 // 繰り返し設定欄
                 Section {
@@ -193,9 +202,28 @@ private struct DateSettingView: View {
                    selection: $date,
                    displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
         .frame(height: 22.0)
+        .onAppear {
+            UIDatePicker.appearance().minuteInterval = 5
+        }
     }
 }
 
 #Preview {
-    EventAddView(eventAddViewModel: EventAddViewModel(startDate: Date(), endDate: Date()))
+    EventAddView(eventAddViewModel: EventAddViewModel(selectedDate: Date()))
+}
+
+// MARK: - 取り消し戦
+private struct StrikethroughOverlay: View {
+    var body: some View {
+        GeometryReader { geometry in
+            Path { path in
+                let width = geometry.size.width
+                let height = geometry.size.height
+                // 横線を引く（左端から右端）
+                path.move(to: CGPoint(x: 0, y: height / 2))
+                path.addLine(to: CGPoint(x: width, y: height / 2))
+            }
+            .stroke(Color.black)
+        }
+    }
 }

@@ -58,8 +58,7 @@ struct CalendarView: View {
         .sheet(isPresented: $calendarViewModel.showEventAddView,
                content: {
             // イベント追加View
-            EventAddView(eventAddViewModel: .init(startDate: calendarViewModel.selectedDate,
-                                                  endDate: calendarViewModel.selectedEndDate))
+            EventAddView(eventAddViewModel: .init(selectedDate: calendarViewModel.selectedDate))
         })
         .eventErrorAlert(type: $calendarViewModel.eventErrorAlertType, onDismiss: {})
     }

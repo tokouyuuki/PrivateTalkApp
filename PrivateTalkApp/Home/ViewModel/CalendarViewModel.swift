@@ -35,14 +35,6 @@ final class CalendarViewModel: ObservableObject {
     // 選択している日付
     var selectedDate: Date = Date()
     
-    // 選択している日付の終了日
-    var selectedEndDate: Date {
-        // １時間プラスした時刻に変換する
-        let newDate = Calendar.current.date(byAdding: DateComponents(hour: 1),
-                                            to: self.selectedDate)
-        return newDate ?? self.selectedDate
-    }
-    
     init() {
         self.setup()
     }
@@ -64,6 +56,7 @@ final class CalendarViewModel: ObservableObject {
             }
             // イベント変更通知の設定
             registerObserver()
+            self.selectedDate = Date().roundedToHour ?? Date()
         }
     }
     
