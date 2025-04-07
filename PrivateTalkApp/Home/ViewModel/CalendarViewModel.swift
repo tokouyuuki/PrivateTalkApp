@@ -24,10 +24,10 @@ final class CalendarViewModel: ObservableObject {
     @Published var selectedCalendarID: String = String.empty
     // ボタンが無効かどうか（有効(true): 今日ボタン押せない ／ 無効(false): 今日ボタン押せる）
     @Published var isTodayButtonDisabled: Bool = false
+    // イベント追加画面を表示するかどうか
+    @Published var isShowEventAddView: Bool = false
     // イベントエラーが発生した際に表示するアラートのタイプ
     @Published var eventErrorAlertType: EventErrorAlertType = .none
-    // イベント編集画面を表示するかどうか
-    @Published var showEventAddView: Bool = false
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
     // 表示している月の予定のリスト
@@ -526,12 +526,12 @@ final class CalendarViewModel: ObservableObject {
         }
     }
     
-    /// イベント追加ボタンを押下時の処理
-    func onTapAddEventView() {
+    /// イベント追加画面を表示する
+    func showEventAddView() {
         // カレンダーイベントへのアクセス権限があるか確認
         if EventStoreManager.shared.isFullAccessToEvents() {
             // 権限がある場合は、EventAddViewを表示
-            self.showEventAddView = true
+            self.isShowEventAddView = true
         } else {
             self.eventErrorAlertType = .init(error: .notAccess)
         }
@@ -584,5 +584,18 @@ final class CalendarViewModel: ObservableObject {
         let thisMonthString = DateUtilities.convertDateToString(date: Date(),
                                                                 format: Constants.YEAR_MONTH_DATE_FORMAT_KEY)
         self.selectedCalendarID = thisMonthString ?? String.empty
+    }
+    
+    /// 日付セルを押下時の処理
+    /// - parameter day: 押下した日付
+    func onTapDateCell(_ day: String) {
+        guard let dayInt = Int(day),
+              let date = DateUtilities.convertStringToUtcDate(dateString: selectedCalendarID,
+                                                              format: Constants.YEAR_MONTH_DATE_FORMAT_KEY) else {
+            return
+        }
+        let selectedDate = Calendar.current.specifiedDay(for: date, at: dayInt) ?? date
+        self.selectedDate = selectedDate.addHours(Date().hour) ?? date
+        showEventAddView()
     }
 }

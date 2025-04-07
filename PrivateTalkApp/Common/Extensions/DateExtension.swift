@@ -14,6 +14,11 @@ extension Date {
         return Calendar.current.component(.day, from: self)
     }
     
+    // 時間
+    var hour: Int {
+        return Calendar.current.component(.hour, from: self)
+    }
+    
     // 曜日（日曜日→１、、、土曜日→７）
     var dayOfWeek: Int {
         return Calendar.current.component(.weekday, from: self)

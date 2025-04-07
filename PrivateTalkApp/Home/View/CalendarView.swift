@@ -31,7 +31,7 @@ struct CalendarView: View {
             },
                        onAddEventButtonTapped: {
                 // イベント追加Viewを表示
-                calendarViewModel.onTapAddEventView()
+                calendarViewModel.showEventAddView()
             })
             // カレンダーの曜日ヘッダー
             CalendarWeekdayHeaderView()
@@ -41,7 +41,10 @@ struct CalendarView: View {
                     // 月ごとのカレンダーを生成
                     ForEach(calendarViewModel.monthModels) { monthModel in
                         CalendarMonthView(weekModels: monthModel.weekModels,
-                                          deviceWidth: geometry.size.width)
+                                          deviceWidth: geometry.size.width,
+                                          onTappedDateCell: { day in
+                            calendarViewModel.onTapDateCell(day)
+                        })
                         .tag(monthModel.id)
                         .onAppear {
                             calendarViewModel.loadMoreMonthsIfNeeded(yearMonthString: monthModel.yearMonthString)
@@ -55,7 +58,7 @@ struct CalendarView: View {
             }
         }
         .padding(.vertical, 5.0)
-        .sheet(isPresented: $calendarViewModel.showEventAddView,
+        .sheet(isPresented: $calendarViewModel.isShowEventAddView,
                content: {
             // イベント追加View
             EventAddView(eventAddViewModel: .init(selectedDate: calendarViewModel.selectedDate))
@@ -171,13 +174,19 @@ private struct CalendarMonthView: View {
     // デバイス幅
     let deviceWidth: CGFloat
     
+    // 日付タップ時に呼ばれるクロージャ
+    let onTappedDateCell: (_ day: String) -> Void
+    
     var body: some View {
         // 存在する週の数だけセルを生成する
         VStack(spacing: 0.0) {
             ForEach(weekModels) { weekModel in
                 // 週単位のセル
                 WeekView(weekModel: weekModel,
-                         deviceWidth: deviceWidth)
+                         deviceWidth: deviceWidth,
+                         onTappedDateCell: { day in
+                    onTappedDateCell(day)
+                })
             }
         }
     }
@@ -192,6 +201,9 @@ private struct WeekView: View {
     // デバイス幅
     let deviceWidth: CGFloat
     
+    // 日付タップ時に呼ばれるクロージャ
+    let onTappedDateCell: (_ day: String) -> Void
+    
     var body: some View {
         VStack(alignment: .leading) {
             Divider()
@@ -201,8 +213,11 @@ private struct WeekView: View {
                     // 日単位のセル
                     Text(day)
                         .fontWeight(.semibold)
-                        .padding(.top, 13.0)
+                        .padding(.top, 10.0)
                         .frame(width: deviceWidth / 7)
+                        .onTapGesture {
+                            onTappedDateCell(day)
+                        }
                 }
             }
             // イベント表示セルを生成する
@@ -218,6 +233,7 @@ private struct WeekView: View {
                     }
                 }
             }
+            .padding(.bottom, 10)
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }
