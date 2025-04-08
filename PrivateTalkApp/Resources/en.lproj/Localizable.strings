@@ -22,12 +22,15 @@
 "event_access_denied_error" = "Access Denied";
 "event_access_denied_alert_message" = "Please enable calendar full access in settings.";
 "event_access_denied_alert_button_text" = "Settings";
-// 予定編集モーダル
+// 予定追加モーダル
 "event_sheet_title" = "New event";
 "event_sheet_add_button_text" = "Add";
 "event_sheet_cancel_button_text" = "cancel";
 "placeholder_title" = "Title";
 "placeholder_place" = "Location or Video Call";
+"placeholder_recurrence_rule" = "Repeat";
+"placeholder_recurrence_end" = "End Repeat";
+"placeholder_recurrence_end_date" = "End Date";
 "placeholder_url" = "URL";
 "placeholder_memo" = "Notes";
 "all_day_label_text" = "All-day";
@@ -37,6 +40,14 @@
 "cancel_dialog_destruction" = "discard changes";
 "cancel_dialog_continue" = "continue editing";
 "event_save_failed_error" = "Could not add the event. Please try again.";
+// 繰り返し設定の文言
+"recurrence_rule_never" = "Never";
+"recurrence_rule_daily" = "Every Day";
+"recurrence_rule_weekly" = "Every Week";
+"recurrence_rule_biweekly" = "Every 2 Weeks";
+"recurrence_rule_monthly" = "Every Month";
+"recurrence_rule_yearly" = "Every Year";
+"recurrence_specified_date" = "On Date";
 // レスポンスエラー文言
 "url_nil_error" = "he provided URL is invalid. Please check and try again.";
 "no_response" = "Unable to connect to the server. Please check your network connection and try again.";

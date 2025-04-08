@@ -8,6 +8,59 @@
 import Foundation
 import EventKit
 
+// MARK: - Pickerの選択肢として使えるenumに準拠させるプロトコル
+protocol PickerRepresentable: Hashable, CustomStringConvertible, CaseIterable where AllCases: RandomAccessCollection { }
+
+// MARK: - イベントの繰り返し設定のタイプ
+enum RecurrenceRuleType: PickerRepresentable {
+    // 繰り返しなし
+    case none
+    // 毎日
+    case daily
+    // 毎週
+    case weekly
+    // 隔週
+    case biweekly
+    // 毎月
+    case monthly
+    // 毎年
+    case yearly
+    
+    var description: String {
+        switch self {
+        case .none:
+            NSLocalizedString("recurrence_rule_never", comment: String.empty)
+        case .daily:
+            NSLocalizedString("recurrence_rule_daily", comment: String.empty)
+        case .weekly:
+            NSLocalizedString("recurrence_rule_weekly", comment: String.empty)
+        case .biweekly:
+            NSLocalizedString("recurrence_rule_biweekly", comment: String.empty)
+        case .monthly:
+            NSLocalizedString("recurrence_rule_monthly", comment: String.empty)
+        case .yearly:
+            NSLocalizedString("recurrence_rule_yearly", comment: String.empty)
+        }
+    }
+}
+
+// MARK: - イベントの繰り返し終了のタイプ
+enum RecurrenceEndType: PickerRepresentable {
+    // 繰り返し終了日なし
+    case none
+    // 指定終了日あり
+    case specifiedDate
+    
+    var description: String {
+        switch self {
+        case .none:
+            NSLocalizedString("recurrence_rule_never", comment: String.empty)
+        case .specifiedDate:
+            NSLocalizedString("recurrence_specified_date", comment: String.empty)
+        }
+    }
+}
+
 // MARK: - 予定追加 ViewModel
 @MainActor
 final class EventAddViewModel: ObservableObject {
@@ -24,6 +77,12 @@ final class EventAddViewModel: ObservableObject {
     @Published var titleText = String.empty
     // 場所
     @Published var placeText = String.empty
+    // 繰り返しルール
+    @Published var recurrenceRuleType = RecurrenceRuleType.none
+    // 繰り返しルールの終了
+    @Published var recurrenceEnd = RecurrenceEndType.none
+    // 繰り返しルールの終了日
+    @Published var recurrenceEndDate: Date
     // URL
     @Published var urlText = String.empty
     // メモ
@@ -47,6 +106,7 @@ final class EventAddViewModel: ObservableObject {
         self.initialEndDate = selectedDate.addHours(1) ?? selectedDate
         self.startDate = selectedDate
         self.endDate = selectedDate.addHours(1) ?? selectedDate
+        self.recurrenceEndDate = selectedDate
     }
     
     // 予定の編集が行われたかどうか
@@ -56,19 +116,39 @@ final class EventAddViewModel: ObservableObject {
         || self.endDate != self.initialEndDate
         || !self.titleText.isEmpty
         || !self.placeText.isEmpty
+        || recurrenceRuleType != .none
         || !self.urlText.isEmpty
         || !self.memoText.isEmpty
+    }
+    
+    // MARK: - Privateメソッド
+    /// 繰り返し終了の設定（EKRecurrenceEnd）を取得
+    /// - returns: 繰り返し終了の設定（EKRecurrenceEnd）
+    private func getEKRecurrenceEnd(recurrenceRule: RecurrenceRuleType,
+                                    recurrenceEnd: RecurrenceEndType,
+                                    recurrenceEndDate: Date) -> EKRecurrenceEnd? {
+        switch recurrenceEnd {
+        case .specifiedDate:
+            return recurrenceRule == .none ? nil : EKRecurrenceEnd(end: recurrenceEndDate)
+        case .none:
+            return nil
+        }
     }
     
     /// 予定を追加する
     func addEvent() {
         Task {
             do {
+                let eKRecurrenceEnd = getEKRecurrenceEnd(recurrenceRule: self.recurrenceRuleType,
+                                                         recurrenceEnd: self.recurrenceEnd,
+                                                         recurrenceEndDate: self.recurrenceEndDate)
                 // 入力値を元に、新規予定を作成
                 let event = EventStoreManager.shared.createNewEvent(startDate: self.startDate,
                                                                     endDate: self.endDate,
                                                                     title: self.titleText,
                                                                     isAllDay: self.isAllDay,
+                                                                    recurrenceRuleType: self.recurrenceRuleType,
+                                                                    recurrenceEnd: eKRecurrenceEnd,
                                                                     notes: self.memoText)
                 // 予定を追加
                 try eventRepository.addEvent(event: event)
@@ -116,5 +196,17 @@ final class EventAddViewModel: ObservableObject {
         } else {
             self.isStrikethrough = self.startDate > self.endDate
         }
+    }
+    
+    /// 繰り返しルールの終了を設定する項目を表示するかどうか
+    /// - returns: true: 表示する / false: 表示しない
+    func isShowRecurrenceEnd() -> Bool {
+        return self.recurrenceRuleType != .none
+    }
+    
+    /// 繰り返しルール終了日の項目を表示するかどうか
+    /// - returns: true: 表示する / false: 表示しない
+    func isShowRecurrenceEndDate() -> Bool {
+        return self.recurrenceEnd == .specifiedDate && self.recurrenceRuleType != .none
     }
 }

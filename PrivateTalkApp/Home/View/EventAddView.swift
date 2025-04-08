@@ -14,6 +14,9 @@ private struct Constants {
     static let EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY = LocalizedStringKey("event_sheet_cancel_button_text")
     static let PLACEHOLDER_TEXT_KEY = LocalizedStringKey("placeholder_title")
     static let PLACEHOLDER_PLACE_KEY = LocalizedStringKey("placeholder_place")
+    static let PLACEHOLDER_RECURRENCE_RULE_KEY = LocalizedStringKey("placeholder_recurrence_rule")
+    static let PLACEHOLDER_RECURRENCE_END_KEY = LocalizedStringKey("placeholder_recurrence_end")
+    static let PLACEHOLDER_RECURRENCE_END_DATE_KEY = LocalizedStringKey("placeholder_recurrence_end_date")
     static let PLACEHOLDER_URL = LocalizedStringKey("placeholder_url")
     static let PLACEHOLDER_MEMO = LocalizedStringKey("placeholder_memo")
     static let ALL_DAY_LABEL_TEXT_KEY = LocalizedStringKey("all_day_label_text")
@@ -54,7 +57,7 @@ struct EventAddView: View {
                                        set: eventAddViewModel.handleIsAllDayChange))
                     DateSettingView(date: .init(get: { eventAddViewModel.startDate },
                                                 set: eventAddViewModel.handleStartDateChange),
-                                    isAllDay: $eventAddViewModel.isAllDay,
+                                    isAllDay: eventAddViewModel.isAllDay,
                                     label: Constants.START_LABEL_TEXT_KEY)
                     ZStack {
                         if eventAddViewModel.isStrikethrough {
@@ -62,14 +65,23 @@ struct EventAddView: View {
                         }
                         DateSettingView(date: .init(get: { eventAddViewModel.endDate },
                                                     set: eventAddViewModel.handleEndDateChange),
-                                        isAllDay: $eventAddViewModel.isAllDay,
+                                        isAllDay: eventAddViewModel.isAllDay,
                                         label: Constants.END_LABEL_TEXT_KEY)
                     }
                 }
                 // 繰り返し設定欄
                 Section {
-                    // TODO: 未完成
-                    Text("繰り返し")
+                    PickerView(selection: $eventAddViewModel.recurrenceRuleType,
+                               title: Constants.PLACEHOLDER_RECURRENCE_RULE_KEY)
+                    if eventAddViewModel.isShowRecurrenceEnd() {
+                        PickerView(selection: $eventAddViewModel.recurrenceEnd,
+                                   title: Constants.PLACEHOLDER_RECURRENCE_END_KEY)
+                    }
+                    if eventAddViewModel.isShowRecurrenceEndDate() {
+                        DateSettingView(date: $eventAddViewModel.recurrenceEndDate,
+                                        isAllDay: true,
+                                        label: Constants.PLACEHOLDER_RECURRENCE_END_DATE_KEY)
+                    }
                 }
                 // 通知設定欄
                 Section {
@@ -193,7 +205,7 @@ private struct DateSettingView: View {
     // 日付
     @Binding var date: Date
     // 終日設定かどうか
-    @Binding var isAllDay: Bool
+    var isAllDay: Bool
     // Listの項目名
     let label: LocalizedStringKey
     
@@ -206,10 +218,6 @@ private struct DateSettingView: View {
             UIDatePicker.appearance().minuteInterval = 5
         }
     }
-}
-
-#Preview {
-    EventAddView(eventAddViewModel: EventAddViewModel(selectedDate: Date()))
 }
 
 // MARK: - 取り消し戦
@@ -226,4 +234,26 @@ private struct StrikethroughOverlay: View {
             .stroke(Color.black)
         }
     }
+}
+
+// MARK: - 選択肢を表示するためのPickerView
+private struct PickerView<T: PickerRepresentable>: View {
+    // 現在選択されている値
+    @Binding var selection: T
+    // タイトル
+    let title: LocalizedStringKey
+    
+    var body: some View {
+        Picker(title, selection: $selection) {
+            ForEach(T.allCases, id: \.self) {
+                Text($0.description)
+            }
+        }
+        .pickerStyle(.menu)
+        .tint(.gray)
+    }
+}
+
+#Preview {
+    EventAddView(eventAddViewModel: EventAddViewModel(selectedDate: Date()))
 }

@@ -22,12 +22,15 @@
 "event_access_denied_error" = "アクセスが拒否されました";
 "event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";
 "event_access_denied_alert_button_text" = "設定";
-// 予定編集モーダル
+// 予定追加モーダル
 "event_sheet_title" = "新規予定";
 "event_sheet_add_button_text" = "追加";
 "event_sheet_cancel_button_text" = "キャンセル";
 "placeholder_title" = "タイトル";
 "placeholder_place" = "場所またはビデオ通話";
+"placeholder_recurrence_rule" = "繰り返し";
+"placeholder_recurrence_end" = "繰り返しの終了";
+"placeholder_recurrence_end_date" = "終了日";
 "placeholder_url" = "URL";
 "placeholder_memo" = "メモ";
 "all_day_label_text" = "終日";
@@ -37,6 +40,14 @@
 "cancel_dialog_destruction" = "変更内容を破棄";
 "cancel_dialog_continue" = "編集を続ける";
 "event_save_failed_error" = "イベントを追加できませんでした。再度お試しください。";
+// 繰り返し設定の文言
+"recurrence_rule_never" = "しない";
+"recurrence_rule_daily" = "毎日";
+"recurrence_rule_weekly" = "毎週";
+"recurrence_rule_biweekly" = "隔週";
+"recurrence_rule_monthly" = "毎月";
+"recurrence_rule_yearly" = "毎年";
+"recurrence_specified_date" = "指定日";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";
