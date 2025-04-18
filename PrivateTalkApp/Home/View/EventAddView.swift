@@ -74,13 +74,14 @@ struct EventAddView: View {
                     PickerView(selection: $eventAddViewModel.recurrenceRuleType,
                                title: Constants.PLACEHOLDER_RECURRENCE_RULE_KEY)
                     if eventAddViewModel.isShowRecurrenceEnd() {
-                        PickerView(selection: $eventAddViewModel.recurrenceEnd,
+                        PickerView(selection: $eventAddViewModel.recurrenceEndType,
                                    title: Constants.PLACEHOLDER_RECURRENCE_END_KEY)
                     }
                     if eventAddViewModel.isShowRecurrenceEndDate() {
                         DateSettingView(date: $eventAddViewModel.recurrenceEndDate,
                                         isAllDay: true,
-                                        label: Constants.PLACEHOLDER_RECURRENCE_END_DATE_KEY)
+                                        label: Constants.PLACEHOLDER_RECURRENCE_END_DATE_KEY,
+                                        range: eventAddViewModel.recurrenceEndDate...Date.distantFuture)
                     }
                 }
                 // 通知設定欄
@@ -205,13 +206,16 @@ private struct DateSettingView: View {
     // 日付
     @Binding var date: Date
     // 終日設定かどうか
-    var isAllDay: Bool
+    let isAllDay: Bool
     // Listの項目名
     let label: LocalizedStringKey
+    // 日付の範囲
+    var range: ClosedRange<Date>?
     
     var body: some View {
         DatePicker(label,
                    selection: $date,
+                   in: range ?? Date.distantPast...Date.distantFuture,
                    displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
         .frame(height: 22.0)
         .onAppear {

@@ -12,7 +12,7 @@ import EventKit
 final class EventStoreManager {
     
     private struct Constants {
-        static let INITIAL_VALUE_OF_EVENT_TITLE_KEY = "event_sheet_title"
+        static let INITIAL_VALUE_OF_EVENT_TITLE = NSLocalizedString("event_sheet_title", comment: String.empty)
     }
     
     static let shared = EventStoreManager()
@@ -37,51 +37,26 @@ final class EventStoreManager {
     /// - parameter endDate: 終了日
     /// - parameter title: タイトル
     /// - parameter isAllDay: 終日かどうか
-    /// - parameter recurrenceRuleType: 繰り返しルール設定
-    /// - parameter recurrenceEnd: 繰り返し終了の設定（EKRecurrenceEnd）
+    /// - parameter eKRecurrenceRules: 繰り返しルール
+    /// - parameter urlString: URL文字列
     /// - parameter notes: メモ
     /// - returns: 新規イベント
     func createNewEvent(startDate: Date,
                         endDate: Date,
                         title: String,
                         isAllDay: Bool,
-                        recurrenceRuleType: RecurrenceRuleType,
-                        recurrenceEnd: EKRecurrenceEnd?,
+                        eKRecurrenceRules: [EKRecurrenceRule]?,
+                        urlString: String,
                         notes: String) -> EKEvent {
         let newEvent = EKEvent(eventStore: self.eventStore)
-        if title.isEmpty {
-            newEvent.title = NSLocalizedString(Constants.INITIAL_VALUE_OF_EVENT_TITLE_KEY, comment: String.empty)
-        } else {
-            newEvent.title = title
-        }
+        newEvent.title = title.isEmpty ? Constants.INITIAL_VALUE_OF_EVENT_TITLE : title
         newEvent.startDate = startDate
         newEvent.endDate = endDate
         newEvent.isAllDay = isAllDay
+        newEvent.recurrenceRules = eKRecurrenceRules
+        newEvent.url = URL(string: urlString)
         newEvent.notes = notes
         newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
-        switch recurrenceRuleType {
-        case .daily:
-            newEvent.recurrenceRules = [EKRecurrenceRule(recurrenceWith: .daily,
-                                                         interval: 1,
-                                                         end: recurrenceEnd)]
-        case .weekly:
-            newEvent.recurrenceRules = [EKRecurrenceRule(recurrenceWith: .weekly,
-                                                         interval: 1,
-                                                         end: recurrenceEnd)]
-        case .biweekly:
-            newEvent.recurrenceRules = [EKRecurrenceRule(recurrenceWith: .weekly,
-                                                         interval: 2,
-                                                         end: recurrenceEnd)]
-        case .monthly:
-            newEvent.recurrenceRules = [EKRecurrenceRule(recurrenceWith: .monthly,
-                                                         interval: 1,
-                                                         end: recurrenceEnd)]
-        case .yearly:
-            newEvent.recurrenceRules = [EKRecurrenceRule(recurrenceWith: .yearly,
-                                                         interval: 1,
-                                                         end: recurrenceEnd)]
-        default: break
-        }
         
         return newEvent
     }

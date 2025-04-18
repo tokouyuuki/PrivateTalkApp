@@ -77,10 +77,10 @@ final class EventAddViewModel: ObservableObject {
     @Published var titleText = String.empty
     // 場所
     @Published var placeText = String.empty
-    // 繰り返しルール
+    // 繰り返しルールタイプ
     @Published var recurrenceRuleType = RecurrenceRuleType.none
-    // 繰り返しルールの終了
-    @Published var recurrenceEnd = RecurrenceEndType.none
+    // 繰り返しルールの終了タイプ
+    @Published var recurrenceEndType = RecurrenceEndType.none
     // 繰り返しルールの終了日
     @Published var recurrenceEndDate: Date
     // URL
@@ -122,33 +122,39 @@ final class EventAddViewModel: ObservableObject {
     }
     
     // MARK: - Privateメソッド
-    /// 繰り返し終了の設定（EKRecurrenceEnd）を取得
-    /// - returns: 繰り返し終了の設定（EKRecurrenceEnd）
-    private func getEKRecurrenceEnd(recurrenceRule: RecurrenceRuleType,
-                                    recurrenceEnd: RecurrenceEndType,
-                                    recurrenceEndDate: Date) -> EKRecurrenceEnd? {
-        switch recurrenceEnd {
-        case .specifiedDate:
-            return recurrenceRule == .none ? nil : EKRecurrenceEnd(end: recurrenceEndDate)
+    /// 繰り返しルールを生成
+    /// - returns: 繰り返しルール（EKRecurrenceRule）
+    private func createEKRecurrenceRules() -> [EKRecurrenceRule]? {
+        let recurrenceEnd = self.recurrenceEndType == .none ? nil : EKRecurrenceEnd(end: self.recurrenceEndDate)
+        switch self.recurrenceRuleType {
         case .none:
             return nil
+        case .daily:
+            return [EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: recurrenceEnd)]
+        case .weekly:
+            return [EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: recurrenceEnd)]
+        case .biweekly:
+            return [EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: recurrenceEnd)]
+        case .monthly:
+            return [EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: recurrenceEnd)]
+        case .yearly:
+            return [EKRecurrenceRule(recurrenceWith: .yearly, interval: 1, end: recurrenceEnd)]
         }
     }
     
+    // MARK: - Publicメソッド
     /// 予定を追加する
     func addEvent() {
         Task {
             do {
-                let eKRecurrenceEnd = getEKRecurrenceEnd(recurrenceRule: self.recurrenceRuleType,
-                                                         recurrenceEnd: self.recurrenceEnd,
-                                                         recurrenceEndDate: self.recurrenceEndDate)
+                let recurrenceRules = createEKRecurrenceRules()
                 // 入力値を元に、新規予定を作成
                 let event = EventStoreManager.shared.createNewEvent(startDate: self.startDate,
                                                                     endDate: self.endDate,
                                                                     title: self.titleText,
                                                                     isAllDay: self.isAllDay,
-                                                                    recurrenceRuleType: self.recurrenceRuleType,
-                                                                    recurrenceEnd: eKRecurrenceEnd,
+                                                                    eKRecurrenceRules: recurrenceRules,
+                                                                    urlString: self.urlText,
                                                                     notes: self.memoText)
                 // 予定を追加
                 try eventRepository.addEvent(event: event)
@@ -207,6 +213,6 @@ final class EventAddViewModel: ObservableObject {
     /// 繰り返しルール終了日の項目を表示するかどうか
     /// - returns: true: 表示する / false: 表示しない
     func isShowRecurrenceEndDate() -> Bool {
-        return self.recurrenceEnd == .specifiedDate && self.recurrenceRuleType != .none
+        return self.recurrenceEndType == .specifiedDate && self.recurrenceRuleType != .none
     }
 }
