@@ -28,9 +28,10 @@
 "event_sheet_cancel_button_text" = "キャンセル";
 "placeholder_title" = "タイトル";
 "placeholder_place" = "場所またはビデオ通話";
-"placeholder_recurrence_rule" = "繰り返し";
-"placeholder_recurrence_end" = "繰り返しの終了";
-"placeholder_recurrence_end_date" = "終了日";
+"recurrence_rule_title" = "繰り返し";
+"recurrence_end_title" = "繰り返しの終了";
+"recurrence_end_date" = "終了日";
+"calendar_title" = "カレンダー";
 "placeholder_url" = "URL";
 "placeholder_memo" = "メモ";
 "all_day_label_text" = "終日";

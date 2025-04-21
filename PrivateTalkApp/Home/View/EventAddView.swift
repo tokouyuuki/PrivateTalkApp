@@ -14,9 +14,10 @@ private struct Constants {
     static let EVENT_SHEET_CANCEL_BUTTON_TEXT_KEY = LocalizedStringKey("event_sheet_cancel_button_text")
     static let PLACEHOLDER_TEXT_KEY = LocalizedStringKey("placeholder_title")
     static let PLACEHOLDER_PLACE_KEY = LocalizedStringKey("placeholder_place")
-    static let PLACEHOLDER_RECURRENCE_RULE_KEY = LocalizedStringKey("placeholder_recurrence_rule")
-    static let PLACEHOLDER_RECURRENCE_END_KEY = LocalizedStringKey("placeholder_recurrence_end")
-    static let PLACEHOLDER_RECURRENCE_END_DATE_KEY = LocalizedStringKey("placeholder_recurrence_end_date")
+    static let RECURRENCE_RULE_TITLE_KEY = LocalizedStringKey("recurrence_rule_title")
+    static let RECURRENCE_END_TITLE_KEY = LocalizedStringKey("recurrence_end_title")
+    static let RECURRENCE_END_DATE_KEY = LocalizedStringKey("recurrence_end_date")
+    static let CALENDAR_TITLE_KEY = LocalizedStringKey("calendar_title")
     static let PLACEHOLDER_URL = LocalizedStringKey("placeholder_url")
     static let PLACEHOLDER_MEMO = LocalizedStringKey("placeholder_memo")
     static let ALL_DAY_LABEL_TEXT_KEY = LocalizedStringKey("all_day_label_text")
@@ -72,17 +73,25 @@ struct EventAddView: View {
                 // 繰り返し設定欄
                 Section {
                     PickerView(selection: $eventAddViewModel.recurrenceRuleType,
-                               title: Constants.PLACEHOLDER_RECURRENCE_RULE_KEY)
+                               title: Constants.RECURRENCE_RULE_TITLE_KEY,
+                               items: RecurrenceRuleType.allCases)
                     if eventAddViewModel.isShowRecurrenceEnd() {
                         PickerView(selection: $eventAddViewModel.recurrenceEndType,
-                                   title: Constants.PLACEHOLDER_RECURRENCE_END_KEY)
+                                   title: Constants.RECURRENCE_END_TITLE_KEY,
+                                   items: RecurrenceEndType.allCases)
                     }
                     if eventAddViewModel.isShowRecurrenceEndDate() {
                         DateSettingView(date: $eventAddViewModel.recurrenceEndDate,
                                         isAllDay: true,
-                                        label: Constants.PLACEHOLDER_RECURRENCE_END_DATE_KEY,
+                                        label: Constants.RECURRENCE_END_DATE_KEY,
                                         range: eventAddViewModel.recurrenceEndDate...Date.distantFuture)
                     }
+                }
+                // カレンダー設定欄
+                Section {
+                    PickerView(selection: $eventAddViewModel.calendarTitle,
+                               title: Constants.CALENDAR_TITLE_KEY,
+                               items: eventAddViewModel.getCalendarTitles())
                 }
                 // 通知設定欄
                 Section {
@@ -241,15 +250,17 @@ private struct StrikethroughOverlay: View {
 }
 
 // MARK: - 選択肢を表示するためのPickerView
-private struct PickerView<T: PickerRepresentable>: View {
+private struct PickerView<T: Hashable & CustomStringConvertible>: View {
     // 現在選択されている値
     @Binding var selection: T
     // タイトル
     let title: LocalizedStringKey
+    // 選択肢として表示するアイテム
+    let items: [T]
     
     var body: some View {
         Picker(title, selection: $selection) {
-            ForEach(T.allCases, id: \.self) {
+            ForEach(items, id: \.self) {
                 Text($0.description)
             }
         }

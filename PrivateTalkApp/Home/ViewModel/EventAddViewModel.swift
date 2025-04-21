@@ -8,11 +8,8 @@
 import Foundation
 import EventKit
 
-// MARK: - Pickerの選択肢として使えるenumに準拠させるプロトコル
-protocol PickerRepresentable: Hashable, CustomStringConvertible, CaseIterable where AllCases: RandomAccessCollection { }
-
 // MARK: - イベントの繰り返し設定のタイプ
-enum RecurrenceRuleType: PickerRepresentable {
+enum RecurrenceRuleType: CaseIterable, CustomStringConvertible {
     // 繰り返しなし
     case none
     // 毎日
@@ -45,7 +42,7 @@ enum RecurrenceRuleType: PickerRepresentable {
 }
 
 // MARK: - イベントの繰り返し終了のタイプ
-enum RecurrenceEndType: PickerRepresentable {
+enum RecurrenceEndType: CaseIterable, CustomStringConvertible {
     // 繰り返し終了日なし
     case none
     // 指定終了日あり
@@ -73,6 +70,8 @@ final class EventAddViewModel: ObservableObject {
     private var isEditedEndDate = false
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
+    // カレンダーリスト
+    private let calendars: [EKCalendar]
     // 終日設定かどうか
     @Published var isAllDay = false
     // タイトル
@@ -85,6 +84,8 @@ final class EventAddViewModel: ObservableObject {
     @Published var recurrenceEndType = RecurrenceEndType.none
     // 繰り返しルールの終了日
     @Published var recurrenceEndDate: Date
+    // 選択中のカレンダー
+    @Published var calendarTitle: String
     // URL
     @Published var urlText = String.empty
     // メモ
@@ -109,6 +110,8 @@ final class EventAddViewModel: ObservableObject {
         self.startDate = selectedDate
         self.endDate = selectedDate.addHours(1) ?? selectedDate
         self.recurrenceEndDate = selectedDate
+        self.calendarTitle = EventStoreManager.shared.getDefaultEKCalendarTitle()
+        self.calendars = EventStoreManager.shared.getEKCalendars()
     }
     
     // 予定の編集が行われたかどうか
@@ -150,12 +153,14 @@ final class EventAddViewModel: ObservableObject {
         Task {
             do {
                 let recurrenceRules = createEKRecurrenceRules()
+                let calendar = self.calendars.first { $0.title == self.calendarTitle }
                 // 入力値を元に、新規予定を作成
                 let event = EventStoreManager.shared.createNewEvent(startDate: self.startDate,
                                                                     endDate: self.endDate,
                                                                     title: self.titleText,
                                                                     isAllDay: self.isAllDay,
                                                                     eKRecurrenceRules: recurrenceRules,
+                                                                    ekCalendar: calendar,
                                                                     urlString: self.urlText,
                                                                     notes: self.memoText)
                 // 予定を追加
@@ -191,7 +196,7 @@ final class EventAddViewModel: ObservableObject {
             self.isStrikethrough = newStartDate > self.endDate
         } else if self.isEditedEndDate && !self.isStrikethrough {
             // 編集がされている場合、かつ取り消し線が非表示の場合
-            var addHours = (self.endDate.day - self.startDate.day) * 24 + 1
+            let addHours = (self.endDate.day - self.startDate.day) * 24 + 1
             self.endDate = newStartDate.addHours(addHours) ?? newStartDate
         }
         self.startDate = newStartDate
@@ -227,5 +232,11 @@ final class EventAddViewModel: ObservableObject {
     /// - returns: true: 表示する / false: 表示しない
     func isShowRecurrenceEndDate() -> Bool {
         return self.recurrenceEndType == .specifiedDate && self.recurrenceRuleType != .none
+    }
+    
+    /// カレンダーの種類タイトルのリストを取得
+    /// - returns: カレンダーの種類タイトル
+    func getCalendarTitles() -> [String] {
+        return self.calendars.map { $0.title }
     }
 }

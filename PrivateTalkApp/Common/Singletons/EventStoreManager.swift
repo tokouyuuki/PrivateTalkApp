@@ -38,6 +38,7 @@ final class EventStoreManager {
     /// - parameter title: タイトル
     /// - parameter isAllDay: 終日かどうか
     /// - parameter eKRecurrenceRules: 繰り返しルール
+    /// - parameter ekCalendar: カレンダー
     /// - parameter urlString: URL文字列
     /// - parameter notes: メモ
     /// - returns: 新規イベント
@@ -46,6 +47,7 @@ final class EventStoreManager {
                         title: String,
                         isAllDay: Bool,
                         eKRecurrenceRules: [EKRecurrenceRule]?,
+                        ekCalendar: EKCalendar?,
                         urlString: String,
                         notes: String) -> EKEvent {
         let newEvent = EKEvent(eventStore: self.eventStore)
@@ -54,10 +56,27 @@ final class EventStoreManager {
         newEvent.endDate = endDate
         newEvent.isAllDay = isAllDay
         newEvent.recurrenceRules = eKRecurrenceRules
+        newEvent.calendar = ekCalendar ?? self.eventStore.defaultCalendarForNewEvents
         newEvent.url = URL(string: urlString)
         newEvent.notes = notes
-        newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
         
         return newEvent
+    }
+    
+    /// カレンダーの種類タイトルを取得
+    /// - returns: カレンダーの種類タイトル
+    func getDefaultEKCalendarTitle() -> String {
+        return self.eventStore.defaultCalendarForNewEvents?.title
+        ?? self.eventStore.calendars(for: .event).first!.title
+    }
+    
+    /// カレンダーを取得
+    /// - returns: カレンダー（EKCalendar）
+    func getEKCalendars() -> [EKCalendar] {
+        return self.eventStore.calendars(for: .event).filter {
+            // 誕生日と日本の祝日は取り除く
+            $0.calendarIdentifier != "D0C0429F-B992-410F-A92C-BFE8FFD5D974"
+            && $0.calendarIdentifier != "B753962B-BF0E-4943-A6DC-89946DC032CD"
+        }
     }
 }

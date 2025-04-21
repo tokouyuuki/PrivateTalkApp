@@ -28,9 +28,10 @@
 "event_sheet_cancel_button_text" = "cancel";
 "placeholder_title" = "Title";
 "placeholder_place" = "Location or Video Call";
-"placeholder_recurrence_rule" = "Repeat";
-"placeholder_recurrence_end" = "End Repeat";
-"placeholder_recurrence_end_date" = "End Date";
+"recurrence_rule_title" = "Repeat";
+"recurrence_end_title" = "End Repeat";
+"recurrence_end_date" = "End Date";
+"calendar_title" = "Calendar";
 "placeholder_url" = "URL";
 "placeholder_memo" = "Notes";
 "all_day_label_text" = "All-day";
