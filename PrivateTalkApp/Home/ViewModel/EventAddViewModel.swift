@@ -69,6 +69,8 @@ final class EventAddViewModel: ObservableObject {
     private let initialStartDate: Date
     // 終了日の初期値
     private let initialEndDate: Date
+    // 終了日が編集されたかどうか
+    private var isEditedEndDate = false
     // カレンダーイベントRepository
     private let eventRepository = EventRepository()
     // 終日設定かどうか
@@ -181,8 +183,18 @@ final class EventAddViewModel: ObservableObject {
     /// Datepickerで開始日が変更された時に行う処理
     /// - parameter newStartDate: 新しい開始日
     func handleStartDateChange(_ newStartDate: Date) {
+        if !self.isEditedEndDate {
+            // 終了日が編集されていない場合
+            self.endDate = newStartDate.addHours(1) ?? newStartDate
+        } else if self.isStrikethrough {
+            // 取り消し線が表示されている場合
+            self.isStrikethrough = newStartDate > self.endDate
+        } else if self.isEditedEndDate && !self.isStrikethrough {
+            // 編集がされている場合、かつ取り消し線が非表示の場合
+            var addHours = (self.endDate.day - self.startDate.day) * 24 + 1
+            self.endDate = newStartDate.addHours(addHours) ?? newStartDate
+        }
         self.startDate = newStartDate
-        self.endDate = newStartDate.addHours(1) ?? newStartDate
     }
     
     /// Datepickerで開始日が変更された時に行う処理
@@ -190,6 +202,7 @@ final class EventAddViewModel: ObservableObject {
     func handleEndDateChange(_ newEndDate: Date) {
         self.endDate = newEndDate
         self.isStrikethrough = self.startDate > newEndDate
+        self.isEditedEndDate = true
     }
     
     /// 終日トグルが変更された時に行う処理
