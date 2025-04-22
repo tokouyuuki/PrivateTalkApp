@@ -39,6 +39,7 @@ final class EventStoreManager {
     /// - parameter isAllDay: 終日かどうか
     /// - parameter eKRecurrenceRules: 繰り返しルール
     /// - parameter ekCalendar: カレンダー
+    /// - parameter ekAlarm: 通知
     /// - parameter urlString: URL文字列
     /// - parameter notes: メモ
     /// - returns: 新規イベント
@@ -48,6 +49,7 @@ final class EventStoreManager {
                         isAllDay: Bool,
                         eKRecurrenceRules: [EKRecurrenceRule]?,
                         ekCalendar: EKCalendar?,
+                        ekAlarm: [EKAlarm]?,
                         urlString: String,
                         notes: String) -> EKEvent {
         let newEvent = EKEvent(eventStore: self.eventStore)
@@ -57,6 +59,7 @@ final class EventStoreManager {
         newEvent.isAllDay = isAllDay
         newEvent.recurrenceRules = eKRecurrenceRules
         newEvent.calendar = ekCalendar ?? self.eventStore.defaultCalendarForNewEvents
+        newEvent.alarms = ekAlarm
         newEvent.url = URL(string: urlString)
         newEvent.notes = notes
         

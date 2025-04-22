@@ -32,6 +32,8 @@
 "recurrence_end_title" = "End Repeat";
 "recurrence_end_date" = "End Date";
 "calendar_title" = "Calendar";
+"alarm_title" = "Alert";
+"second_alarm_title" = "Second Alert";
 "placeholder_url" = "URL";
 "placeholder_memo" = "Notes";
 "all_day_label_text" = "All-day";
@@ -41,7 +43,6 @@
 "cancel_dialog_destruction" = "discard changes";
 "cancel_dialog_continue" = "continue editing";
 "event_save_failed_error" = "Could not add the event. Please try again.";
-// 繰り返し設定の文言
 "recurrence_rule_never" = "Never";
 "recurrence_rule_daily" = "Every Day";
 "recurrence_rule_weekly" = "Every Week";
@@ -49,6 +50,17 @@
 "recurrence_rule_monthly" = "Every Month";
 "recurrence_rule_yearly" = "Every Year";
 "recurrence_specified_date" = "On Date";
+"no_alarm" = "None";
+"alarm_scheduled_time" = "At time of event";
+"alarm_5_minutes_before" = "5 minutes before";
+"alarm_10_minutes_before" = "10 minutes before";
+"alarm_15_minutes_before" = "15 minutes before";
+"alarm_30_minutes_before" = "30 minutes before";
+"alarm_1_hour_before" = "1 hour before";
+"alarm_2_hours_before" = "2 hours before";
+"alarm_1_day_before" = "1 day before";
+"alarm_2_days_before" = "2 days before";
+"alarm_1_week_before" = "1 week before";
 // レスポンスエラー文言
 "url_nil_error" = "he provided URL is invalid. Please check and try again.";
 "no_response" = "Unable to connect to the server. Please check your network connection and try again.";

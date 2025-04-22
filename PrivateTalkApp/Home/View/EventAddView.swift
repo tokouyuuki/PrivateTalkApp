@@ -18,6 +18,8 @@ private struct Constants {
     static let RECURRENCE_END_TITLE_KEY = LocalizedStringKey("recurrence_end_title")
     static let RECURRENCE_END_DATE_KEY = LocalizedStringKey("recurrence_end_date")
     static let CALENDAR_TITLE_KEY = LocalizedStringKey("calendar_title")
+    static let ALARM_TITLE_KEY = LocalizedStringKey("alarm_title")
+    static let SECOND_ALARM_TITLE_KEY = LocalizedStringKey("second_alarm_title")
     static let PLACEHOLDER_URL = LocalizedStringKey("placeholder_url")
     static let PLACEHOLDER_MEMO = LocalizedStringKey("placeholder_memo")
     static let ALL_DAY_LABEL_TEXT_KEY = LocalizedStringKey("all_day_label_text")
@@ -95,8 +97,15 @@ struct EventAddView: View {
                 }
                 // 通知設定欄
                 Section {
-                    // TODO: 未完成
-                    Text("通知")
+                    PickerView(selection: $eventAddViewModel.alarmType,
+                               title: Constants.ALARM_TITLE_KEY,
+                               items: AlarmType.allCases)
+                    if eventAddViewModel.isShowSecondAlarm() {
+                        // 予備の通知
+                        PickerView(selection: $eventAddViewModel.secondAlarmType,
+                                   title: Constants.SECOND_ALARM_TITLE_KEY,
+                                   items: AlarmType.allCases)
+                    }
                 }
                 // URL、メモ欄
                 Section {

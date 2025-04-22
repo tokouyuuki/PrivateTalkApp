@@ -58,6 +58,75 @@ enum RecurrenceEndType: CaseIterable, CustomStringConvertible {
     }
 }
 
+// MARK: - イベントの事前アラームのタイプ
+enum AlarmType: CaseIterable, CustomStringConvertible {
+    case none
+    case onTime
+    case fiveMinutesBefore
+    case tenMinutesBefore
+    case fifteenMinutesBefore
+    case thirtyMinutesBefore
+    case oneHourBefore
+    case twoHoursBefore
+    case oneDayBefore
+    case twoDaysBefore
+    case oneWeekBefore
+    
+    var description: String {
+        switch self {
+        case .none:
+            NSLocalizedString("no_alarm", comment: String.empty)
+        case .onTime:
+            NSLocalizedString("alarm_scheduled_time", comment: String.empty)
+        case .fiveMinutesBefore:
+            NSLocalizedString("alarm_5_minutes_before", comment: String.empty)
+        case .tenMinutesBefore:
+            NSLocalizedString("alarm_10_minutes_before", comment: String.empty)
+        case .fifteenMinutesBefore:
+            NSLocalizedString("alarm_15_minutes_before", comment: String.empty)
+        case .thirtyMinutesBefore:
+            NSLocalizedString("alarm_30_minutes_before", comment: String.empty)
+        case .oneHourBefore:
+            NSLocalizedString("alarm_1_hour_before", comment: String.empty)
+        case .twoHoursBefore:
+            NSLocalizedString("alarm_2_hours_before", comment: String.empty)
+        case .oneDayBefore:
+            NSLocalizedString("alarm_1_day_before", comment: String.empty)
+        case .twoDaysBefore:
+            NSLocalizedString("alarm_2_days_before", comment: String.empty)
+        case .oneWeekBefore:
+            NSLocalizedString("alarm_1_week_before", comment: String.empty)
+        }
+    }
+    
+    var alarm: EKAlarm? {
+        switch self {
+        case .none:
+            return nil
+        case .onTime:
+            return EKAlarm(relativeOffset: 0)
+        case .fiveMinutesBefore:
+            return EKAlarm(relativeOffset: 60 * -5)
+        case .tenMinutesBefore:
+            return EKAlarm(relativeOffset: 60 * -10)
+        case .fifteenMinutesBefore:
+            return EKAlarm(relativeOffset: 60 * -15)
+        case .thirtyMinutesBefore:
+            return EKAlarm(relativeOffset: 60 * -30)
+        case .oneHourBefore:
+            return EKAlarm(relativeOffset: 60 * -60)
+        case .twoHoursBefore:
+            return EKAlarm(relativeOffset: 60 * 60 * -2)
+        case .oneDayBefore:
+            return EKAlarm(relativeOffset: 60 * 60 * -24)
+        case .twoDaysBefore:
+            return EKAlarm(relativeOffset: 60 * 60 * 24 * -2)
+        case .oneWeekBefore:
+            return EKAlarm(relativeOffset: 60 * 60 * 24 * -7)
+        }
+    }
+}
+
 // MARK: - 予定追加 ViewModel
 @MainActor
 final class EventAddViewModel: ObservableObject {
@@ -86,6 +155,10 @@ final class EventAddViewModel: ObservableObject {
     @Published var recurrenceEndDate: Date
     // 選択中のカレンダー
     @Published var calendarTitle: String
+    // アラームタイプ
+    @Published var alarmType = AlarmType.none
+    // 予備のアラームタイプ
+    @Published var secondAlarmType = AlarmType.none
     // URL
     @Published var urlText = String.empty
     // メモ
@@ -121,7 +194,8 @@ final class EventAddViewModel: ObservableObject {
         || self.endDate != self.initialEndDate
         || !self.titleText.isEmpty
         || !self.placeText.isEmpty
-        || recurrenceRuleType != .none
+        || self.recurrenceRuleType != .none
+        || self.alarmType != .none
         || !self.urlText.isEmpty
         || !self.memoText.isEmpty
     }
@@ -147,13 +221,28 @@ final class EventAddViewModel: ObservableObject {
         }
     }
     
+    /// アラームを生成
+    /// - returns: アラーム（EKAlarm）
+    private func createEKAlarm() -> [EKAlarm]? {
+        var alarms: [EKAlarm] = []
+        if let alarm = self.alarmType.alarm {
+            alarms.append(alarm)
+            if let secondAlarm = self.secondAlarmType.alarm {
+                alarms.append(secondAlarm)
+            }
+            return alarms
+        }
+        return nil
+    }
+    
     // MARK: - Publicメソッド
     /// 予定を追加する
     func addEvent() {
         Task {
             do {
-                let recurrenceRules = createEKRecurrenceRules()
+                let recurrenceRules = self.createEKRecurrenceRules()
                 let calendar = self.calendars.first { $0.title == self.calendarTitle }
+                let alarms = self.createEKAlarm()
                 // 入力値を元に、新規予定を作成
                 let event = EventStoreManager.shared.createNewEvent(startDate: self.startDate,
                                                                     endDate: self.endDate,
@@ -161,6 +250,7 @@ final class EventAddViewModel: ObservableObject {
                                                                     isAllDay: self.isAllDay,
                                                                     eKRecurrenceRules: recurrenceRules,
                                                                     ekCalendar: calendar,
+                                                                    ekAlarm: alarms,
                                                                     urlString: self.urlText,
                                                                     notes: self.memoText)
                 // 予定を追加
@@ -238,5 +328,11 @@ final class EventAddViewModel: ObservableObject {
     /// - returns: カレンダーの種類タイトル
     func getCalendarTitles() -> [String] {
         return self.calendars.map { $0.title }
+    }
+    
+    /// 予備の通知を表示するかどうか
+    /// - returns: true: 表示する / false: 表示しない
+    func isShowSecondAlarm() -> Bool {
+        return self.alarmType != .none
     }
 }

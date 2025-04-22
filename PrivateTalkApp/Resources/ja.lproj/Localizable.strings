@@ -32,6 +32,8 @@
 "recurrence_end_title" = "繰り返しの終了";
 "recurrence_end_date" = "終了日";
 "calendar_title" = "カレンダー";
+"alarm_title" = "通知";
+"second_alarm_title" = "予備の通知";
 "placeholder_url" = "URL";
 "placeholder_memo" = "メモ";
 "all_day_label_text" = "終日";
@@ -41,7 +43,6 @@
 "cancel_dialog_destruction" = "変更内容を破棄";
 "cancel_dialog_continue" = "編集を続ける";
 "event_save_failed_error" = "イベントを追加できませんでした。再度お試しください。";
-// 繰り返し設定の文言
 "recurrence_rule_never" = "しない";
 "recurrence_rule_daily" = "毎日";
 "recurrence_rule_weekly" = "毎週";
@@ -49,6 +50,17 @@
 "recurrence_rule_monthly" = "毎月";
 "recurrence_rule_yearly" = "毎年";
 "recurrence_specified_date" = "指定日";
+"no_alarm" = "なし";
+"alarm_scheduled_time" = "予定の時刻";
+"alarm_5_minutes_before" = "5分前";
+"alarm_10_minutes_before" = "10分前";
+"alarm_15_minutes_before" = "15分前";
+"alarm_30_minutes_before" = "30分前";
+"alarm_1_hour_before" = "1時間前";
+"alarm_2_hours_before" = "2時間前";
+"alarm_1_day_before" = "1日前";
+"alarm_2_days_before" = "2日前";
+"alarm_1_week_before" = "1週間前";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";
