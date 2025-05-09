@@ -15,6 +15,52 @@
 "setting_tab_text" = "設定";
 // Calendar
 "today_button_text" = "今日";
+// カスタムアラートの文言
+"default_alert_title" = "エラー";
+"default_alert_button_text" = "了解";
+// カレンダーイベントへのアクセス訴求アラート
+"event_access_denied_error" = "アクセスが拒否されました";
+"event_access_denied_alert_message" = "設定でカレンダーへのフルアクセスを有効にしてください。";
+"event_access_denied_alert_button_text" = "設定";
+// 予定追加モーダル
+"event_sheet_title" = "新規予定";
+"event_sheet_add_button_text" = "追加";
+"event_sheet_cancel_button_text" = "キャンセル";
+"placeholder_title" = "タイトル";
+"placeholder_place" = "場所またはビデオ通話";
+"recurrence_rule_title" = "繰り返し";
+"recurrence_end_title" = "繰り返しの終了";
+"recurrence_end_date" = "終了日";
+"calendar_title" = "カレンダー";
+"alarm_title" = "通知";
+"second_alarm_title" = "予備の通知";
+"placeholder_url" = "URL";
+"placeholder_memo" = "メモ";
+"all_day_label_text" = "終日";
+"date_setting_view_start_label_text" = "開始";
+"date_setting_view_end_label_text" = "終了";
+"cancel_dialog_title" = "この新規予定を破棄してもよろしいですか？";
+"cancel_dialog_destruction" = "変更内容を破棄";
+"cancel_dialog_continue" = "編集を続ける";
+"event_save_failed_error" = "イベントを追加できませんでした。再度お試しください。";
+"recurrence_rule_never" = "しない";
+"recurrence_rule_daily" = "毎日";
+"recurrence_rule_weekly" = "毎週";
+"recurrence_rule_biweekly" = "隔週";
+"recurrence_rule_monthly" = "毎月";
+"recurrence_rule_yearly" = "毎年";
+"recurrence_specified_date" = "指定日";
+"no_alarm" = "なし";
+"alarm_scheduled_time" = "予定の時刻";
+"alarm_5_minutes_before" = "5分前";
+"alarm_10_minutes_before" = "10分前";
+"alarm_15_minutes_before" = "15分前";
+"alarm_30_minutes_before" = "30分前";
+"alarm_1_hour_before" = "1時間前";
+"alarm_2_hours_before" = "2時間前";
+"alarm_1_day_before" = "1日前";
+"alarm_2_days_before" = "2日前";
+"alarm_1_week_before" = "1週間前";
 // レスポンスエラー文言
 "no_response" = "サーバーに接続できませんでした。ネットワークをご確認のうえ、もう一度お試しください。";
 "response_error_400" = "無効なリクエストが送信されました。入力内容を確認してください。";

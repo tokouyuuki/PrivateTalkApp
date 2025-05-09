@@ -15,6 +15,52 @@
 "setting_tab_text" = "Setting";
 // Calendar
 "today_button_text" = "Today";
+// カスタムアラートの文言
+"default_alert_title" = "error";
+"default_alert_button_text" = "OK";
+// カレンダーイベントへのアクセス訴求アラート
+"event_access_denied_error" = "Access Denied";
+"event_access_denied_alert_message" = "Please enable calendar full access in settings.";
+"event_access_denied_alert_button_text" = "Settings";
+// 予定追加モーダル
+"event_sheet_title" = "New event";
+"event_sheet_add_button_text" = "Add";
+"event_sheet_cancel_button_text" = "cancel";
+"placeholder_title" = "Title";
+"placeholder_place" = "Location or Video Call";
+"recurrence_rule_title" = "Repeat";
+"recurrence_end_title" = "End Repeat";
+"recurrence_end_date" = "End Date";
+"calendar_title" = "Calendar";
+"alarm_title" = "Alert";
+"second_alarm_title" = "Second Alert";
+"placeholder_url" = "URL";
+"placeholder_memo" = "Notes";
+"all_day_label_text" = "All-day";
+"date_setting_view_start_label_text" = "Starts";
+"date_setting_view_end_label_text" = "Ends";
+"cancel_dialog_title" = "The new event will be discarded. Are you sure?";
+"cancel_dialog_destruction" = "discard changes";
+"cancel_dialog_continue" = "continue editing";
+"event_save_failed_error" = "Could not add the event. Please try again.";
+"recurrence_rule_never" = "Never";
+"recurrence_rule_daily" = "Every Day";
+"recurrence_rule_weekly" = "Every Week";
+"recurrence_rule_biweekly" = "Every 2 Weeks";
+"recurrence_rule_monthly" = "Every Month";
+"recurrence_rule_yearly" = "Every Year";
+"recurrence_specified_date" = "On Date";
+"no_alarm" = "None";
+"alarm_scheduled_time" = "At time of event";
+"alarm_5_minutes_before" = "5 minutes before";
+"alarm_10_minutes_before" = "10 minutes before";
+"alarm_15_minutes_before" = "15 minutes before";
+"alarm_30_minutes_before" = "30 minutes before";
+"alarm_1_hour_before" = "1 hour before";
+"alarm_2_hours_before" = "2 hours before";
+"alarm_1_day_before" = "1 day before";
+"alarm_2_days_before" = "2 days before";
+"alarm_1_week_before" = "1 week before";
 // レスポンスエラー文言
 "url_nil_error" = "he provided URL is invalid. Please check and try again.";
 "no_response" = "Unable to connect to the server. Please check your network connection and try again.";
